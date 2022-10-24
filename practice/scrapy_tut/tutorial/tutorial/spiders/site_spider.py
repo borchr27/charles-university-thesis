@@ -1,17 +1,18 @@
 import scrapy
 from tutorial.items import TutorialItem
 
-class QuoteSpider(scrapy.Spider):
+class SiteSpider(scrapy.Spider):
     name = 'site'
-    # allowed_domains = ['livedale.co.uk/']
-    page = 1
-    start_urls = ['https://www.livedale.co.uk/', 'http://mcgeoughsnisa.co.uk/']
-    
+    def __init__(self, *args, **kwargs):
+        super(SiteSpider).__init__(*args, **kwargs)
+        self.start_urls = ['https://www.livedale.co.uk/', 'http://mcgeoughsnisa.co.uk/']
+
+    def start_requests(self):
+        for url in self.start_urls:
+            yield scrapy.Request(url, self.parse)    
+
     def parse(self, response):
-        info = []
-        url = 'https://www.livedale.co.uk/'
         item = TutorialItem()
         item['html'] = response.text
         item['name'] = response.url
         yield item
-        yield scrapy.Request(url=url, callback=self.parse)

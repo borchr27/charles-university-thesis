@@ -18,17 +18,17 @@ class ProcessingPipeline:
         if adapter.get('html'):
             html = adapter['html']
             soup = BeautifulSoup(html , 'html.parser')
-            text = soup.get_text()
-            text = " ".join(text.split())
-            adapter['html'] = text.replace('\n', ' ').replace('\t', ' ')
+            text = soup.get_text()  # get text from html
+            text = " ".join(text.split()) # remove extra spaces
+            adapter['html'] = text
 
             if adapter.get('name'):
-                name = str(adapter['name'])
-                name = re.sub(r'[^\w]', '', name)
-                adapter['name'] = name.replace('https', '').replace('http', '').replace('www.', '')
+                name = str(adapter['name']) 
+                name = re.sub(r'[^\w]', '', name)   # remove special characters
+                adapter['name'] = name.replace('https', '').replace('http', '').replace('www.', '') # remove https, http, www
                 return item            
         else:
-            raise DropItem(f"Missing author or quote in {item}")
+            raise DropItem(f"Missing website data at: {item}")
 
 class SavePipeline:
     def close_spider(self, spider):
@@ -36,7 +36,7 @@ class SavePipeline:
 
     def process_item(self, item, spider):
         adapter = ItemAdapter(item)
-        filename = adapter['name'] + '.txt'
+        filename = 'site_' + adapter['name'] + '.txt'
         self.file = open(filename, 'w')
         if adapter.get('html'):
             text = adapter['html']
