@@ -25,7 +25,7 @@ class ProcessingPipeline:
             if adapter.get('name'):
                 name = str(adapter['name']) 
                 name = re.sub(r'[^\w]', '', name)   # remove special characters
-                adapter['name'] = name.replace('https', '').replace('http', '').replace('www.', '') # remove https, http, www
+                adapter['name'] = name.replace('https', '').replace('http', '').replace('www.', '').replace('.com', '') # remove https, http, www
                 return item            
         else:
             raise DropItem(f"Missing website data at: {item}")
