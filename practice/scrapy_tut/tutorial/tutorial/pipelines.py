@@ -9,36 +9,39 @@ import re
 from itemadapter import ItemAdapter
 from scrapy.exceptions import DropItem
 from bs4 import BeautifulSoup
-
+import psycopg2
+import numpy as np
 
 class ProcessingPipeline:
     def process_item(self, item, spider):
         adapter = ItemAdapter(item)
 
-        if adapter.get('html'):
-            html = adapter['html']
+        if adapter.get('text'):
+            html = adapter['text']
             soup = BeautifulSoup(html , 'html.parser')
             text = soup.get_text()  # get text from html
             text = " ".join(text.split()) # remove extra spaces
-            adapter['html'] = text
-
-            if adapter.get('name'):
-                name = str(adapter['name']) 
-                name = re.sub(r'[^\w]', '', name)   # remove special characters
-                adapter['name'] = name.replace('https', '').replace('http', '').replace('www.', '').replace('.com', '') # remove https, http, www
-                return item            
+            adapter['text'] = text
+            return item      
         else:
             raise DropItem(f"Missing website data at: {item}")
 
 class SavePipeline:
+    def __init__(self) -> None:
+        self.file = None
+    
     def close_spider(self, spider):
         self.file.close()
 
     def process_item(self, item, spider):
         adapter = ItemAdapter(item)
-        filename = 'site_' + adapter['name'] + '.txt'
+        filename = 'output.txt'
         self.file = open(filename, 'w')
-        if adapter.get('html'):
-            text = adapter['html']
+        if adapter.get('text'):
+            text = adapter['text']
+            url = adapter['v_url']
+            self.file.write(url + ",")
             self.file.write(text)
+        else:
+            self.file.write(",")
         return item
