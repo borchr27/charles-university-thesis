@@ -1,15 +1,19 @@
 import subprocess
 import csv
 import pathlib
-import postgres_db as postgres
-from website import Website
+from PostgresDatabase import PostgresDatabase
+from Website import Website
 
-# 1-45 are in the database done 1/8
-# 46-100 are in the database done 1/8
+# 1-45 are in the db done 1/8
+# 46-100 are in the db done 1/8
+# 101-150 are in the db done 1/10
+# 151-175 are in the db done 1/27
+
 
 if __name__ == '__main__':
     # create database object, open connection 
-    db = postgres.PostgresDatabase()
+    db = PostgresDatabase()
+    db.connect()
     p = pathlib.Path.cwd() / 'sites.csv'
 
     # get the data from the csv file and but each website data into a Website object and store in data list
@@ -22,15 +26,18 @@ if __name__ == '__main__':
             data.append(w)
     
     # individual scrapy calls for each website object in data list
+    filename = 'output.txt'
     for i in range(len(data)):
-        subprocess.call([f"scrapy crawl site -a url='{data[i].i_url}'"], shell = True, cwd='./')
-        filename = 'output.txt'
-        with open(filename, 'r') as file:
-            reader = csv.reader(file)
-            input = next(reader)
-            try:
+        try:
+            subprocess.call([f"scrapy crawl site -a url='{data[i].i_url}'"], shell = True, cwd='./', timeout=10)
+            with open(filename, 'r') as file:
+                reader = csv.reader(file)
+                input = next(reader)
                 data[i].v_url = input[0]
                 data[i].text = input[1]
-            except:
-                pass
-        db.add_item(data[i])
+            db.add_website(data[i])
+        except:
+            print(f"Scrapy call failed for {data[i].name}")
+            continue
+
+    db.close()
