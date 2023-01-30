@@ -35,7 +35,7 @@ class Dataset:
                 self.target.append(w.category)
 
 def main(args: argparse.Namespace):
-    # TODO: fix duplicate info in db
+    # TODO: fix duplicate info in db DONE
     # TODO: separate data by language when training, just english, try different, gradient boost, random forest, svc
 
     # import data from db
