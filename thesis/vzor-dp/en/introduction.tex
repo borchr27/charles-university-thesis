@@ -1,0 +1,15 @@
+\chapter*{Introduction}
+\addcontentsline{toc}{chapter}{Introduction}
+
+One of the main challenges of creating a successful machine learning model is obtaining labeled data. With easy access to a variety of modern tools, devices, and sensors, we are able to rapidly collect unlabeled data. But, in supervised learning, prediction models are trained using labeled data. The problem is that acquiring labels for the collected data can be expensive, time-consuming, or even impossible in some cases.  
+
+However, methods have been developed to help reduce the time required to label this data. Active learning is a semi-supervised machine learning method where the model is trained with a smaller set of labeled data but also aims to exploit trends within the unlabeled data. Active learning has been heavily researched in the past but typically with binary data. Multi-class active learning research is still in its infancy. 
+
+Active learning is different from other machine learning methods because it uses the unlabeled data and some evaluation criteria to determine which candidate could be the most beneficial to the model if it was given a label. In summary, the model requests the label from some oracle that provides the label then it takes this new labeled data point and rebuilds the model. We describe it as semi supervised active learning because of the oracle (typically a human) involved in the process that provides the label for the requested candidate data. 
+
+In our case we have some data (website urls) of some merchants that are given to us from our partner. From this data our partner currently utilizes a human labor to browse the website and then label the url into some main category (23 labels) and then one of about 234 unique tags that branch from the main categories but still have some relation, or some newly generated tag. This is a repetitive and expensive task that could be automated using machine learning and other tools and free a person to work on some higher value task. 
+
+To reduce the burden of human labeling we propose creating a workflow using Scrapy, Postgres, and semi supervised Active Learning (bayesian, expected error, etc.) that only requires occasional interaction where a human can label a candidate that is most beneficial to the model such as using a decision-theoretic approach to measure the usefulness of a labeling candidate in terms of (expected) performance gain. The workflow takes the website as input, navigates to the webpage, collects the text data and adds it to a database. We then run the model using the data from the database and return the labeled data. 
+
+
+

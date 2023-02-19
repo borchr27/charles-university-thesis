@@ -1,0 +1,19 @@
+\begin{thebibliography}{2}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Munro(2021)]{munro2021human}
+Robert Munro.
+\newblock \emph{Human-in-the-loop machine learning}.
+\newblock Manning Publications, New York, NY, July 2021.
+
+\bibitem[Russell and Norvig(2009)]{russell2009artificial}
+Stuart Russell and Peter Norvig.
+\newblock \emph{Artificial Intelligence: A Modern Approach}.
+\newblock Prentice Hall, Upper Saddle River, NJ, 3rd edition, 2009.
+\newblock ISBN 9780136042594.
+
+\end{thebibliography}
