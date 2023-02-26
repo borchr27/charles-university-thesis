@@ -6,15 +6,20 @@ import pycld2 as cld2
 from sklearn import metrics
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
+import logging
+
+logging.basicConfig(filename='thesis.log', level=logging.DEBUG, format='%(asctime)s:%(levelname)s:%(message)s')
 
 class Website:
-    def __init__(self, name, i_url, v_url, text, category, tags):
+    def __init__(self, id, name, i_url, v_url, text, category, tags, language=None):
+        self.id = id
         self.name = name
         self.i_url = i_url
         self.v_url = v_url
         self.text = text
         self.category = category
         self.tags = tags
+        self.language = language
 
 def plot_histograms(lang_array:np.ndarray, train_target:np.ndarray, show:bool) -> None:
     """Plots histograms of the languages and categories in the dataset."""
@@ -45,35 +50,49 @@ def plot_histograms(lang_array:np.ndarray, train_target:np.ndarray, show:bool) -
         plt.tight_layout()
         plt.show()
 
-def preprocessing(train_data:np.ndarray, languages:np.ndarray = ['ENGLISH'], debugging:bool = False) -> tuple[np.ndarray, np.ndarray]:
-    """Preprocesses the data and returns the indicies of the selected languages and the language array."""
-    lang_array = [None] * len(train_data)
-    lang_array = np.array(lang_array)
+def get_language(data:np.ndarray, language_array:np.ndarray = np.array([None])) -> np.ndarray:
+    """Try and get language of each data point in the given list of data points."""
+    a = len(data)
+    for i in range(len(data)):
+        isReliable, textBytesFound, details, vectors = cld2.detect(data[i], returnVectors=True)
+        if len(vectors) != 0 and isReliable:
+            for v in vectors:
+                if v[3] != 'un':
+                    language_array[i] = v[3]
+                    break
+        if language_array[i] == 'un' or language_array[i] == None:
+            language_array[i] = 'un'
+    return language_array
+
+def clean_text_data(data:np.ndarray) -> np.ndarray:
+    """Cleans the data by removing all non-alphanumeric characters and making all characters lowercase."""
     # preprocess data with regex, remove numbers and symbols
-    for i in range(len(train_data)):
-        text = train_data[i]
+    for i in range(len(data)):
+        text = data[i]
         text = re.sub(r'[^\w\s]+', ' ', text, flags=re.UNICODE)
         text = re.sub('\d', ' ', text)
         text = re.sub("\s{2,}", ' ', text)
-        train_data[i] = text[:3000]
+        text = re.sub(r'(?<!^)(?=[A-Z])', ' ', text)
+        data[i] = text[:999]
+    return data
 
-    # try and get language of each data point
-    for i in range(len(train_data)):
-        isReliable, textBytesFound, details, vectors = cld2.detect(train_data[i], returnVectors=True)
-        if len(vectors) != 0 and isReliable:
-            for v in vectors:
-                if v[2] != 'Unknown':
-                    lang_array[i] = v[2]
-                    break
-        if lang_array[i] == None:
-            lang_array[i] = 'Unknown'    
+def site_data_filter(train_data:np.ndarray, languages:np.ndarray = None, debugging:bool = False) -> tuple[np.ndarray, np.ndarray]:
+    """Preprocesses the data and returns the indicies of the selected languages and the language array."""
+    lang_array = [None] * len(train_data)
+    lang_array = np.array(lang_array)
+
+    # train_data = clean_text_data(train_data)
+    lang_array = get_language(train_data, lang_array)
 
     # get indicies of specified languages data
     selected_language_indicies = []
-    for l in languages:
-        selected_language_indicies += np.where(lang_array == l)[0].tolist()
-    selected_language_indicies = np.array(sorted(selected_language_indicies))
-    unknown_indicies = np.where(lang_array == 'Unknown')
+    if languages == None:
+        selected_language_indicies = [i for i in range(len(lang_array))]
+    else:
+        for l in languages:
+            selected_language_indicies += np.where(lang_array == l)[0].tolist()
+        selected_language_indicies = np.array(sorted(selected_language_indicies))
+    unknown_indicies = np.where(lang_array == 'un')
 
     # prints unknown language train data
     if debugging:    
@@ -101,7 +120,7 @@ def show_confusion_matrix(clf, y_labels, pred, test_target, train_target):
 
 def tfidf_vectorizer() -> TfidfVectorizer:
     """Function to return a TF-IDF vectorizer."""
-    return TfidfVectorizer(analyzer="word", strip_accents="unicode", max_features=500, stop_words="english")
+    return TfidfVectorizer(analyzer="word", strip_accents="unicode", max_features=4000, stop_words="english")
 
 def tfidf_to_csv(text_data:np.ndarray, y:np.ndarray, filename:str = "website_tfidf_data.csv"):
     """Converts TF-IDF data to a CSV file to be used in the xPAL algorithm."""
@@ -145,18 +164,18 @@ class PostgresDatabase:
             pass
 
         # Create quotes table if none exists
-        self.execute("""
-        CREATE TABLE IF NOT EXISTS site_data (
-            id serial PRIMARY KEY not null, 
-            name varchar not null,
-            initial_url varchar not null, 
-            visited_url varchar not null, 
-            text varchar not null,
-            category varchar not null,
-            tags varchar not null,
-            timestamp timestamp default current_timestamp
-            );
-        """)
+        # self.execute("""
+        # CREATE TABLE IF NOT EXISTS site_data (
+        #     id serial PRIMARY KEY not null, 
+        #     name varchar not null,
+        #     initial_url varchar not null, 
+        #     visited_url varchar not null, 
+        #     text varchar not null,
+        #     category varchar not null,
+        #     tags varchar not null,
+        #     timestamp timestamp default current_timestamp
+        #     );
+        # """)
 
     def close(self) -> None:
         if self.cursor:
@@ -165,17 +184,44 @@ class PostgresDatabase:
             self.connection.close()
 
     def commit(self) -> None:
-        # assert self.connection, 'Database connection is not established'
+        assert self.connection, 'Database connection is not established'
         if self.connection:
             self.connection.commit()
 
     def execute(self, command, values=None) -> None:
-        # assert self.connection, 'Database connection is not established'
+        assert self.connection, 'Database connection is not established'
         if self.connection:
             self.cursor = self.connection.cursor()
             self.cursor.execute(command, values)
 
+    def is_translated(self, id:int) -> tuple[bool, int]:
+        """Check if the ID already exists in the database."""
+        self.execute("""SELECT site_data_id FROM translated_data WHERE site_data_id = %s;""", (id,))
+        result = self.cursor.fetchone()
+        if result: return True, id
+        return False, None
+
+
+    def add_translation(self, site:Website) -> None:
+        # # Check if the ID already exists in the database
+        # self.execute("""SELECT site_data_id FROM translated_data WHERE site_data_id = %s;""", (site.id,))
+        # result = self.cursor.fetchone()
+        result, id = self.is_translated(site.id)
+
+        if result:
+            # If the ID already exists, log an error message
+            logging.info(f"Error: ID {result} already exists in the database")
+        else:
+            # If the ID does not exist, proceed with the insert  
+            self.cursor.execute("""INSERT INTO translated_data (original_language, data_category, english_text, site_data_id) VALUES (%s, %s, %s, %s);""", (
+                site.language,
+                site.tags,
+                site.text,
+                site.id,))
+        self.commit()
+
     def add_website(self, site: Website) -> None:
+        """Add a website to the site_data table in the database. """
         
         if site.i_url == "missing note" or site.v_url == "" or site.text == "":
             return
@@ -202,24 +248,49 @@ class PostgresDatabase:
         # Execute insert of data into database
         self.commit()
 
+class TranslatedData:
+    def __init__(self, id, original_language, data_category, english_text, site_data_id, category):
+        self.id = id
+        self.original_language = original_language
+        self.data_category = data_category
+        self.english_text = english_text
+        self.site_data_id = site_data_id
+        self.category = category
+
 class Dataset:
-    def __init__(self):
-        self.websites = []
+    def __init__(self, table):
+        self._class = []
         self.data = []
         self.target = []
 
         db = PostgresDatabase()
         db.connect()
         if db.connection:
-            db.execute('SELECT * FROM site_data;')
-            result = db.cursor.fetchall()
-            db.close()
-
-            for row in result:
-                w = Website(name=row[1], i_url=row[2], v_url=row[3], text=row[4], category=row[5], tags=row[6])
-                self.websites.append(w)
-                self.data.append(w.text)
-                self.target.append(w.category)
+            if table == "translated_data":
+                db.execute("""
+                    SELECT td.id, td.original_language, td.data_category, td.english_text, td.site_data_id, s.category
+                    FROM site_data s
+                    JOIN translated_data td ON td.site_data_id = s.id
+                    GROUP BY s.id, td.id;""")
+                result = db.cursor.fetchall()
+                db.close()
+                for row in result:
+                    td = TranslatedData(id=row[0], original_language=row[1], data_category=row[2], english_text=row[3], site_data_id=row[4], category=row[5])
+                    self._class.append(td)
+                    self.data.append(td.english_text)
+                    self.target.append(td.category)
+            
+            elif table == "site_data":
+                db.execute('SELECT * FROM site_data;')
+                result = db.cursor.fetchall()
+                db.close()
+                for row in result:
+                    w = Website(id=row[0], name=row[1], i_url=row[2], v_url=row[3], text=row[4], category=row[5], tags=row[6])
+                    self._class.append(w)
+                    self.data.append(w.text)
+                    self.target.append(w.category)
+            else:
+                print("Invalid table name")
 
 
 # command for probal

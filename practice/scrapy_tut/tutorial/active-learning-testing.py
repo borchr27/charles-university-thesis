@@ -14,7 +14,7 @@ from sklearn.preprocessing import LabelEncoder, StandardScaler
 from skorch import NeuralNetClassifier
 from torch import nn
 from sklearn.feature_extraction.text import TfidfVectorizer
-import thesis_utils as utils
+import thesis_utils as tu
 
 MISSING_LABEL = -1
 RANDOM_STATE = 0
@@ -27,11 +27,11 @@ warnings.filterwarnings("ignore")
 
 # Load digit data set.
 # X, y_true = load_digits(return_X_y=True)
-train = utils.Dataset()
+train = tu.Dataset()
 train_data = train.data
 train_target = train.target
 
-selected_language_indicies, lang_array = utils.preprocessing(train_data)
+selected_language_indicies, lang_array = tu.site_data_filter(train_data)
 
 X = np.array(train_data)[selected_language_indicies]
 y_true = np.array(train_target)[selected_language_indicies]

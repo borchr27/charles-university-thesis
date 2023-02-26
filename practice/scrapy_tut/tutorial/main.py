@@ -3,11 +3,11 @@ import subprocess
 import csv
 import pathlib
 import time
-import thesis_utils as utils
+import thesis_utils as tu
 
 if __name__ == '__main__':
     # create database object, open connection 
-    db = utils.PostgresDatabase()
+    db = tu.PostgresDatabase()
     db.connect()
     p = pathlib.Path.cwd() / 'sites.csv'
 
@@ -17,7 +17,7 @@ if __name__ == '__main__':
         csvreader = csv.reader(file)
         header = next(csvreader)
         for row in csvreader:
-            w = utils.Website(name=row[0], i_url=row[1], v_url=None, text=None, category=row[2], tags=row[3])
+            w = tu.Website(name=row[0], i_url=row[1], v_url=None, text=None, category=row[2], tags=row[3])
             data.append(w)
     
     # individual scrapy calls for each website object in data list

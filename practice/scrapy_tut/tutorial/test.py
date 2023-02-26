@@ -5,8 +5,9 @@ def language_prediction_test():
     import pycld2 as cld2
     text = """\
     Начало Консултирай се Моля """
+    text2 = "Katuseaknad" # should be estonian
 
-    isReliable, textBytesFound, details, vectors = cld2.detect(text, returnVectors=True) 
+    isReliable, textBytesFound, details, vectors = cld2.detect(text2, returnVectors=True) 
     for v in vectors:
         print(v)
 
@@ -57,7 +58,22 @@ def where():
     
     return sorted(ind)
 
+def lang_translation():
+    import translators as ts
+    import translators.server as tss
+
+    chs_text = '季姬感到寂寞，罗集了一些鸡来养，鸡是出自荆棘丛中的野鸡。野鸡饿了唧唧叫，季姬就拿竹箕中的谷物喂鸡。'
+    text2 = "Maneki Tea Talk | Dublin" #"Katuseaknad"
+    # print(ts.translators_pool)
+    result = ts.translate_text(text2, translator='bing', is_detail_result=True)
+    print(result["detectedLanguage"]["language"])
+    print(result["translations"][0]["text"])
+    # print(tss.sogou(chs_text, is_detail_result=True))
+    # print(ts.translate_text(chs_text, translator='google', from_language="zh", to_language="en"))
+    # print(tss.deepl(chs_text, to_language='en', from_language='zh'))
+
 if __name__ == "__main__":
     # language_prediction_test()
     # tfidf_to_csv_test()
-    print(where())
+    # print(where())
+    lang_translation()
