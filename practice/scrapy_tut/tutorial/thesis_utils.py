@@ -8,7 +8,15 @@ import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 import logging
 
+import configparser
+import requests
+from dotenv import load_dotenv
+
 logging.basicConfig(filename='thesis.log', level=logging.DEBUG, format='%(asctime)s:%(levelname)s:%(message)s')
+
+##########################################################################################
+# This file has methods and classes that I used throughout the project. I have tried to
+# organize them into sections based on what they are used for.
 
 class Website:
     def __init__(self, id, name, i_url, v_url, text, category, tags, language=None):
@@ -72,7 +80,7 @@ def clean_text_data(data:np.ndarray) -> np.ndarray:
         text = re.sub(r'[^\w\s]+', ' ', text, flags=re.UNICODE)
         text = re.sub('\d', ' ', text)
         text = re.sub("\s{2,}", ' ', text)
-        text = re.sub(r'(?<!^)(?=[A-Z])', ' ', text)
+        # text = re.sub(r'(?<!^)(?=[A-Z])', ' ', text)
         data[i] = text[:999]
     return data
 
@@ -120,10 +128,10 @@ def show_confusion_matrix(clf, y_labels, pred, test_target, train_target):
 
 def tfidf_vectorizer() -> TfidfVectorizer:
     """Function to return a TF-IDF vectorizer."""
-    return TfidfVectorizer(analyzer="word", strip_accents="unicode", max_features=4000, stop_words="english")
+    return TfidfVectorizer(analyzer="word", strip_accents="unicode", max_features=5000, stop_words="english")
 
 def tfidf_to_csv(text_data:np.ndarray, y:np.ndarray, filename:str = "website_tfidf_data.csv"):
-    """Converts TF-IDF data to a CSV file to be used in the xPAL algorithm."""
+    """Converts TF-IDF data to a CSV file to be used in the xPAL and other algorithms."""
     # get the tfidf vectorizer
     vectorizer = tfidf_vectorizer()
 
@@ -146,6 +154,48 @@ def tfidf_to_csv(text_data:np.ndarray, y:np.ndarray, filename:str = "website_tfi
 
     # Export the DataFrame to a CSV file
     tfidf_df.to_csv(filename, index=False)
+
+
+def azure_translate(text:str, source_language:str = None, target_language:str ='en') -> str:
+    """Use free Azure Cognitive Services to translate text to English."""
+    """Helpful link https://techcommunity.microsoft.com/t5/educator-developer-blog/translate-your-notes-with-azure-translator-and-python/ba-p/3267201"""
+
+    config = configparser.ConfigParser()
+    config.read('/Users/mitchellborchers/.config/azure/my_config_file.ini')
+    auth_key = config['cognitive_services']['auth_key']
+    location = config['cognitive_services']['location']
+
+    load_dotenv()
+    key = auth_key
+    region = location
+    endpoint = 'https://api.cognitive.microsofttranslator.com/'
+
+    def _translate(text, source_language, target_language, key, region, endpoint):
+        # Use the Translator translate function
+        url = endpoint + '/translate'
+        # Build the request
+        params = {
+            'api-version': '3.0',
+            'from': source_language,
+            'to': target_language
+        }
+        headers = {
+            'Ocp-Apim-Subscription-Key': key,
+            'Ocp-Apim-Subscription-Region': region,
+            'Content-type': 'application/json'
+        }
+        body = [{
+            'text': text
+        }]
+        # Send the request and get response
+        request = requests.post(url, params=params, headers=headers, json=body)
+        response = request.json()
+        # Get translation
+        translation = response[0]["translations"][0]["text"]
+        return translation
+    
+    return _translate(text, source_language, target_language, key, region, endpoint)
+
 
 class PostgresDatabase:
     def __init__(self) -> None:
@@ -178,17 +228,20 @@ class PostgresDatabase:
         # """)
 
     def close(self) -> None:
+        """Close the database connection."""
         if self.cursor:
             self.cursor.close()
         if self.connection:
             self.connection.close()
 
     def commit(self) -> None:
+        """Commit the changes to the database."""
         assert self.connection, 'Database connection is not established'
         if self.connection:
             self.connection.commit()
 
     def execute(self, command, values=None) -> None:
+        """Execute a command on the database."""
         assert self.connection, 'Database connection is not established'
         if self.connection:
             self.cursor = self.connection.cursor()
@@ -203,17 +256,14 @@ class PostgresDatabase:
 
 
     def add_translation(self, site:Website) -> None:
-        # # Check if the ID already exists in the database
-        # self.execute("""SELECT site_data_id FROM translated_data WHERE site_data_id = %s;""", (site.id,))
-        # result = self.cursor.fetchone()
+        """Add a translation to the translated_data table in the database."""
         result, id = self.is_translated(site.id)
-
         if result:
             # If the ID already exists, log an error message
             logging.info(f"Error: ID {result} already exists in the database")
         else:
             # If the ID does not exist, proceed with the insert  
-            self.cursor.execute("""INSERT INTO translated_data (original_language, data_category, english_text, site_data_id) VALUES (%s, %s, %s, %s);""", (
+            self.execute("""INSERT INTO translated_data (original_language, data_category, english_text, site_data_id) VALUES (%s, %s, %s, %s);""", (
                 site.language,
                 site.tags,
                 site.text,
@@ -222,12 +272,11 @@ class PostgresDatabase:
 
     def add_website(self, site: Website) -> None:
         """Add a website to the site_data table in the database. """
-        
         if site.i_url == "missing note" or site.v_url == "" or site.text == "":
             return
         
         # Check to see if text is already in database
-        self.cursor.execute(
+        self.execute(
             "SELECT * FROM site_data WHERE initial_url = %s;", (site.i_url,))
         result = self.cursor.fetchone()
 
@@ -236,7 +285,7 @@ class PostgresDatabase:
             print(f"Item already in database: {site.name}")
         else:
             # Define insert statement
-            self.cursor.execute("""INSERT INTO site_data (name, initial_url, visited_url, text, category, tags) VALUES (%s,%s,%s,%s,%s,%s);""", (
+            self.execute("""INSERT INTO site_data (name, initial_url, visited_url, text, category, tags) VALUES (%s,%s,%s,%s,%s,%s);""", (
                 site.name,
                 site.i_url,
                 site.v_url,
@@ -244,8 +293,6 @@ class PostgresDatabase:
                 site.category,
                 site.tags,
             ))
-
-        # Execute insert of data into database
         self.commit()
 
 class TranslatedData:
@@ -291,14 +338,14 @@ class Dataset:
                     self.target.append(w.category)
             else:
                 print("Invalid table name")
-
-
-# command for probal
-# python3 experimental_setup_csv.py \
-#   --query_strategy xpal-0.001 \
-#   --data_set website_tfidf_data \
-#   --results_path ../../results \
-#   --test_ratio 0.4 \
-#   --bandwidth mean \
-#   --budget 200 \
-#   --seed 1
+    
+    def get_indicies(self) -> tuple[list[int], list[int]]:
+        """Get the indicies of the original data and additional data."""
+        og_data_indicies = []
+        add_data_indicies = []
+        for item in self._class:
+            if item.data_category == "Original Data":
+                og_data_indicies.append(item.id)
+            else:
+                add_data_indicies.append(item.id)
+        return og_data_indicies, add_data_indicies

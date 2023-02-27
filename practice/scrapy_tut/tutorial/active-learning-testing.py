@@ -7,13 +7,11 @@ from copy import deepcopy
 from skactiveml.classifier import SklearnClassifier
 from skactiveml.pool import UncertaintySampling, QueryByCommittee, RandomSampling
 from skactiveml.utils import call_func
-from sklearn.datasets import load_digits
 from sklearn.ensemble import VotingClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 from skorch import NeuralNetClassifier
 from torch import nn
-from sklearn.feature_extraction.text import TfidfVectorizer
 import thesis_utils as tu
 
 MISSING_LABEL = -1
@@ -27,19 +25,14 @@ warnings.filterwarnings("ignore")
 
 # Load digit data set.
 # X, y_true = load_digits(return_X_y=True)
-train = tu.Dataset()
-train_data = train.data
-train_target = train.target
+train = tu.Dataset("translated_data")
+og_data_ind, add_data_ind = train.get_indicies()
+X = np.array(train.data)[og_data_ind]
+y_true = np.array(train.target)[og_data_ind]
 
-selected_language_indicies, lang_array = tu.site_data_filter(train_data)
-
-X = np.array(train_data)[selected_language_indicies]
-y_true = np.array(train_target)[selected_language_indicies]
-
-vectorizer = TfidfVectorizer(analyzer="word", strip_accents="unicode", max_features=8000)
+vectorizer = tu.tfidf_vectorizer()
 X = vectorizer.fit_transform(X)
 X = X.todense()
-X = StandardScaler().fit_transform(X)
 # Reshape samples to n_samples x n_channels x width x height to fit skorch
 # requirements.
 # X = X.reshape((len(X), 1, 8000))
@@ -55,7 +48,7 @@ X, y_true = X.astype(np.float64), y_true.astype(np.int64)
 classes = np.unique(y_true)
 
 # Make a 66-34 train-test split.
-X_train, X_test, y_train, y_test = train_test_split(X, y_true, train_size=0.75, random_state=RANDOM_STATE)
+X_train, X_test, y_train, y_test = train_test_split(X, y_true, train_size=0.66, random_state=RANDOM_STATE, stratify=y_true)
 
 ##############################################
 
@@ -102,7 +95,7 @@ ensemble_init = SklearnClassifier(
 
 # Define setup.
 n_cycles = 24 # was 25
-batch_size = 20
+batch_size = 24
 qs_dict = {
     'random sampling': RandomSampling(random_state=RANDOM_STATE, missing_label=MISSING_LABEL),
     'uncertainty sampling': UncertaintySampling(random_state=RANDOM_STATE, missing_label=MISSING_LABEL),
