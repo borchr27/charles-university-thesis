@@ -1,21 +1,25 @@
 \contentsline {chapter}{Introduction}{2}{chapter*.2}%
-\contentsline {chapter}{\numberline {1}Machine Learning: Overview}{3}{chapter.1}%
-\contentsline {section}{\numberline {1.1}The Basics}{3}{section.1.1}%
+\contentsline {chapter}{\numberline {1}Machine Learning Review}{3}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Definitions}{3}{section.1.1}%
 \contentsline {section}{\numberline {1.2}Active Learning}{3}{section.1.2}%
 \contentsline {subsection}{\numberline {1.2.1}Random Sampling}{4}{subsection.1.2.1}%
 \contentsline {subsection}{\numberline {1.2.2}Diversity Sampling}{4}{subsection.1.2.2}%
 \contentsline {subsection}{\numberline {1.2.3}Uncertainty Sampling}{4}{subsection.1.2.3}%
-\contentsline {subsection}{\numberline {1.2.4}Bayesian Learning}{4}{subsection.1.2.4}%
-\contentsline {subsection}{\numberline {1.2.5}Expected Error Reduction}{4}{subsection.1.2.5}%
-\contentsline {subsection}{\numberline {1.2.6}Summary}{4}{subsection.1.2.6}%
-\contentsline {chapter}{\numberline {2}Related Works}{5}{chapter.2}%
-\contentsline {section}{\numberline {2.1}Probabilistic Active Learning}{5}{section.2.1}%
-\contentsline {section}{\numberline {2.2}Multiclass Probabalistic Active Learning}{5}{section.2.2}%
-\contentsline {section}{\numberline {2.3}xPAL}{5}{section.2.3}%
-\contentsline {chapter}{Conclusion}{6}{chapter*.3}%
-\contentsline {chapter}{Bibliography}{7}{chapter*.4}%
-\contentsline {chapter}{List of Figures}{8}{chapter*.5}%
-\contentsline {chapter}{List of Tables}{9}{chapter*.6}%
-\contentsline {chapter}{List of Abbreviations}{10}{chapter*.7}%
-\contentsline {chapter}{\numberline {A}Attachments}{11}{appendix.A}%
-\contentsline {section}{\numberline {A.1}First Attachment}{11}{section.A.1}%
+\contentsline {subsection}{\numberline {1.2.4}xPAL}{4}{subsection.1.2.4}%
+\contentsline {subsection}{\numberline {1.2.5}EER}{5}{subsection.1.2.5}%
+\contentsline {subsection}{\numberline {1.2.6}Summary}{5}{subsection.1.2.6}%
+\contentsline {chapter}{\numberline {2}Related Works}{6}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Probabilistic Active Learning}{6}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Multiclass Probabalistic Active Learning}{6}{section.2.2}%
+\contentsline {section}{\numberline {2.3}xPAL}{6}{section.2.3}%
+\contentsline {chapter}{\numberline {3}Analysis}{7}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Problem Recap}{7}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Experiments}{7}{section.3.2}%
+\contentsline {section}{\numberline {3.3}Results and Analysis}{7}{section.3.3}%
+\contentsline {chapter}{Conclusion}{8}{chapter*.3}%
+\contentsline {chapter}{Bibliography}{9}{chapter*.4}%
+\contentsline {chapter}{List of Figures}{10}{chapter*.5}%
+\contentsline {chapter}{List of Tables}{11}{chapter*.6}%
+\contentsline {chapter}{List of Abbreviations}{12}{chapter*.7}%
+\contentsline {chapter}{\numberline {A}Attachments}{13}{appendix.A}%
+\contentsline {section}{\numberline {A.1}First Attachment}{13}{section.A.1}%

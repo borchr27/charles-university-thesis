@@ -2,6 +2,8 @@
 __pycache__/
 *.py[cod]
 *$py.class
+*.model
+*.zip
 
 # Mac Extensions
 **/.DS_Store
