@@ -7,6 +7,7 @@ from sklearn import metrics
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 import logging
+from sqlalchemy import create_engine
 
 import configparser
 import requests
@@ -19,7 +20,7 @@ logging.basicConfig(filename='thesis.log', level=logging.DEBUG, format='%(asctim
 # organize them into sections based on what they are used for.
 
 class Website:
-    def __init__(self, id, name, i_url, v_url, text, category, tags, language=None):
+    def __init__(self, id, name, i_url, v_url, text, category, tags, origin, language=None):
         self.id = id
         self.name = name
         self.i_url = i_url
@@ -27,36 +28,75 @@ class Website:
         self.text = text
         self.category = category
         self.tags = tags
+        self.origin = origin
         self.language = language
 
-def plot_histograms(lang_array:np.ndarray, train_target:np.ndarray, show:bool) -> None:
-    """Plots histograms of the languages and categories in the dataset."""
-    if show:
-        unique_categories, category_counts = np.unique(train_target, return_counts=True)
-        # for i in range(len(unique_categories)):
-        #     print(f"{unique_categories[i]}: {category_counts[i]}")
-        category_bins = [i for i in range(len(category_counts))]
-        category_labels = [i[:8] for i in unique_categories]
-        plt.bar(category_bins, category_counts, align='center')
-        plt.title('Histogram of categories')
-        plt.xlabel('Category')
-        plt.ylabel('Count')
-        plt.xticks(category_bins, category_labels, rotation='vertical', fontsize=8)
-        plt.tight_layout()
-        plt.show()
+class Dataset:
+    def __init__(self):
+        self.translated_data = None
+        self.site_data = None
 
-        unique_langs, lang_counts = np.unique(lang_array, return_counts=True)
-        # for i in range(len(unique_langs)):
-        #     print(f"{unique_langs[i]}: {lang_counts[i]}")
-        lang_bins = [i for i in range(len(lang_counts))]
-        lang_labels = [i for i in unique_langs]
-        plt.bar(lang_bins, lang_counts, align='center')
-        plt.title('Histogram of languages')
-        plt.xlabel('Language')
-        plt.ylabel('Count')
-        plt.xticks(lang_bins, lang_labels, rotation='vertical', fontsize=8)
-        plt.tight_layout()
-        plt.show()
+        db = PostgresDatabase()
+        db.connect()
+        if db.connection:
+            self.translated_data = pd.read_sql("SELECT * FROM translated_data;", db.connection)
+            self.site_data = pd.read_sql("SELECT * FROM site_data;", db.connection)
+        db.close()            
+    
+    def get_indicies(self) -> tuple[list[int], list[int]]:
+        """Get the indicies of the original data and additional data."""
+        og_data_indicies = []
+        add_data_indicies = []
+        for item in self._class:
+            if item.data_category == "Original Data":
+                og_data_indicies.append(item.id)
+            else:
+                add_data_indicies.append(item.id)
+        return og_data_indicies, add_data_indicies
+
+def save_plot_image(plot:plt, filename:str) -> None:
+    """Saves the given plot to a file with the given filename to the thesis directory."""
+    plt.savefig(f'/Users/mitchellborchers/Documents/git/charles-university-thesis/thesis/vzor-dp/img/{filename}.jpg')
+
+def get_data_histograms(data:Dataset, filename:str) -> None:
+    """Get the alnguage and categorical histograms for the original site data and the translated data"""
+    td_df = data.translated_data
+    sd_df = data.site_data
+    m_df = pd.merge(td_df[['site_data_id', 'original_language']], sd_df[['id', 'category','origin']], left_on='site_data_id', right_on='id')
+    original = m_df[m_df['origin']=='original']
+    additional = m_df[m_df['origin']=='additional']
+    fig, ax = plt.subplots(1, 2, figsize=(10, 5))
+    # Get the unique categories from all three dataframes
+    categories = pd.concat([original['category'], additional['category'], sd_df['category']]).unique()
+    # Set the bin edges to be the unique categories
+    bins = np.arange(len(categories) + 1)
+
+    # fig, ax = plt.subplots()
+    ax[0].hist(original['category'], bins=bins, alpha=0.5, label='Original Data')
+    ax[0].hist(additional['category'], bins=bins, alpha=0.5, label='Additional Data')
+    ax[0].set_xlabel('Category')
+    ax[0].set_ylabel('Count')
+    ax[0].set_xticks(bins[:-1] + 0.5)
+    ax[0].set_xticklabels(categories, rotation=90)
+    ax[0].legend(loc='upper right')
+
+    # Get the unique categories from all three dataframes
+    languages = pd.concat([original['original_language'], additional['original_language'], td_df['original_language']]).unique()
+    labels = np.array([i.upper() for i in languages])
+    # Set the bin edges to be the unique categories
+    bins = np.arange(len(languages) + 1)
+
+    ax[1].hist(original['original_language'], bins=bins, alpha=0.5, label='Original Data')
+    ax[1].hist(additional['original_language'], bins=bins, alpha=0.5, label='Additional Data')
+    ax[1].set_xticks(bins[:-1] + 0.5)
+    ax[1].set_xticklabels(labels, fontsize=8)
+    ax[1].legend(loc='upper right')
+    ax[1].set_xlabel('Language')
+    ax[1].set_ylabel('Count')
+    fig.tight_layout()
+    save_plot_image(plt, f'{filename}')
+    plt.show()
+    plt.close(fig)
 
 def get_language(data:np.ndarray, language_array:np.ndarray = np.array([None])) -> np.ndarray:
     """Try and get language of each data point in the given list of data points."""
@@ -112,7 +152,7 @@ def site_data_filter(train_data:np.ndarray, languages:np.ndarray = None, debuggi
     # returning lang_array just to use in histogram
     return selected_language_indicies, lang_array
 
-def show_confusion_matrix(clf, y_labels, pred, test_target, train_target):
+def show_confusion_matrix(clf, y_labels, pred, test_target, train_target) -> None:
     """Plots a confusion matrix for the given classifier."""
     cm = metrics.confusion_matrix(test_target, pred, labels=clf.classes_)
     unique_categories, category_counts = np.unique(train_target, return_counts=True)
@@ -130,7 +170,7 @@ def tfidf_vectorizer() -> TfidfVectorizer:
     """Function to return a TF-IDF vectorizer."""
     return TfidfVectorizer(analyzer="word", strip_accents="unicode", max_features=5000, stop_words="english")
 
-def tfidf_to_csv(text_data:np.ndarray, y:np.ndarray, filename:str = "website_tfidf_data.csv"):
+def tfidf_to_csv(text_data:np.ndarray, y:np.ndarray, filename:str = "website_tfidf_data.csv") -> None:
     """Converts TF-IDF data to a CSV file to be used in the xPAL and other algorithms."""
     # get the tfidf vectorizer
     vectorizer = tfidf_vectorizer()
@@ -263,9 +303,8 @@ class PostgresDatabase:
             logging.info(f"Error: ID {result} already exists in the database")
         else:
             # If the ID does not exist, proceed with the insert  
-            self.execute("""INSERT INTO translated_data (original_language, data_category, english_text, site_data_id) VALUES (%s, %s, %s, %s);""", (
+            self.execute("""INSERT INTO translated_data (original_language, english_text, site_data_id) VALUES (%s, %s, %s);""", (
                 site.language,
-                site.tags,
                 site.text,
                 site.id,))
         self.commit()
@@ -285,67 +324,14 @@ class PostgresDatabase:
             print(f"Item already in database: {site.name}")
         else:
             # Define insert statement
-            self.execute("""INSERT INTO site_data (name, initial_url, visited_url, text, category, tags) VALUES (%s,%s,%s,%s,%s,%s);""", (
+            self.execute("""INSERT INTO site_data (name, initial_url, visited_url, text, category, tags, origin) VALUES (%s,%s,%s,%s,%s,%s,%s);""", (
                 site.name,
                 site.i_url,
                 site.v_url,
                 site.text,
                 site.category,
                 site.tags,
+                site.origin,
             ))
         self.commit()
 
-class TranslatedData:
-    def __init__(self, id, original_language, data_category, english_text, site_data_id, category):
-        self.id = id
-        self.original_language = original_language
-        self.data_category = data_category
-        self.english_text = english_text
-        self.site_data_id = site_data_id
-        self.category = category
-
-class Dataset:
-    def __init__(self, table):
-        self._class = []
-        self.data = []
-        self.target = []
-
-        db = PostgresDatabase()
-        db.connect()
-        if db.connection:
-            if table == "translated_data":
-                db.execute("""
-                    SELECT td.id, td.original_language, td.data_category, td.english_text, td.site_data_id, s.category
-                    FROM site_data s
-                    JOIN translated_data td ON td.site_data_id = s.id
-                    GROUP BY s.id, td.id;""")
-                result = db.cursor.fetchall()
-                db.close()
-                for row in result:
-                    td = TranslatedData(id=row[0], original_language=row[1], data_category=row[2], english_text=row[3], site_data_id=row[4], category=row[5])
-                    self._class.append(td)
-                    self.data.append(td.english_text)
-                    self.target.append(td.category)
-            
-            elif table == "site_data":
-                db.execute('SELECT * FROM site_data;')
-                result = db.cursor.fetchall()
-                db.close()
-                for row in result:
-                    w = Website(id=row[0], name=row[1], i_url=row[2], v_url=row[3], text=row[4], category=row[5], tags=row[6])
-                    self._class.append(w)
-                    self.data.append(w.text)
-                    self.target.append(w.category)
-            else:
-                print("Invalid table name")
-    
-    def get_indicies(self) -> tuple[list[int], list[int]]:
-        """Get the indicies of the original data and additional data."""
-        og_data_indicies = []
-        add_data_indicies = []
-        for item in self._class:
-            if item.data_category == "Original Data":
-                og_data_indicies.append(item.id)
-            else:
-                add_data_indicies.append(item.id)
-        return og_data_indicies, add_data_indicies

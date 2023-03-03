@@ -22,9 +22,11 @@ def scrape():
         csvreader = csv.reader(file)
         header = next(csvreader)
         for row in csvreader:
-            w = tu.Website(id=None, name=row[0], i_url=row[1], v_url=None, text=None, category=row[2], tags=row[3])
+            w = tu.Website(id=None, name=row[0], i_url=row[1], v_url=None, text=None, category=row[2], tags=row[3], origin=None)
             data.append(w)
     
+    assert w.origin != None, "Origin is None"
+
     # individual scrapy calls for each website object in data list
     filename = 'output.txt'
     for i in range(len(data)):

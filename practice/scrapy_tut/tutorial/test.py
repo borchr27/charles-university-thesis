@@ -1,5 +1,6 @@
 # coding=utf8
 import numpy as np
+import matplotlib.pyplot as plt
 
 def language_prediction_test():
     import pycld2 as cld2
@@ -72,8 +73,26 @@ def lang_translation():
     # print(ts.translate_text(chs_text, translator='google', from_language="zh", to_language="en"))
     # print(tss.deepl(chs_text, to_language='en', from_language='zh'))
 
+def save_plot_image(plot:plt, filename:str):
+    # Save the plot as a JPEG file in a specific location
+    plt.savefig(f'/Users/mitchellborchers/Documents/git/charles-university-thesis/thesis/vzor-dp/img/{filename}.jpg')
+
+
 if __name__ == "__main__":
     # language_prediction_test()
     # tfidf_to_csv_test()
     # print(where())
-    lang_translation()
+    # lang_translation()
+
+    # Create some sample data
+    x = [1, 2, 3, 4, 5]
+    y = [10, 8, 6, 4, 2]
+    # Create a line plot of the data
+    plt.plot(x, y)
+    # Set the title and axis labels
+    plot_name = 'Line Plot'
+    filename = plot_name.lower().replace(' ', '_')
+    plt.title(f'{plot_name}')
+    plt.xlabel('X-axis')
+    plt.ylabel('Y-axis')
+    save_plot_image(plt, filename)

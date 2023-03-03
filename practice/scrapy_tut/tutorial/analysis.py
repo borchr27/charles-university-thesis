@@ -9,6 +9,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import LabelEncoder
 import thesis_utils as tu
+import pandas as pd
 
 # These arguments will be set appropriately by ReCodEx, even if you change them.
 parser = argparse.ArgumentParser()
@@ -20,36 +21,16 @@ parser.add_argument("--seed", default=42, type=int, help="Random seed")
 # translated_data table. I also ran a simple gradient boosting classifier on the original 
 # (not additional) translated_data.
 
-def site_data_analysis(args: argparse.Namespace):
-    # import data from db
-    train = tu.Dataset("site_data")
-    train_data = train.data
-    train_target = train.target
+def build_and_test_model(args: argparse.Namespace, data: tu.Dataset):
+    sd_df = data.site_data
+    td_df = data.translated_data
+    data_df = pd.merge(td_df[['site_data_id', 'english_text']], \
+                       sd_df[['id', 'category', 'origin']], left_on='site_data_id', right_on='id')
+    filtered_df = data_df[data_df['origin'] == 'original']
 
-    selected_language_indicies, lang_array = tu.site_data_filter(train_data)
-    train_data = np.array(train_data)[selected_language_indicies]
-    train_target = np.array(train_target)[selected_language_indicies]
+    train_data = filtered_df['english_text'].to_numpy()
+    train_target = filtered_df['category'].to_numpy()
     y_labels = np.unique(train_target)
-    tu.plot_histograms(lang_array, train_target, show=True)
-
-def translated_data_analysis(args: argparse.Namespace):
-    # import data from db
-    train = tu.Dataset("translated_data")
-    train_data = train.data
-    train_target = train.target
-
-    lang_array = []
-    for i in train._class:
-        lang_array.append(i.original_language)
-    tu.plot_histograms(lang_array, train_target, show=True)
-
-def build_and_test_model(args: argparse.Namespace):
-    train = tu.Dataset("translated_data")    
-    og_data_ind, add_data_ind = train.get_indicies()
-    train_data = np.array(train.data)[og_data_ind]
-    train_target = np.array(train.target)[og_data_ind]
-    y_labels = np.unique(train_target)
-    # selected_indicies = np.where((train_target != 'Atm') & (train_target != 'Children'))[0] #bc atm and children each have only 1 sample
 
     # lable encoder (for gbdt)
     le = LabelEncoder()
@@ -85,6 +66,6 @@ def build_and_test_model(args: argparse.Namespace):
 
 if __name__ == "__main__":
     args = parser.parse_args([] if "__file__" not in globals() else None)
-    # site_data_analysis(args)
-    # translated_data_analysis(args)
-    build_and_test_model(args)
+    data = tu.Dataset()
+    build_and_test_model(args, data)
+    # tu.get_data_histograms(data, "data_overview")
