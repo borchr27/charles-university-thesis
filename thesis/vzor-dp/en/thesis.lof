@@ -1,5 +1,9 @@
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {3.1}{\ignorespaces The histograms for the original data provided.}}{9}{figure.3.1}%
+\contentsline {figure}{\numberline {3.1}{\ignorespaces The histograms for the original usable english data.}}{9}{figure.3.1}%
+\contentsline {figure}{\numberline {3.2}{\ignorespaces The histograms for the original and additional data.}}{10}{figure.3.2}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Train and test (0.25) results using xPAL with the original data set.}}{11}{figure.4.1}%
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Train and test (0.25) results using xPAL with the original data set.}}{12}{figure.4.2}%
 \addvspace {10\p@ }

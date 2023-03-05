@@ -1,4 +1,4 @@
-\begin{thebibliography}{6}
+\begin{thebibliography}{9}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -17,6 +17,13 @@ Yoram Baram, Ran~El Yaniv, and Kobi Luz.
 \newblock \emph{Journal of Machine Learning Research}, 5\penalty0
   (Mar):\penalty0 255--291, 2004.
 
+\bibitem[Huang and Lin(2016)]{huang2016alce}
+Kuan-Hao Huang and Hsuan-Tien Lin.
+\newblock A novel uncertainty sampling algorithm for cost-sensitive multiclass
+  active learning.
+\newblock In \emph{2016 IEEE 16th International Conference on Data Mining
+  (ICDM)}, pages 925--930. IEEE, 2016.
+
 \bibitem[Kottke et~al.(2021)Kottke, Herde, Sandrock, Huseljic, Krempl, and
   Sick]{kottke2021toward}
 Daniel Kottke, Marek Herde, Christoph Sandrock, Denis Huseljic, Georg Krempl,
@@ -25,12 +32,22 @@ Daniel Kottke, Marek Herde, Christoph Sandrock, Denis Huseljic, Georg Krempl,
   approach.
 \newblock \emph{Machine Learning}, 110\penalty0 (6):\penalty0 1199--1231, 2021.
 
+\bibitem[Krempl et~al.(2014)Krempl, Kottke, and Spiliopoulou]{kottke2014pal}
+Georg Krempl, Daniel Kottke, and Myra Spiliopoulou.
+\newblock Probabilistic active learning: A short proposition.
+\newblock In Torsten Schaub, Gerhard Friedrich, and Barry O'Sullivan, editors,
+  \emph{Proceedings of the 21st European Conference on Artificial Intelligence
+  (ECAI2014)}, volume 263 of \emph{Frontiers in Artificial Intelligence and
+  Applications}, pages 1049--1050, Prague, Czech Republic, August 2014. IOS
+  Press.
+\newblock Short Paper.
+
 \bibitem[Munro(2021)]{munro2021human}
 Robert Munro.
 \newblock \emph{Human-in-the-loop machine learning}.
 \newblock Manning Publications, New York, NY, July 2021.
 
-\bibitem[Roy and McCallum(2001)]{roy2001toward}
+\bibitem[Roy and McCallum(2001)]{roy2001eer}
 Nicholas Roy and Andrew McCallum.
 \newblock Toward optimal active learning through monte carlo estimation of
   error reduction.
@@ -41,5 +58,11 @@ Stuart Russell and Peter Norvig.
 \newblock \emph{Artificial Intelligence: A Modern Approach}.
 \newblock Prentice Hall, Upper Saddle River, NJ, 3rd edition, 2009.
 \newblock ISBN 9780136042594.
+
+\bibitem[Seung et~al.(1992)Seung, Opper, and Sompolinsky]{seung1992qbc}
+H~Sebastian Seung, Manfred Opper, and Haim Sompolinsky.
+\newblock Query by committee.
+\newblock In \emph{Proceedings of the fifth annual workshop on Computational
+  learning theory}, pages 287--294, 1992.
 
 \end{thebibliography}

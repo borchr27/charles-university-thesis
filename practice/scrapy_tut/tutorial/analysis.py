@@ -27,7 +27,7 @@ def build_and_test_model(args: argparse.Namespace, data: tu.Dataset):
     data_df = pd.merge(td_df[['site_data_id', 'english_text']], \
                        sd_df[['id', 'category', 'origin']], left_on='site_data_id', right_on='id')
     filtered_df = data_df[data_df['origin'] == 'original']
-
+    # print(filtered_df.value_counts('category'))
     train_data = filtered_df['english_text'].to_numpy()
     train_target = filtered_df['category'].to_numpy()
     y_labels = np.unique(train_target)
@@ -37,16 +37,18 @@ def build_and_test_model(args: argparse.Namespace, data: tu.Dataset):
     le.fit(train_target)
     train_target = le.transform(train_target)
 
+    # transform the data with tfidf
+    train_data = tu.tfidf_vectorizer().fit_transform(train_data)
+    tu.tfidf_to_csv(train_data.toarray(), train_target, "tfidf_data.csv")
+
     # split data into train and test
     train_X, test_X, train_y, test_y = train_test_split(train_data, train_target, test_size=0.3, random_state=args.seed, stratify=train_target)
 
     # train the model
     pipe = Pipeline([
-        ("features", tu.tfidf_vectorizer()),
+        # ("features", tu.tfidf_vectorizer()),
         ("gbdt", GradientBoostingClassifier(random_state=args.seed, max_depth=4, n_estimators=200, verbose=1))
     ])
-
-    tu.tfidf_to_csv(train_X, train_y, "website_tfidf_data.csv")
 
     try:
         print("trying to load model")
@@ -67,5 +69,7 @@ def build_and_test_model(args: argparse.Namespace, data: tu.Dataset):
 if __name__ == "__main__":
     args = parser.parse_args([] if "__file__" not in globals() else None)
     data = tu.Dataset()
-    build_and_test_model(args, data)
-    # tu.get_data_histograms(data, "data_overview")
+    # build_and_test_model(args, data)
+    # tu.get_all_data_histograms(data, "plot_all_hist")
+    # tu.get_original_data_histograms(data, "plot_og_en_hist")
+    tu.plot_all_results_from_probal()
