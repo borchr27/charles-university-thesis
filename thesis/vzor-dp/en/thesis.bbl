@@ -1,4 +1,4 @@
-\begin{thebibliography}{9}
+\begin{thebibliography}{10}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -58,6 +58,12 @@ Stuart Russell and Peter Norvig.
 \newblock \emph{Artificial Intelligence: A Modern Approach}.
 \newblock Prentice Hall, Upper Saddle River, NJ, 3rd edition, 2009.
 \newblock ISBN 9780136042594.
+
+\bibitem[Sahid et~al.(2019)Sahid, Mahendra, and Budi]{sahid2019ecommerce}
+Galuh~Tunggadewi Sahid, Rahmad Mahendra, and Indra Budi.
+\newblock E-commerce merchant classification using website information.
+\newblock In \emph{Proceedings of the 9th International Conference on Web
+  Intelligence, Mining and Semantics}, pages 1--10, 2019.
 
 \bibitem[Seung et~al.(1992)Seung, Opper, and Sompolinsky]{seung1992qbc}
 H~Sebastian Seung, Manfred Opper, and Haim Sompolinsky.

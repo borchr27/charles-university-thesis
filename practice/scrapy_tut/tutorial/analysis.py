@@ -63,13 +63,14 @@ def build_and_test_model(args: argparse.Namespace, data: tu.Dataset):
     pred = model.predict(test_X)
     clf = model.named_steps["gbdt"]
     print("Accuracy:", metrics.accuracy_score(test_y, pred))
-    tu.show_confusion_matrix(clf, y_labels, pred, test_y, train_y)
+    tu.plot_confusion_matrix(clf, y_labels, pred, test_y, train_y)
 
 
 if __name__ == "__main__":
     args = parser.parse_args([] if "__file__" not in globals() else None)
     data = tu.Dataset()
-    # build_and_test_model(args, data)
-    # tu.get_all_data_histograms(data, "plot_all_hist")
-    # tu.get_original_data_histograms(data, "plot_og_en_hist")
-    tu.plot_all_results_from_probal()
+    build_and_test_model(args, data)
+    tu.plot_all_histograms(data, "plot_all_hist")
+    tu.plot_original_histograms(data, "plot_og_en_hist")
+    tu.plot_all_results_individual()
+    tu.plot_all_results_one()

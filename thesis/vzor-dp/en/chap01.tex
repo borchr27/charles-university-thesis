@@ -74,6 +74,4 @@ Query by committee uses an ensemble of classifiers that are trained on bootstrap
 Monte Carlo estimation of error reduction (EER) estimates future error rate by log-loss, using the entropy of the posterior class distribution on a sample fo the unlabeled examples, or by 0-1 loss, using the posterior probabilities of the most probable class for the sampled unlabeled examples \cite{roy2001eer}.
 
 \section{Summary}
-Now that the main components of active learning have been defined and introduced we can explore xPAL in greater detail.
-
-
+Now it should be more clear how the sampling strategy is the major component of active learning. The query function construction is also important but it is just a means of routing the data to be sampled. In the next chapter we will look into the specifics of xPAL.

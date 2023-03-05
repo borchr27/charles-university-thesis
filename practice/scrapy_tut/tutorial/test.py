@@ -59,6 +59,34 @@ def where():
     
     return sorted(ind)
 
+def regex_test():
+    text = "The data_xpal-is-here should be matched"
+    match = re.search(r"data_([^-]+)", text)
+
+    if match:
+        print(match.group(1)) # output: "word"
+    else:
+        print("No match")
+
+
+def four_plots_test():
+    # create figure with four subplots
+    fig, axs = plt.subplots(2, 2)
+
+    # create a list of colors for each plot
+    colors = ['red', 'blue', 'green', 'orange']
+
+    # loop through each subplot and plot data
+    for i, ax in enumerate(axs.flatten()):
+        x = np.linspace(0, 2*np.pi, 100)
+        y = np.sin(x*(i+1))
+        ax.plot(x, y, color=colors[i])
+        ax.set_title('Plot {}'.format(i+1))
+
+    # adjust spacing between subplots and show plot
+    fig.tight_layout()
+    plt.show()
+
 def lang_translation():
     import translators as ts
     import translators.server as tss

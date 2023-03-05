@@ -1,0 +1,6 @@
+1. Add websites with the correct format into the 'sites.csv' file
+2. Run the scrape script. This will add each website in the list into the 'site_data' table if it isnt already there.
+3. Run the process script. This will translate the scraped data from the 'site_data' table into the 'translated_data' table.
+4. Run the analysis script. Which is used for creating the plots and data set to be used with the PROBAL and ACTIVEML libraries.
+5. Take the .csv file generated from step four and use it to train the models.
+6. Run some other file to analyze the PROBAL and ACTIVEML models.
