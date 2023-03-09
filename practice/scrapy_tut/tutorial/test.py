@@ -1,6 +1,8 @@
 # coding=utf8
 import numpy as np
 import matplotlib.pyplot as plt
+import re
+import pandas as pd
 
 def language_prediction_test():
     import pycld2 as cld2
@@ -106,21 +108,19 @@ def save_plot_image(plot:plt, filename:str):
     plt.savefig(f'/Users/mitchellborchers/Documents/git/charles-university-thesis/thesis/vzor-dp/img/{filename}.jpg')
 
 
+def table_test():
+    # Create a dataframe
+    df = pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6], "C": [7, 8, 9]})
+
+    # Plot the dataframe as a table
+    df.plot(kind="bar")
+
+    # Save the figure as a pdf file
+    plt.savefig("Output.pdf")
+
 if __name__ == "__main__":
     # language_prediction_test()
     # tfidf_to_csv_test()
     # print(where())
     # lang_translation()
-
-    # Create some sample data
-    x = [1, 2, 3, 4, 5]
-    y = [10, 8, 6, 4, 2]
-    # Create a line plot of the data
-    plt.plot(x, y)
-    # Set the title and axis labels
-    plot_name = 'Line Plot'
-    filename = plot_name.lower().replace(' ', '_')
-    plt.title(f'{plot_name}')
-    plt.xlabel('X-axis')
-    plt.ylabel('Y-axis')
-    save_plot_image(plt, filename)
+    table_test()

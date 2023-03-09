@@ -9,6 +9,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import logging
 from sqlalchemy import create_engine
 import os
+from sklearn.feature_selection import chi2
 
 import configparser
 import requests
@@ -369,8 +370,16 @@ def tfidf_to_csv(text_data:np.ndarray, y:np.ndarray, file_name:str = "tfidf_data
 
 
 def azure_translate(text:str, source_language:str = None, target_language:str ='en') -> str:
-    """Use free Azure Cognitive Services to translate text to English."""
-    """Helpful link https://techcommunity.microsoft.com/t5/educator-developer-blog/translate-your-notes-with-azure-translator-and-python/ba-p/3267201"""
+    """Use free Azure Cognitive Services to translate text to English.
+    text: text to translate
+    source_language: language of the text to translate
+    target_language: language to translate the text to
+
+    returns: translated text
+
+    Helpful link https://techcommunity.microsoft.com/t5/educator-developer-blog/translate-your-notes-with-azure-translator-and-python/ba-p/3267201
+    
+    """
 
     config = configparser.ConfigParser()
     config.read('/Users/mitchellborchers/.config/azure/my_config_file.ini')
@@ -429,36 +438,85 @@ def plot_all_results_individual() -> None:
             save_plot_image(plt, name)
             plt.close()
 
-def plot_all_results_one() -> None:
+def plot_all_results_one(groupby:str = None) -> None:
     """Plots all test data from the probal results folder into one plot."""
     file_path = '/Users/mitchellborchers/Documents/git/probal/results/'
     file_names = os.listdir(file_path)
     file_names = [s for s in file_names if not s.startswith('.')]
-    count = int(len(file_names)/2) if (len(file_names) % 2 == 0) else int((len(file_names)/2)+1)
-    # create figure with four subplots
-    fig, axs = plt.subplots(count, count)
-    i=0
-    for file_name, ax in zip(file_names, axs.flatten()):
-        if not file_name.endswith('.csv'): continue
-        loc = os.path.join(file_path, file_name)
-        pattern = r'data_([a-zA-Z0-9]+)[\-_]'
-        plt_title = re.findall(pattern, file_name)[0]
+    count = 2
+    
+    kernel_name = ['rbf', 'cosine']
+    rbf = []
+    cosine = []
+    for s in file_names:
+        if re.search('rbf.*612|612.*rbf', s):
+            rbf.append(s)
+        elif re.search('cosine.*612|612.*cosine', s):
+            cosine.append(s)
+    
+    kernels = [rbf, cosine]
+    for n, k in zip(kernel_name, kernels):
+        # create figure with four subplots
+        fig, axs = plt.subplots(count, count)
+        i=0
+        for file_name, ax in zip(k, axs.flatten()):
+            if not file_name.endswith('.csv'): continue
+            loc = os.path.join(file_path, file_name)
+            pattern = r'data_([a-zA-Z0-9]+)[\-_]'
+            plt_title = re.findall(pattern, file_name)[0]
 
-        with open(loc, 'r') as f:
-            data = pd.read_csv(f)
-            # create line plot train and test error using fig and ax
-            # fig, ax = plt.subplots()
-            ax.plot(data['train-error'], label='Train Error')
-            ax.plot(data['test-error'], label='Test Error')
-            if i ==0: ax.legend()
-            if i==0 or i==2: ax.set_ylabel('Error')
-            if i==2 or i==3: ax.set_xlabel('Budget')
-            ax.set_ylim([0, 1.1])
-            ax.set_title(plt_title)
-            ax.grid(which='both', linewidth=0.3)
-            i+=1
+            with open(loc, 'r') as f:
+                data = pd.read_csv(f)
+                ax.plot(data['train-error'], label='Train Error')
+                ax.plot(data['test-error'], label='Test Error')
+                if i ==0: ax.legend()
+                if i==0 or i==2: ax.set_ylabel('Error')
+                if i==2 or i==3: ax.set_xlabel('Budget')
+                ax.set_ylim([0, 1.1])
+                ax.set_title(plt_title)
+                ax.grid(which='both', linewidth=0.3)
+                i+=1
 
-    fig.tight_layout()
-    save_plot_image(plt, 'plot_all_results')
-    plt.close()
+        fig.tight_layout()
+        save_plot_image(plt, f'plot_all_results_{n}')
+        plt.close()
 
+
+
+def table_correlated_unigrams(X:np.ndarray, y:np.ndarray, v:TfidfVectorizer, category_to_id:dict, file_name:str) -> None:
+    """
+    Creates latex .tex table file with of features with the highest chi-squared statistics per target class.
+
+    X: sparse matrix of shape (n_samples, n_features)
+    y: array of shape (n_samples,)
+    v: vectorizer
+    category_to_id: dictionary with category names mapped to their numeric id
+    """
+    N=3 # number of features to print
+    uni_dict = {}
+    for label, id in sorted(category_to_id.items()):
+        features_chi2 = chi2(X, y == id)
+        indices = np.argsort(features_chi2[0])
+        feature_names = np.array(v.get_feature_names_out())[indices]
+        unigrams = [v for v in feature_names if len(v.split(' ')) == 1]
+        uni_dict[label] = unigrams[-N:]
+        # print("# '{}':".format(label))
+        # print("  . Most correlated unigrams:\n. {}".format('\n. '.join(unigrams[-N:])))
+    # Convert the dictionary to a dataframe
+    df = pd.DataFrame.from_dict(uni_dict, orient='index', columns=['Keyword 1', 'Keyword 2', 'Keyword 3'])
+    img_folder = '/Users/mitchellborchers/Documents/git/charles-university-thesis/thesis/vzor-dp/img/'
+    df.to_latex(f"{img_folder}{file_name}.tex")
+
+
+def table_classification_report(test, pred, labels, file_name:str) -> None:
+    """Create latex .tex table file with classification report.
+    
+    test: array of shape (n_samples,)
+    pred: array of shape (n_samples,)
+    labels: array of shape (n_samples,)
+    file_name: name of the file to save the table to
+    """
+    report = metrics.classification_report(test, pred, target_names=labels, output_dict=True, zero_division=0)
+    df = pd.DataFrame(report).transpose()
+    img_folder = '/Users/mitchellborchers/Documents/git/charles-university-thesis/thesis/vzor-dp/img/'
+    df.to_latex(f"{img_folder}{file_name}.tex", float_format="%.2f")

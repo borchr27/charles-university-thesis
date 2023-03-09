@@ -56,12 +56,33 @@ At this stage, it was clear that our dataset wasnt representing all cataegories 
 
 At this point we had a significant amount of data that wasnt being used. We decided to find a way to translate the existing data. We tried various librarie available on GitHub but we weren't getting good results. We found that Azure had a service available and a free option of up to 2 million characters translated per month. This was a perfect option and we were able to use this api to translate the remaining data.
 
-In addition to the translated daat we also manually collected and labeled 141 additional data points to use mainly for validation. All the original data and additional data are shown in Figure \ref{fig:all_hist}
+In addition to the translated data we also manually collected and labeled 141 additional data points to use mainly for validation. All the original data and additional data are shown in Figure \ref{fig:all_hist}
+
 \begin{figure}[!ht]
   \centering
   \includegraphics[width=\textwidth]{../img/plot_all_hist.pdf}
   \caption{The histograms for the original and additional data for all languages.}
   \label{fig:all_hist}
 \end{figure}
+
+
+In addition to translating the data we used the TF-IDF vectorizer from Scikit-Learn. With just the original data we were able to find the highly correlated words for each category, shown below in Table \ref{tab:correlated_unigrams_original}. Some catgegories such as 'Culture', 'Digital Services', 'Shopping Online' that have few data points have words such as 'kihnu', 'td', 'patria', respectively, have no relative meaning to the category in English. This is likely because the collected data is sparse and the quality of the scraped text data is low.
+
+
+
+\begin{table}[!ht]
+\centering
+\caption{Keywords from TF-IDF with Chi Squared using the original data.}
+\input{../img/table_correlated_unigrams_original.tex}
+\label{tab:correlated_unigrams_original}
+\end{table}
+
+
+
+
+
+
+
+
 
 

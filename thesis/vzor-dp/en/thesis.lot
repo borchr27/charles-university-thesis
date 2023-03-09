@@ -3,5 +3,7 @@
 \addvspace {10\p@ }
 \contentsline {table}{\numberline {3.1}{\ignorespaces This is an example of a single data point.}}{8}{table.3.1}%
 \contentsline {table}{\numberline {3.2}{\ignorespaces This is an example of how the tags use different levels.}}{8}{table.3.2}%
+\contentsline {table}{\numberline {3.3}{\ignorespaces Keywords from TF-IDF with Chi Squared using the original data.}}{11}{table.3.3}%
 \addvspace {10\p@ }
+\contentsline {table}{\numberline {4.1}{\ignorespaces Classification Report GBDT}}{13}{table.4.1}%
 \addvspace {10\p@ }
