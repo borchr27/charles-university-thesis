@@ -1,20 +1,63 @@
 \chapter{Results}
 
-Here we will explore the results of the probabalistic and other active learning classifiers. Check out Figure \ref{fig:plot_all_results}.
+\section{Original Data}
 
-\begin{figure}[!ht]
+Here we will explore the results of different classifiers and active learning strategies on the original data. The original data consisted of data shown previously in Figure \ref{fig:og_en_hist} and discretely in Table \ref{tab:og_en_data} in Appendix \ref{app:attachments}. 
+
+\subsection{Active Learning with PWC and RBF Kernel}
+
+In Figure \ref{fig:plot_all_results_rbf} we have the train and test errors for four different active learning sampling stratagies and we can see that xPAL and PAL both perform relatively well before starting to overfit the training data. We reviewed the resulting error data and xPAL outperformed PAL by about 1.5\%. However, xPAL has much faster running time compared to PAL. 
+
+We werent satisfied with the testing error which leveled out to about 70\% for each sampling strategy. PAL and xPAL were able to rapidly reduce the testing error early on in the training process while random selection and QBC weren't able to determine the data with the highest information gain. 
+
+\begin{figure}[ht]
   \centering
-  \includegraphics[width=\textwidth]{../img/plot_all_results.pdf}
-  \caption{Train and test (test set size 25\%) results using with the original data set.}
-  \label{fig:plot_all_results}
+  \includegraphics[width=\textwidth]{../img/plot_all_results_rbf.pdf}
+  \caption{Train and test error using different query stratagies and RBF kernel for the PWC classifier.}
+  \label{fig:plot_all_results_rbf}
 \end{figure}
 
+\subsection{Active Learning with PWC and Cosine Kernel}
 
-Tester \ref{tab:classification_report_gbdt}
+In Figure \ref{fig:plot_all_results_cosine} we have the and test errors for the same four different active leraning sampling stratagies and tested on the same data except instead of using the RBF kernel the Cosine kernel was used. We found that using the Cosine kernel reduced the training error across the board by roughly 17\%.  
 
-\begin{table}[ht]
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=\textwidth]{../img/plot_all_results_cosine.pdf}
+  \caption{Train and test error using different query stratagies and Cosine kernel for the PWC classifier.}
+  \label{fig:plot_all_results_cosine}
+\end{figure}
+
+\subsection{Scikit-Learn Classifier Evaluation}
+
+We also decided to try out the boilerpate classifiers from Scikit-Learn to compare performances. Again we used the original data with the same TF-IDF vectorizer as used with the previous active learning models to stay consistent. We decided to use the Cosine kernel when using LinearSVC as we learned that the performance increased in comparison to the RBF kernel when using PWC. The results for a variety of different classifers are shown in Figure \ref{fig:explore_classifiers}.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=\textwidth]{../img/plot_explore_classifiers.pdf}
+  \caption{Performance comparison of standard Scikit-Learn classifiers.}
+  \label{fig:explore_classifiers}
+\end{figure}
+
+The LinearSVC classifier performed rather well compared to most other classifiers and it is a fast running algorithm even with data that has a large feature set. We decided to look further into LinearSVC and create a few models to evaluate its performance. We created three models, the first was a boilerplate LinearSVC with no argument modifications, the second model used the class weights parameter set to 'balanced'. The 'balanced' mode uses the values of y to automatically adjust weights inversely proportional to class frequencies in the input data as $n\_samples / (n\_classes * np.bincount(y))$. For the third test we created a dictionary of weights for each class using the Cosine Decay function. The results are shown in Table \ref{tab:lsvc_models}.
+
+
+\begin{table}[h]
 \centering
-\caption{Classification Report GBDT}
-\input{../img/table_classification_report_gbdt.tex}
-\label{tab:classification_report_gbdt}
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Trial} & \textbf{Accuracy} \\
+\hline
+Boilerplate & 0.579 \\
+\hline
+Balanced & 0.587 \\
+\hline
+Cosine Decay & 0.6 \\
+\hline
+\end{tabular}
+\caption{Accuracy results for three Linear SVC trials.}
+\label{tab:lsvc_models}
 \end{table}
+
+
+\section{Original and Additional Data}

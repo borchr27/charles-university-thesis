@@ -7,11 +7,11 @@
 \contentsline {subsection}{\numberline {1.2.3}Membership Queries}{4}{subsection.1.2.3}%
 \contentsline {section}{\numberline {1.3}Sampling Stratagies}{4}{section.1.3}%
 \contentsline {subsection}{\numberline {1.3.1}Random Sampling}{4}{subsection.1.3.1}%
-\contentsline {subsection}{\numberline {1.3.2}Diversity Sampling}{4}{subsection.1.3.2}%
+\contentsline {subsection}{\numberline {1.3.2}Diversity Sampling}{5}{subsection.1.3.2}%
 \contentsline {subsection}{\numberline {1.3.3}Uncertainty Sampling}{5}{subsection.1.3.3}%
 \contentsline {subsection}{\numberline {1.3.4}xPAL}{5}{subsection.1.3.4}%
 \contentsline {subsection}{\numberline {1.3.5}PAL}{5}{subsection.1.3.5}%
-\contentsline {subsection}{\numberline {1.3.6}ALCE}{5}{subsection.1.3.6}%
+\contentsline {subsection}{\numberline {1.3.6}ALCE}{6}{subsection.1.3.6}%
 \contentsline {subsection}{\numberline {1.3.7}QBC}{6}{subsection.1.3.7}%
 \contentsline {subsection}{\numberline {1.3.8}EER}{6}{subsection.1.3.8}%
 \contentsline {section}{\numberline {1.4}Summary}{6}{section.1.4}%
@@ -19,11 +19,15 @@
 \contentsline {section}{\numberline {2.1}Pool Based Query}{7}{section.2.1}%
 \contentsline {section}{\numberline {2.2}xPAL Explained}{7}{section.2.2}%
 \contentsline {chapter}{\numberline {3}Analysis}{8}{chapter.3}%
-\contentsline {chapter}{\numberline {4}Results}{12}{chapter.4}%
-\contentsline {chapter}{Conclusion}{14}{chapter*.3}%
-\contentsline {chapter}{Bibliography}{15}{chapter*.4}%
-\contentsline {chapter}{List of Figures}{16}{chapter*.5}%
-\contentsline {chapter}{List of Tables}{17}{chapter*.6}%
-\contentsline {chapter}{List of Abbreviations}{18}{chapter*.7}%
-\contentsline {chapter}{\numberline {A}Attachments}{19}{appendix.A}%
-\contentsline {section}{\numberline {A.1}First Attachment}{19}{section.A.1}%
+\contentsline {chapter}{\numberline {4}Results}{13}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Original Data}{13}{section.4.1}%
+\contentsline {subsection}{\numberline {4.1.1}Active Learning with PWC and RBF Kernel}{13}{subsection.4.1.1}%
+\contentsline {subsection}{\numberline {4.1.2}Active Learning with PWC and Cosine Kernel}{14}{subsection.4.1.2}%
+\contentsline {subsection}{\numberline {4.1.3}Scikit-Learn Classifier Evaluation}{14}{subsection.4.1.3}%
+\contentsline {section}{\numberline {4.2}Original and Additional Data}{15}{section.4.2}%
+\contentsline {chapter}{Conclusion}{16}{chapter*.3}%
+\contentsline {chapter}{Bibliography}{17}{chapter*.4}%
+\contentsline {chapter}{List of Figures}{18}{chapter*.5}%
+\contentsline {chapter}{List of Tables}{19}{chapter*.6}%
+\contentsline {chapter}{List of Abbreviations}{20}{chapter*.7}%
+\contentsline {chapter}{\numberline {A}Attachments}{21}{appendix.A}%

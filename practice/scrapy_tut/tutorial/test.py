@@ -107,6 +107,28 @@ def save_plot_image(plot:plt, filename:str):
     # Save the plot as a JPEG file in a specific location
     plt.savefig(f'/Users/mitchellborchers/Documents/git/charles-university-thesis/thesis/vzor-dp/img/{filename}.jpg')
 
+def cosine_decay():
+    import math
+    def cosine_decay_weight(step, total_steps, initial_weight, final_weight):
+        cosine_decay = 0.5 * (1 + math.cos(math.pi * step / total_steps))
+        decayed = (1 - initial_weight) * cosine_decay + initial_weight
+        return decayed * final_weight
+    # Define the initial and final weights and the total number of steps/categories
+    initial_weight = 0.1
+    final_weight = 1.0
+    total_steps = 23
+
+    # Create a dictionary to store the weights
+    weights = {}
+
+    # Compute the weight for each step using the cosine decay function
+    for i in range(total_steps):
+        weight = cosine_decay_weight(i, total_steps, initial_weight, final_weight)
+        weights[i] = weight
+
+    # Print the dictionary of weights
+    for w in weights:
+        print(f"Step {w}: {weights[w]}")
 
 def table_test():
     # Create a dataframe
@@ -124,3 +146,8 @@ if __name__ == "__main__":
     # print(where())
     # lang_translation()
     table_test()
+
+
+
+
+

@@ -1,6 +1,6 @@
 \chapter{Analysis}
 
-In this section we take a deeper look into the data, the process of augmenting the data, the experiment, and the results. Our partner has provided a small sample of 1000 labeled data points. This data was manually labeled by an annotator. The data consists of a merchant name, merchant website (url), merchant category, and merchant tag as shown in Table \ref{tab:data_point}. 
+In this chapter we take a deeper look into the data and the process of augmenting the data. Our partner has provided a small sample of 1000 labeled data points. This data was manually labeled by an annotator. The data consists of a merchant name, merchant website (url), merchant category, and merchant tag as shown in Table \ref{tab:data_point}. 
 
 
 \begin{table}[h]
@@ -9,7 +9,7 @@ In this section we take a deeper look into the data, the process of augmenting t
 merchant name            & merchant url            & merchant category & merchant tags           \\ \hline
 State Hospital & http://hospital.com/ & Health   & '\{"Clinic"\}' \\ \hline
 \end{tabular}
-\caption{This is an example of a single data point.}
+\caption{This is an example of a single data point from the original data set.}
 \label{tab:data_point}
 \end{table}
 
@@ -34,16 +34,16 @@ Car            & Charging Station            &                               &  
 \end{table}
 
 
-Similarly to the annotator our goal is to automate the navigation, collection/storing process, and classification of the website. This pipeline speeds up the browsing process and can allow the annotator to spend much less time annotating and require the annotator to only anotate data expected to drastically improve the classifier.
+Similarly to the annotator our goal is to automate the navigation, collection/storing process, and classification of the website. This pipeline speeds up the browsing process and can allow the annotator to spend much less time annotating and require the annotator to only annotate data expected to drastically improve the classifier.
 
-The initial 1000 data points we received were essentially just labels with a pointer (a url) to where the data is. The labels needed the text from the websites that the annotator viewed to begin the classifing process. To gather the text data from the websites we used the Scrapy framework to extract text data from a single top level page of a website. We chose to only scrape the top level page text because
-of the results published in another study where it was observed that adding more pages to the dataset does not necessiarily mean obtaining better resutls (\cite{sahid2019ecommerce}). 
+The initial 1000 data points we received were essentially just labels with a pointer (a url) to where the data is. The labels needed the text from the websites that the annotator viewed to begin the classifying process. To gather the text data from the websites we used the Scrapy framework to extract text data from a single top level page of a website. We chose to only scrape the top level page text because
+of the results published in another study where it was observed that adding more pages to the data set does not necessarily mean obtaining better results (\cite{sahid2019ecommerce}). 
 
 Out of these initial data points 179 contained links that could not be accessed or links that provided no text data that could be scraped. Out of the remaining 821 data points 274 of them were in English. 
 
-It is important for us to have the data in Englsih as it allows us to exploit stop words when using the Scikit-Learn TF-IDF Vectorizer to construct our dataset. Stop words are words like “and”, “the”, “him”, which are presumed to be uninformative in representing the content of a text, and which may be removed to avoid them being construed as signal for prediction (\cite{sklearn62feature}).
+It is important for us to have the data in English as it allows us to exploit stop words when using the Scikit-Learn TF-IDF vectorizer to construct our data set. Stop words are words like “and”, “the”, “him”, which are presumed to be uninformative in representing the content of a text, and which may be removed to avoid them being construed as signal for prediction (\cite{sklearn62feature}).
 
-Out of the remaining 275 english data points the data was distributed into the categories as shown in Figure \ref{fig:og_en_hist}.
+Out of the remaining 275 English data points the data was distributed into the categories as shown in Figure \ref{fig:og_en_hist}.
 
 \begin{figure}[!ht]
   \centering
@@ -52,11 +52,12 @@ Out of the remaining 275 english data points the data was distributed into the c
   \label{fig:og_en_hist}
 \end{figure}
 
-At this stage, it was clear that our dataset wasnt representing all cataegories equally. The 'Food and Drink' category has many more data points then the 'Culture' and 'Investments' categories which each had a single data point. The 'Children' and 'Financial Services' categories weren't represented at all. Obviously this was problamatic becuase we would like to have, minium, three data points in each category to build train, test, and validation datasets, albeit limited as this would be.
+At this stage, it was clear that our data set wasn't representing all categories equally. The 'Food and Drink' category has many more data points then the 'Culture' and 'Investments' categories which each had a single data point. The 'Children' and 'Financial Services' categories weren't represented at all. Obviously this was problematic because we would like to have, minimum, three data points in each category to build train, test, and validation data sets, albeit limited as this would be.
 
-At this point we had a significant amount of data that wasnt being used. We decided to find a way to translate the existing data. We tried various librarie available on GitHub but we weren't getting good results. We found that Azure had a service available and a free option of up to 2 million characters translated per month. This was a perfect option and we were able to use this api to translate the remaining data.
+At this point we had a significant amount of data that wasn't being used. We decided to find a way to translate the existing data. We tried various libraries available on GitHub but we weren't getting good results. We found that Azure had a service available and a free option of up to 2 million characters translated per month. This was a perfect option and we were able to use this api to translate the remaining data.
 
-In addition to the translated data we also manually collected and labeled 141 additional data points to use mainly for validation. All the original data and additional data are shown in Figure \ref{fig:all_hist}
+In addition to the original data we also manually collected and labeled 141 additional data points. All the original data and additional data are shown in Figure \ref{fig:all_hist} and discretely in Appendix \ref{app:attachments} in Tables \ref{tab:add_data} and \ref{tab:og_en_data}.
+
 
 \begin{figure}[!ht]
   \centering
@@ -66,8 +67,7 @@ In addition to the translated data we also manually collected and labeled 141 ad
 \end{figure}
 
 
-In addition to translating the data we used the TF-IDF vectorizer from Scikit-Learn. With just the original data we were able to find the highly correlated words for each category, shown below in Table \ref{tab:correlated_unigrams_original}. Some catgegories such as 'Culture', 'Digital Services', 'Shopping Online' that have few data points have words such as 'kihnu', 'td', 'patria', respectively, have no relative meaning to the category in English. This is likely because the collected data is sparse and the quality of the scraped text data is low.
-
+In addition to translating the data we used the TF-IDF vectorizer from Scikit-Learn. We were able to find highly correlated words for each category using Chi Squared analysis with only the original data, shown below in Table \ref{tab:correlated_unigrams_original}. Some categories such as 'Culture', 'Digital Services', 'Shopping Online' that have few data points have words such as 'kihnu', 'td', 'patria', respectively, which have no relative meaning to the category in English. This is likely because the collected data is sparse and the quality of the scraped text data is low.
 
 
 \begin{table}[!ht]
@@ -78,11 +78,15 @@ In addition to translating the data we used the TF-IDF vectorizer from Scikit-Le
 \end{table}
 
 
+We also calculated the variable importance using the RandomForestRegressor from Scikit-Learn and provided a list of the top 20 most important words from the TF-IDF vectorizeR. This helps us orient ourselves within the data as well as check if there may be any anomalies. The list of top 20 most important words are shown in Table \ref{tab:top_20_words}.
 
 
-
-
-
+\begin{table}[!ht]
+\centering
+\caption{Variable importance, top 20 words from the vectorizer.}
+\input{../img/table_top_20_features.tex}
+\label{tab:top_20_words}
+\end{table}
 
 
 

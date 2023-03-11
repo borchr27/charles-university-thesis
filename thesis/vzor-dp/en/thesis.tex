@@ -29,10 +29,10 @@
 \usepackage[a-2u]{pdfx}
 
 %% Character encoding: usually latin2, cp1250 or utf8:
-\usepackage[utf8]{inputenc}
+% \usepackage[utf8]{inputenc} % turned this off after switching to xelatex in rstudio
 
 %% Prefer Latin Modern fonts
-\usepackage{lmodern}
+% \usepackage{lmodern}
 
 %% Further useful packages (included in most LaTeX distributions)
 \usepackage{amsmath}        % extensions for typesetting of math
@@ -50,7 +50,10 @@
 \usepackage{booktabs}       % improved horizontal lines in tables
 \usepackage{paralist}       % improved enumerate and itemize
 \usepackage{xcolor}         % typesetting in color
-\usepackage{multirow}
+\usepackage{multirow}       % package for making table layouts
+\usepackage{CJK}            % package for chinese, japanese, and korean symbols
+%\usepackage{nomencl}       % maybe used for abbreviations
+%\makenomenclature          % maybe used for abbreviations
 
 %%% Basic information on the thesis
 
@@ -150,8 +153,21 @@ Data and the collection and analysis of data has become an important part of eve
 %%% Allowed file formats are specified in provision of the rector no. 72/2017.
 \appendix
 \chapter{Attachments}
+\label{app:attachments}
 
-\section{First Attachment}
+\begin{table}[ht]
+\centering
+\caption{Category counts of original English data.}
+\input{../img/table_original_category_counts.tex}
+\label{tab:og_en_data}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\caption{Category counts of additional data.}
+\input{../img/table_additional_category_counts.tex}
+\label{tab:add_data}
+\end{table}
 
 \openright
 \end{document}
