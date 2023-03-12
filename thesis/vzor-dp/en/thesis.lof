@@ -1,10 +1,10 @@
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {3.1}{\ignorespaces The histograms for the original usable english data.}}{9}{figure.3.1}%
-\contentsline {figure}{\numberline {3.2}{\ignorespaces The histograms for the original and additional data for all languages.}}{10}{figure.3.2}%
+\contentsline {figure}{\numberline {3.1}{\ignorespaces The histograms for the original usable english data.}}{11}{figure.3.1}%
+\contentsline {figure}{\numberline {3.2}{\ignorespaces The histograms for the original and additional data for all languages.}}{12}{figure.3.2}%
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {4.1}{\ignorespaces Train and test error using different query stratagies and RBF kernel for the PWC classifier.}}{13}{figure.4.1}%
-\contentsline {figure}{\numberline {4.2}{\ignorespaces Train and test error using different query stratagies and Cosine kernel for the PWC classifier.}}{14}{figure.4.2}%
-\contentsline {figure}{\numberline {4.3}{\ignorespaces Performance comparison of standard Scikit-Learn classifiers.}}{15}{figure.4.3}%
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Train and test error using different query stratagies and RBF kernel for the PWC classifier.}}{15}{figure.4.1}%
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Train and test error using different query stratagies and Cosine kernel for the PWC classifier.}}{16}{figure.4.2}%
+\contentsline {figure}{\numberline {4.3}{\ignorespaces Performance comparison of standard Scikit-Learn classifiers.}}{17}{figure.4.3}%
 \addvspace {10\p@ }

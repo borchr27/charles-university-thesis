@@ -5,17 +5,19 @@
   \providecommand{\doi}[1]{doi: #1}\else
   \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
 
-\bibitem[skl()]{sklearn62feature}
-6.2. {F}eature extraction --- scikit-learn.org.
-\newblock
-  \url{https://scikit-learn.org/stable/modules/feature_extraction.html}.
-\newblock [Accessed 03-Mar-2023].
-
 \bibitem[Baram et~al.(2004)Baram, Yaniv, and Luz]{baram2004online}
 Yoram Baram, Ran~El Yaniv, and Kobi Luz.
 \newblock Online choice of active learning algorithms.
 \newblock \emph{Journal of Machine Learning Research}, 5\penalty0
   (Mar):\penalty0 255--291, 2004.
+
+\bibitem[Fabian~Pedregosa et~al.(2023)Fabian~Pedregosa, Michel,
+  et~al.]{sklearn62feature}
+Alexandre~Gramfort Fabian~Pedregosa, Gael~Varoquaux, Vincent Michel, et~al.
+\newblock 6.2. {F}eature extraction --- scikit-learn.org.
+\newblock
+  \url{https://scikit-learn.org/stable/modules/feature_extraction.html}, 2023.
+\newblock [Accessed 03-Mar-2023].
 
 \bibitem[Huang and Lin(2016)]{huang2016alce}
 Kuan-Hao Huang and Hsuan-Tien Lin.

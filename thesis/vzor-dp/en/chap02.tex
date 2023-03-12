@@ -16,7 +16,7 @@ $\textit{R}_{\mathcal{E}}$ & Empirical Risk \\
 \hline
 $\mathcal{L}$ & Labeled Data \\
 \hline
-$\mathcal{U}$ & Unlabeled Data \\
+$\mathcal{U}$ & Unlabeled Data $\{x_1,...,x_n\}$ \\
 \hline
 $\mathcal{E}$ & Labeled and Unlabeled Data \\
 \hline
@@ -25,9 +25,24 @@ $p(x,y)$ & Joint distribution of random variables $x$ and $y$ \\
 $f^{\mathcal{L}}$ & Classifier that maps input $x$ to output $y$ for class $l$ \\
 \hline
 \end{tabular}
-\caption{List of variable definitions.}
+\caption{Variable names and definitions.}
 \label{tab:var_defs}
 \end{table}
+
+\section{Kernel}
+
+A kernel based classifier is used in xPAL which determines the similarity of two data points. The kernel function $k(x,x')$ is a function that maps two data points to a real number. The kernel frequency estimate $\textbf{\textit{k}}^{\mathcal{L}}_x$ of an instance $\textbf{\textit{x}}$ is calculated using the labeled instances $\mathcal{L}$. The y-th element of that C-dimensional vector describes the similarity-weighted number of labels of class y.
+
+\begin{equation}
+\textbf{\textit{k}}^{\mathcal{L}}_x,y = \sum_{(x',y') \in \mathcal{L}} \mathbb{1}_{y=y'} \textbf{\textit{K}}(x,x')
+\label{eq:kernel}
+\end{equation}
+
+The Parzen Window Classifier uses the labeled data for training and predicts the most frequent class. 
+
+\begin{equation}
+f^{\mathcal{L}}(x) = \underset{y \in \mathcal{Y}}{\arg \max} \left( \textbf{\textit{k}}^{\mathcal{L}}_{x,y} \right)
+\end{equation}
 
 \section{Risk}
 
@@ -38,14 +53,28 @@ For xPAL, Kottke et al. use the classifications error as the performance measure
 \end{equation}
 
 \begin{equation}
-= \underset{p(x)}{\mathbb{E}} \left[ \underset{p(x|y)}{\mathbb{E}} [ \textbf{\textit{L}}(y,f^{\mathcal{L}}(x)) ] \right]
+= \underset{p(x)}{\mathbb{E}} \left[ \underset{p(y|x)}{\mathbb{E}} [ \textbf{\textit{L}}(y,f^{\mathcal{L}}(x)) ] \right]
 \end{equation}
 
 \begin{equation}
 \textbf{\textit{L}}(y,f^{\mathcal{L}}(x)) = \mathbb{1}_{f^{\mathcal{L}}(x)\neq y}
 \end{equation}
 
+Because it is not known how the data is generated $P(x)$ Kottke et al. use a Monte-Carlo integration with all the data $\mathcal{E}$ to represent the generator. The empirical risk $\textit{R}_{\mathcal{E}}$ is the average of the loss over all the data points in the dataset.
+Because it is not known how the data is generated $P(x)$ Kottke et al. use a Monte-Carlo integration with all the data $\mathcal{E}$ to represent the generator. The empirical risk $\textit{R}_{\mathcal{E}}$ is the average of the loss over all the data points in the dataset.
+
+\begin{equation}
+\textit{R}_{\mathcal{E}}(f^{\mathcal{L}}) = \frac{1}{|\mathcal{E}|} \sum_{x \in \mathcal{E}} \underset{p(y|x)}{\mathbb{E}} \left[ \textbf{\textit{L}}(y,f^{\mathcal{L}}(x)) \right]
+\end{equation}
+
+\begin{equation}
+= \frac{1}{|\mathcal{E}|} \sum_{x \in \mathcal{E}} \sum_{y \in \mathcal{Y}} p(y|x) \textbf{\textit{L}}(y,f^{\mathcal{L}}(x))
+\end{equation}
+
+
 \section{Conjugate Prior}
+
+The conditional class probability $p(y|x)$ depends on the ground truth which is unkown. As a result the conditional class probability is exactly the y-th element of the unknown ground truth vector $\textit{\textbf{p}}$.
 
 
 \section{Risk difference using the conjugate prior}

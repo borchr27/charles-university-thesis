@@ -1,0 +1,54 @@
+This is BibTeX, Version 0.99d (TeX Live 2022)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: thesis.aux
+A level-1 auxiliary file: title.aux
+A level-1 auxiliary file: introduction.aux
+A level-1 auxiliary file: chap01.aux
+A level-1 auxiliary file: chap02.aux
+A level-1 auxiliary file: chap03.aux
+A level-1 auxiliary file: chap04.aux
+A level-1 auxiliary file: epilog.aux
+A level-1 auxiliary file: bibliography.aux
+The style file: plainnat.bst
+Database file #1: bibliography.bib
+You've used 10 entries,
+            2773 wiz_defined-function locations,
+            673 strings with 6948 characters,
+and the built_in function-call counts, 5272 in all, are:
+= -- 480
+> -- 290
+< -- 9
++ -- 97
+- -- 87
+* -- 419
+:= -- 781
+add.period$ -- 35
+call.type$ -- 10
+change.case$ -- 56
+chr.to.int$ -- 10
+cite$ -- 20
+duplicate$ -- 248
+empty$ -- 434
+format.name$ -- 103
+if$ -- 1135
+int.to.chr$ -- 1
+int.to.str$ -- 1
+missing$ -- 11
+newline$ -- 61
+num.names$ -- 42
+pop$ -- 123
+preamble$ -- 1
+purify$ -- 47
+quote$ -- 0
+skip$ -- 195
+stack$ -- 0
+substring$ -- 224
+swap$ -- 51
+text.length$ -- 5
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 100
+warning$ -- 0
+while$ -- 49
+width$ -- 0
+write$ -- 147
