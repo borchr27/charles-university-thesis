@@ -62,16 +62,28 @@ Extended probabilistic gain for active learning (xPAL) is a decision-theoretic s
 These class posterior probabilities can be modeled as a random variable based on the current observations in the dataset. For this model, a Bayesian approach is used by incorporating a conjugate prior to the observations. This produces more robust usefulness estimates for the candidates \cite{kottke2021toward}.
 
 \subsection{PAL}
-Probabalistic Active Learning (PAL) follows a smoothness assumption and models for a candidate instance both the true posterior in its neighbourhood and its label as random variables. By computing for each candidate its expected gain in classification performance over both variables, PAL selects the candidate for labelling that is optimal in expectation. PAL shows comparable or better classification performance than error reduction and uncertainty sampling, has the same asymptotic linear time complexity as uncertainty sampling, and is faster than error reduction (\cite{kottke2014pal}).
+Probabilistic Active Learning (PAL) follows a smoothness assumption and models for a candidate instance both the true posterior in its neighborhood and its label as random variables. By computing for each candidate its expected gain in classification performance over both variables, PAL selects the candidate for labeling that is optimal in expectation. PAL shows comparable or better classification performance than error reduction and uncertainty sampling, has the same asymptotic linear time complexity as uncertainty sampling, and is faster than error reduction (\cite{kottke2014pal}).
 
 \subsection{ALCE}
-Active Learning with Cost Embedding (ALCE) is a non-probabilistic uncertainty sampling algorithm for cost-sensitve multiclass active learning. They first designed a cost-sensitve multiclass classification algorithm called cost embedding (CE), which embeds the cost information in the distance measure in a special hidden space by non-metric multidimensional scaling. They then use a mirroring trick to let CE embed the possibly asymmetric cost information in the symmetric distance measure (\cite{huang2016alce}).
+Active Learning with Cost Embedding (ALCE) is a non-probabilistic uncertainty sampling algorithm for cost-sensitive multiclass active learning. They first designed a cost-sensitive multiclass classification algorithm called cost embedding (CE), which embeds the cost information in the distance measure in a special hidden space by non-metric multidimensional scaling. They then use a mirroring trick to let CE embed the possibly asymmetric cost information in the symmetric distance measure (\cite{huang2016alce}).
 
 \subsection{QBC}
 Query by committee uses an ensemble of classifiers that are trained on bootstrapped replicates of the labeled set (\cite{seung1992qbc}).
 
 \subsection{EER}
 Monte Carlo estimation of error reduction (EER) estimates future error rate by log-loss, using the entropy of the posterior class distribution on a sample fo the unlabeled examples, or by 0-1 loss, using the posterior probabilities of the most probable class for the sampled unlabeled examples \cite{roy2001eer}.
+
+\section{Miscellaneous Definitions}
+
+Beta Prior
+Conjugate Prior
+Decision-Theoretic
+Dirichlet Distribution
+Expected Performance Gain
+Ground Truth
+Posterior Probabilities
+Omniscient Oracles
+Random Variable
 
 \section{Summary}
 Now it should be more clear how the sampling strategy is the major component of active learning. The query function construction is also important but it is just a means of routing the data to be sampled. In the next chapter we will look into the specifics of xPAL.

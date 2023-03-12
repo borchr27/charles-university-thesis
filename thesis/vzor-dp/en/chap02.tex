@@ -1,8 +1,54 @@
 \chapter{Understanding xPAL}
 
-We have introduced many different active learning models in the previous section, and we will test these models on our data. However, we will focus on xPAL using a pool based query function.
+We have introduced many different active learning models in the previous section, and we will test some of these models on our data. However, we will mainly focus on using the xPAL sampling strategy and a pool based query function. The xPAL sampling strategy is a decision-theoretic approach to measure the usefulness of a labeling candidate in terms of its expected performance gain. We can estimate the data distribution but but we are uncertain about the true class posterior probabilities. The class posterior probabilities are modeled as a random variable based on the current observations. Therefore a Bayesian approach is used by incorporating a a conjugate prior to the observations. In general, the idea is to estimate the expected performance gain from a new labeled data point and select the best one (\cite{kottke2021toward}). Variable definitions are listed in Table \ref{tab:var_defs}
 
-\section{Pool Based Query}
+\begin{table}[ht]
+\centering
+\begin{tabular}{|l|l|}
+\hline
+{} & \textbf{Definition} \\
+\hline
+$\textit{L}$ & Loss \\
+\hline
+$\textit{R}$ & Risk \\
+\hline
+$\textit{R}_{\mathcal{E}}$ & Empirical Risk \\
+\hline
+$\mathcal{L}$ & Labeled Data \\
+\hline
+$\mathcal{U}$ & Unlabeled Data \\
+\hline
+$\mathcal{E}$ & Labeled and Unlabeled Data \\
+\hline
+$p(x,y)$ & Joint distribution of random variables $x$ and $y$ \\
+\hline
+$f^{\mathcal{L}}$ & Classifier that maps input $x$ to output $y$ for class $l$ \\
+\hline
+\end{tabular}
+\caption{List of variable definitions.}
+\label{tab:var_defs}
+\end{table}
 
-\section{xPAL Explained}
+\section{Risk}
 
+For xPAL, Kottke et al. use the classifications error as the performance measure and minimize the zero-one loss. The risk describes the expected value of the loss relative to the joint distribution given some classifier. The zero-one loss returns 0 if the prediction from the classifier is equal to the true class else it returns 1.
+
+\begin{equation}
+\textit{R}(f^{\mathcal{L}}) = \underset{p(x,y)}{\mathbb{E}} [ \textbf{\textit{L}}(y,f^{\mathcal{L}}(x)) ]
+\end{equation}
+
+\begin{equation}
+= \underset{p(x)}{\mathbb{E}} \left[ \underset{p(x|y)}{\mathbb{E}} [ \textbf{\textit{L}}(y,f^{\mathcal{L}}(x)) ] \right]
+\end{equation}
+
+\begin{equation}
+\textbf{\textit{L}}(y,f^{\mathcal{L}}(x)) = \mathbb{1}_{f^{\mathcal{L}}(x)\neq y}
+\end{equation}
+
+\section{Conjugate Prior}
+
+
+\section{Risk difference using the conjugate prior}
+
+
+\section{Expected probabilistic gain}

@@ -114,7 +114,7 @@ def get_weights(y:np.ndarray) -> dict:
     #     print(f"Step {w}: {weights[w]}")
     return weights
 
-def build_and_test_model(args: argparse.Namespace, X:np.ndarray, y:np.ndarray, vectorizer: TfidfVectorizer, create_csv:bool, get_correlated_unigrams:bool):
+def test_LSVC_models(args: argparse.Namespace, X:np.ndarray, y:np.ndarray):
     clf_name = "LinearSVC"
     data_name = "original"
 
@@ -126,18 +126,9 @@ def build_and_test_model(args: argparse.Namespace, X:np.ndarray, y:np.ndarray, v
 
     weights = get_weights(y)
 
-    if get_correlated_unigrams:
-        # make a dictionary with y labels as keys and their index as values
-        category_to_id = dict(zip(y_labels, range(len(y_labels))))
-        tu.table_correlated_unigrams(X, y, vectorizer, category_to_id, f"table_correlated_unigrams_{data_name}")
-    if create_csv:
-        tu.tfidf_to_csv(X.toarray(), y, "tfidf_data.csv")
+    train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.25, random_state=args.seed, stratify=y)
 
-    train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.3, random_state=args.seed, stratify=y)
     pipe1 = Pipeline([
-        # ("features", tu.tfidf_vectorizer()),
-        # (f"{clf_name}", GradientBoostingClassifier(random_state=args.seed, max_depth=4, n_estimators=200, verbose=1))
-        # TODO: use linear svc with weights to account for the imbalanced data DONE
         (f"{clf_name}", LinearSVC(random_state=args.seed, max_iter=10000, class_weight=weights))
     ])
     pipe2 = Pipeline([
@@ -152,22 +143,55 @@ def build_and_test_model(args: argparse.Namespace, X:np.ndarray, y:np.ndarray, v
     model3 = pipe3.fit(train_X, train_y)
     models = [model3, model2, model1]
 
-    # try:
-    #     print("Loading the model...")
-    #     with lzma.open("model.model" , "rb") as modelFile:
-    #         model = pickle.load(modelFile)
-    # except:
-    #     print("Model could not be found, training a new model...")
-    #     model = pipe.fit(train_X, train_y)
-    #     with lzma.open("model.model", "wb") as model_file: 
-    #         pickle.dump(model , model_file)
-
     for model in models:
         pred = model.predict(test_X)
-        # clf = model.named_steps[f"{clf_name}"]
-        print("Accuracy:", metrics.accuracy_score(test_y, pred, normalize=True))
-    # tu.plot_confusion_matrix(clf, y_labels, pred, test_y, train_y, clf_name)
-    # tu.table_classification_report(test_y, pred, y_labels, clf_name)
+        print("Error:", 1 - metrics.accuracy_score(test_y, pred, normalize=True))
+
+
+def build_and_test_model(args: argparse.Namespace, X:np.ndarray, y:np.ndarray, vectorizer:TfidfVectorizer, csv:bool=False, unigrams:bool=False, cm:bool=False, clf_report:bool=False):
+    clf_name = "LinearSVC"
+    data_name = "original"
+
+    # lable encoder
+    y_labels = np.unique(y)
+    le = LabelEncoder()
+    le.fit(y)
+    y = le.transform(y)
+
+    weights = get_weights(y)
+
+    if unigrams:
+        # make a dictionary with y labels as keys and their index as values
+        category_to_id = dict(zip(y_labels, range(len(y_labels))))
+        tu.table_correlated_unigrams(X, y, vectorizer, category_to_id, f"table_correlated_unigrams_{data_name}")
+    if csv:
+        tu.tfidf_to_csv(X.toarray(), y, "tfidf_data.csv")
+
+    train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.25, random_state=args.seed, stratify=y)
+
+    pipe = Pipeline([
+        # ("features", tu.tfidf_vectorizer()),
+        # (f"{clf_name}", GradientBoostingClassifier(random_state=args.seed, max_depth=4, n_estimators=200, verbose=1))
+        (f"{clf_name}", LinearSVC(random_state=args.seed, max_iter=10000, class_weight=weights))
+    ])
+
+    try:
+        print("Loading the model...")
+        with lzma.open("model.model" , "rb") as modelFile:
+            model = pickle.load(modelFile)
+    except:
+        print("Model could not be found, training a new model...")
+        model = pipe.fit(train_X, train_y)
+        with lzma.open("model.model", "wb") as model_file: 
+            pickle.dump(model , model_file)
+
+    pred = model.predict(test_X)
+    clf = model.named_steps[clf_name]
+    print("Error:", 1 - metrics.accuracy_score(test_y, pred, normalize=True))
+    if cm:
+        tu.plot_confusion_matrix(clf, y_labels, pred, test_y, train_y, clf_name)
+    if clf_report:
+        tu.table_classification_report(test_y, pred, y_labels, clf_name)
 
 
 if __name__ == "__main__":
@@ -175,10 +199,11 @@ if __name__ == "__main__":
     data = tu.Dataset()
     X, y, vectorizer = data_prep(data)
     # variable_importance(X, y, vectorizer)
-    build_and_test_model(args, X, y, vectorizer, create_csv=False, get_correlated_unigrams=False)
+    build_and_test_model(args, X, y, vectorizer, cm=True)
     # tu.plot_all_histograms(data, "plot_all_hist")
     # tu.plot_original_histograms(data, "plot_og_en_hist")
     # TODO: combine histogram plotting into one function
     # tu.plot_all_results_from_probal()
     # tu.table_data_category_counts(data)
     # tu.plot_explore_classifiers(args, X, y)
+    # test_LSVC_models(args, X, y)

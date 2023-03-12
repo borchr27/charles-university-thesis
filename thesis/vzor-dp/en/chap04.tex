@@ -6,9 +6,9 @@ Here we will explore the results of different classifiers and active learning st
 
 \subsection{Active Learning with PWC and RBF Kernel}
 
-In Figure \ref{fig:plot_all_results_rbf} we have the train and test errors for four different active learning sampling stratagies and we can see that xPAL and PAL both perform relatively well before starting to overfit the training data. We reviewed the resulting error data and xPAL outperformed PAL by about 1.5\%. However, xPAL has much faster running time compared to PAL. 
+In Figure \ref{fig:plot_all_results_rbf} we have the train and test errors for four different active learning sampling strategies and we can see that xPAL and PAL both perform relatively well before starting to overfit the training data. We reviewed the resulting error data and xPAL outperformed PAL by about 1.5\%. However, xPAL has much faster running time compared to PAL. 
 
-We werent satisfied with the testing error which leveled out to about 70\% for each sampling strategy. PAL and xPAL were able to rapidly reduce the testing error early on in the training process while random selection and QBC weren't able to determine the data with the highest information gain. 
+We weren't satisfied with the testing error which leveled out to about 70\% for each sampling strategy. PAL and xPAL were able to rapidly reduce the testing error early on in the training process while random selection and QBC weren't able to determine the data with the highest information gain. 
 
 \begin{figure}[ht]
   \centering
@@ -19,7 +19,7 @@ We werent satisfied with the testing error which leveled out to about 70\% for e
 
 \subsection{Active Learning with PWC and Cosine Kernel}
 
-In Figure \ref{fig:plot_all_results_cosine} we have the and test errors for the same four different active leraning sampling stratagies and tested on the same data except instead of using the RBF kernel the Cosine kernel was used. We found that using the Cosine kernel reduced the training error across the board by roughly 17\%.  
+In Figure \ref{fig:plot_all_results_cosine} we have the and test errors for the same four different active learning sampling strategies and tested on the same data except instead of using the RBF kernel the Cosine kernel was used. We found that using the Cosine kernel reduced the training error across the board by roughly 17\%.  
 
 \begin{figure}[ht]
   \centering
@@ -30,7 +30,7 @@ In Figure \ref{fig:plot_all_results_cosine} we have the and test errors for the 
 
 \subsection{Scikit-Learn Classifier Evaluation}
 
-We also decided to try out the boilerpate classifiers from Scikit-Learn to compare performances. Again we used the original data with the same TF-IDF vectorizer as used with the previous active learning models to stay consistent. We decided to use the Cosine kernel when using LinearSVC as we learned that the performance increased in comparison to the RBF kernel when using PWC. The results for a variety of different classifers are shown in Figure \ref{fig:explore_classifiers}.
+We also decided to try out the boilerplate classifiers from Scikit-Learn to compare performances. Again we used the original data with the same TF-IDF vectorizer as used with the previous active learning models to stay consistent. Cross validation was also used here but was not used in the previous sections. We decided to use the Cosine kernel when using LinearSVC as we learned that the performance increased in comparison to the RBF kernel when using PWC. The results for a variety of different classifiers are shown in Figure \ref{fig:explore_classifiers}. In the box-plot, the whiskers extend from the box to the furthest data points that are within 1.5 times the interquartile range (IQR) of the box. Any data points that are beyond the whiskers are considered outliers and are plotted as individual points or symbols (diamonds) as seen in Figure \ref{fig:explore_classifiers}.
 
 \begin{figure}[ht]
   \centering
@@ -39,23 +39,23 @@ We also decided to try out the boilerpate classifiers from Scikit-Learn to compa
   \label{fig:explore_classifiers}
 \end{figure}
 
-The LinearSVC classifier performed rather well compared to most other classifiers and it is a fast running algorithm even with data that has a large feature set. We decided to look further into LinearSVC and create a few models to evaluate its performance. We created three models, the first was a boilerplate LinearSVC with no argument modifications, the second model used the class weights parameter set to 'balanced'. The 'balanced' mode uses the values of y to automatically adjust weights inversely proportional to class frequencies in the input data as $n\_samples / (n\_classes * np.bincount(y))$. For the third test we created a dictionary of weights for each class using the Cosine Decay function. The results are shown in Table \ref{tab:lsvc_models}.
+The LinearSVC classifier performed rather well compared to most other classifiers and it is a fast running algorithm even with data that has a large feature set. We decided to look further into LinearSVC and create a few models to evaluate its performance. We created three models, the first was a boilerplate LinearSVC with no argument modifications, the second model used the class weights parameter set to 'balanced'. The 'balanced' mode uses the values of y to automatically adjust weights inversely proportional to class frequencies in the input data as $n\_samples / (n\_classes * np.bincount(y))$. For the third test we created a dictionary of weights for each class using the Cosine Decay function. The weights for each category ranged from 0.1 to 1.0 where the most frequent classes had smaller weights. The results are shown in Table \ref{tab:lsvc_models}.
 
 
 \begin{table}[h]
 \centering
 \begin{tabular}{|l|l|}
 \hline
-\textbf{Trial} & \textbf{Accuracy} \\
+\textbf{Trial} & \textbf{Error} \\
 \hline
-Boilerplate & 0.579 \\
+Balanced Weights & 0.441 \\
 \hline
-Balanced & 0.587 \\
+Boilerplate & 0.406 \\
 \hline
-Cosine Decay & 0.6 \\
+Cosine Decay Weights & 0.392 \\
 \hline
 \end{tabular}
-\caption{Accuracy results for three Linear SVC trials.}
+\caption{Error results for three Linear SVC trials.}
 \label{tab:lsvc_models}
 \end{table}
 

@@ -532,7 +532,7 @@ def plot_all_results_from_probal() -> None:
 def plot_explore_classifiers(args, X, y):
     le = LabelEncoder()
     y = le.fit_transform(y)
-    train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.25, random_state=args.seed, stratify=y)
+    # train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.25, random_state=args.seed, stratify=y)
 
     models = [
         LinearSVC(),
@@ -550,10 +550,10 @@ def plot_explore_classifiers(args, X, y):
     for model in models:
         model_name = model.__class__.__name__
         if model_name == 'SVC':
-            train_X_cosine = pairwise_kernels(train_X, metric='cosine')
-            accuracies = cross_val_score(model, train_X_cosine, train_y, scoring='accuracy', cv=CV)
+            train_X_cosine = pairwise_kernels(X, metric='cosine')
+            accuracies = cross_val_score(model, train_X_cosine, y, scoring='accuracy', cv=CV)
         else:
-            accuracies = cross_val_score(model, train_X, train_y, scoring='accuracy', cv=CV)
+            accuracies = cross_val_score(model, X, y, scoring='accuracy', cv=CV)
             # use error instead of accuracy
         errors = 1 - accuracies
         for fold_idx, error in enumerate(errors):

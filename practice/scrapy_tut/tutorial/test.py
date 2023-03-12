@@ -140,14 +140,33 @@ def table_test():
     # Save the figure as a pdf file
     plt.savefig("Output.pdf")
 
+def cosine_decay():
+    # Define the parameters of the cosine decay function
+    amplitude = 1
+    period = 23
+
+    # Generate an array of x values
+    x = np.arange(0, 23, 0.01)
+
+    # Compute the y values of the cosine decay function
+    y = amplitude * 1/2 * (1 + np.cos(np.pi * x / period))
+
+    # Plot the cosine decay function
+    plt.plot(x, y)
+
+    # Add labels and title to the plot
+    plt.ylabel('Weights')
+    plt.title('Cosine Decay Function')
+
+    # Show the plot
+    plt.show()
+
+
 if __name__ == "__main__":
     # language_prediction_test()
     # tfidf_to_csv_test()
     # print(where())
     # lang_translation()
     table_test()
-
-
-
 
 
