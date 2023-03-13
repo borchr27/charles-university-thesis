@@ -74,10 +74,68 @@ Because it is not known how the data is generated $P(x)$ Kottke et al. use a Mon
 
 \section{Conjugate Prior}
 
-The conditional class probability $p(y|x)$ depends on the ground truth which is unkown. As a result the conditional class probability is exactly the y-th element of the unknown ground truth vector $\textit{\textbf{p}}$.
+The conditional class probability $p(y|x)$ depends on the ground truth which is unkown. As a result the conditional class probability is exactly the y-th element of the unknown ground truth vector $\textit{\textbf{p}}$. The nearby labels from $\mathcal{L}$ can be used to estimate the ground truth $\textit{\textbf{p}}$ becuase the oracle provides the labels according to $\textit{p}$. If we assume a smooth distribution then the estimate is relatively close to the ground truth if we have enough labeled instances. 
 
+\begin{equation}
+p(y|x) = p(y|t(x)) = p(y|\textit{\textbf{p}}) = \text{Cat} (y|\textbf{p}) = p_y
+\end{equation}
 
-\section{Risk difference using the conjugate prior}
+A Bayesian approach is used for estimation by calculating the posterior predictive distribution (calculating the expected value over all possible ground truth values). The probability of y given some x is approximately equal to the kernel frequency estimate of x. 
 
+\begin{equation}
+p(y|x) \approx  p(y | \textbf{\textit{k}}^{\mathcal{L}}_x) = \underset{p(p|\textbf{\textit{k}}^{\mathcal{L}}_x)}{\mathbb{E}} \left[ p_y \right] = \int p(p|\textbf{\textit{k}}^{\mathcal{L}}_x) p_y dp
+\label{eq:kernel_estimate}
+\end{equation}
 
-\section{Expected probabilistic gain}
+Bayes theorem is then used to determine the posterior probability of the ground truth at instance x in Equation \ref{eq:bayes}. The likelihood $p(\textbf{\textit{k}}^{\mathcal{L}}_x|p)$ is a multinomial distribution because each label has been drawn from $Cat(y|p)$. A prior is introduced and selected as a Dirichlet distribution with $\alpha \in \mathbb{R}^C$ as this is the conjugate prior of the multinomial distribution. An indifferent prior is choosen and each element of alpha is set to the same value. The Dirichlet distribution is an analytical solution for the posterior when the conjugate prior of the multinomial likelihood are used. 
+
+\begin{equation}
+p(p|\textbf{\textit{k}}^{\mathcal{L}}_x) = \frac{p(\textbf{\textit{k}}^{\mathcal{L}}_x|p)p(p)}{p(\textbf{\textit{k}}^{\mathcal{L}}_x)}
+\label{eq:bayes}
+\end{equation}
+
+\begin{equation}
+= \frac{\text{Mult}(\textbf{\textit{k}}^{\mathcal{L}}_x|p) \cdot \text{Dir}(p|\alpha)}{\int \text{Mult}(\textbf{\textit{k}}^{\mathcal{L}}_x|p) \cdot \text{Dir}(p|\alpha) dp}
+\end{equation}
+
+\begin{equation}
+= \text{Dir}(p|\textbf{\textit{k}}^{\mathcal{L}}_x + \alpha)
+\end{equation}
+
+The conditional class probability is determined next from Equation \ref{eq:kernel_estimate}. It is calculated with the expected value of the Dirichlet distribution.
+
+\begin{equation}
+p(y|\textbf{\textit{k}}^{\mathcal{L}}_x) = \underset{\text{Dir}(p|\textbf{\textit{k}}^{\mathcal{L}}_x+ \alpha)}{\mathbb{E}} \left[ p_y \right]
+\end{equation}
+
+\begin{equation}
+= \int \text{Dir}(p|\textbf{\textit{k}}^{\mathcal{L}}_x + \alpha) p_y dp = \frac{\textbf{(\textit{k}}^{\mathcal{L}}_x + \alpha)_y}{||\textbf{\textit{k}}^{\mathcal{L}}_x + \alpha ||_1}
+\end{equation}
+
+The last term is the y-th element of the normalized vector. The 1-norm is used to normalize the vector.
+
+\section{Risk Difference Using the Conjugate Prior}
+
+\begin{equation}
+    \hat{R}_{\mathcal{E}} (f^{\mathcal{L}^+}, f^{\mathcal{L}}, \mathcal{L}^+) = \hat{R}_{\mathcal{E}} (f^{\mathcal{L}^+}, \mathcal{L}^+) - \hat{R}_{\mathcal{E}} (f^{\mathcal{L}}, \mathcal{L}^+)
+\end{equation}
+
+\begin{equation}
+    = \frac{1}{|\mathcal{E}|} \sum_{x \in \mathcal{E}} \sum_{y \in \mathcal{Y}}  \frac{\textbf{(\textit{k}}^{\mathcal{L}}_x + \alpha)_y}{||\textbf{\textit{k}}^{\mathcal{L}}_x + \alpha ||_1} \cdot \left( \textbf{\textit{L}} (y,f^{\mathcal{L}^+}(x)) - \textbf{\textit{L}}(y,f^{\mathcal{L}}(x)) \right)
+\end{equation}
+
+\section{Expected Probabilistic Gain}
+
+\begin{equation}
+    \text{xgain}(x_c, \mathcal{L}, \mathcal{E}) = \underset{p(y_c|\textbf{\textit{k}}^{\mathcal{L}}_{x_c})}{\mathbb{E}} \left[ - \Delta \hat{R}_{\mathcal{E}} (f^{\mathcal{L}^+}, f^{\mathcal{L}}, \mathcal{L}^+ \right]
+\end{equation}
+
+\begin{equation}
+    = - \sum_{y \in \mathcal{Y}}  \frac{\textbf{(\textit{k}}^{\mathcal{L}}_x + \beta)_y}{||\textbf{\textit{k}}^{\mathcal{L}}_x + \beta ||_1} \cdot \frac{1}{|\mathcal{E}|} \sum_{x \in \mathcal{E}} \sum_{y \in \mathcal{Y}}  \frac{\textbf{(\textit{k}}^{\mathcal{L}^+}_x + \alpha)_y}{||\textbf{\textit{k}}^{\mathcal{L}^+}_x + \alpha ||_1} \cdot \left( \textbf{\textit{L}} (y,f^{\mathcal{L}^+}(x)) - \textbf{\textit{L}}(y,f^{\mathcal{L}}(x)) \right)
+\end{equation}
+
+\section{xPAL Selection Strategy}
+
+\begin{equation}
+    x^*_c = \underset{x_c \in \mathcal{U}}{\arg \max} \left( \text{xgain} (x_c, \mathcal{L}, \mathcal{E}) \right)
+\end{equation}
