@@ -1,3 +1,4 @@
+import math
 from typing import List
 from matplotlib import pyplot as plt
 import psycopg2
@@ -8,6 +9,7 @@ from sklearn import metrics
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 import logging
+from sklearn.neighbors import KNeighborsClassifier
 from sqlalchemy import create_engine
 import os
 from sklearn.feature_selection import chi2
@@ -23,6 +25,7 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.svm import SVC
 from sklearn.metrics.pairwise import pairwise_kernels
 from sklearn.preprocessing import LabelEncoder
+from sklearn.metrics.pairwise import cosine_distances
 
 import configparser
 import requests
@@ -529,14 +532,52 @@ def plot_all_results_from_probal() -> None:
         save_plot_image(plt, f'plot_all_results_{n}')
         plt.close()
 
+def get_weights(y:np.ndarray) -> dict:
+    """
+    This function is used to get the weights for the imbalanced data.
+    """
+    bin_counts = np.bincount(y)
+    # Sort the bin counts in ascending order
+    sorted_indices = np.argsort(bin_counts)
+    sorted_bin_counts = bin_counts[sorted_indices]
+    data_dict = {}
+    for i in range(len(sorted_bin_counts)):
+        data_dict[sorted_indices[i]] = sorted_bin_counts[i]
+    
+    def cosine_decay_weight(step, total_steps, initial_weight, final_weight):
+        cosine_decay = 0.5 * (1 + math.cos(math.pi * step / total_steps))
+        decayed = (1 - initial_weight) * cosine_decay + initial_weight
+        return decayed * final_weight
+    
+    # Define the initial and final weights and the total number of steps/categories
+    initial_weight = 0.1
+    final_weight = 1.0
+    total_steps = 23
+
+    # Create a dictionary to store the weights
+    weights = {}
+
+    # Compute the weight for each step using the cosine decay function
+    for n, i in enumerate(data_dict.keys()):
+        weight = cosine_decay_weight(n, total_steps, initial_weight, final_weight)
+        weights[i] = weight
+
+    # Print the dictionary of weights
+    # for w in weights:
+    #     print(f"Step {w}: {weights[w]}")
+    return weights
+
 def plot_explore_classifiers(args, X, y):
     le = LabelEncoder()
     y = le.fit_transform(y)
     # train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.25, random_state=args.seed, stratify=y)
 
+    weights = get_weights(y)
+
     models = [
-        LinearSVC(),
-        MLPClassifier(random_state=1, max_iter=500, hidden_layer_sizes=1000),
+        LinearSVC(class_weight=weights, fit_intercept=False),
+        KNeighborsClassifier(n_neighbors=5, metric='cosine'),
+        MLPClassifier(random_state=1, max_iter=200, hidden_layer_sizes=500),
         SVC(kernel='precomputed'),
         GradientBoostingClassifier(n_estimators=100, learning_rate=1.0, max_depth=1, random_state=0),
         LogisticRegression(random_state=0),
@@ -562,6 +603,8 @@ def plot_explore_classifiers(args, X, y):
     cv_df = pd.DataFrame(entries, columns=['Classifier', 'fold_idx', 'Error'])
     sns.boxplot(x='Classifier', y='Error', data=cv_df)
     plt.xticks(rotation=90)
+    # set y axis to 0 to 1
+    plt.ylim([0, 1])
     plt.tight_layout()
     save_plot_image(plt, 'plot_explore_classifiers')
     plt.close()
@@ -595,10 +638,20 @@ def table_classification_report(test, pred, labels, clf_name_and_info:str) -> No
     """
     Create latex .tex table file with classification report.
     
-    test: array of shape (n_samples,)
-    pred: array of shape (n_samples,)
-    labels: array of shape (n_samples,)
-    clf_name_and_info: string with classifier name and info
+    Parameters
+    ----------
+    test : array-like
+        Ground truth (correct) target values.
+    pred : array-like
+        Estimated targets as returned by a classifier.
+    labels : array-like
+        List of labels to index the matrix. This may be used to reorder or select a subset of labels.
+    clf_name_and_info : str
+        String with classifier name and additional info.
+
+    Returns
+    -------
+    None
     """
     report = metrics.classification_report(test, pred, target_names=labels, output_dict=True, zero_division=0)
     df = pd.DataFrame(report).transpose()
@@ -608,7 +661,17 @@ def table_classification_report(test, pred, labels, clf_name_and_info:str) -> No
 def table_data_category_counts(data:Dataset, group:List[str] = ['original', 'additional']) -> None:
     """
     Creates latex .tex table file with 'original' or 'additional' data counts.
+
+    Parameters
+    ----------
+    data : Dataset
+        Dataset object
+    group : List[str], optional
+        List of strings with 'original' or 'additional' data, by default ['original', 'additional']
     
+    Returns
+    -------
+    None
     """
     td_df = data.translated_data
     sd_df = data.site_data

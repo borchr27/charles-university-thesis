@@ -79,41 +79,6 @@ def variable_importance(X:np.ndarray, y:np.ndarray, vectorizer:TfidfVectorizer) 
     bottom_df.to_latex(f"{tu.FILE_PATH}table_bottom_20_features.tex")
 
 
-def get_weights(y:np.ndarray) -> dict:
-    """
-    This function is used to get the weights for the imbalanced data.
-    """
-    bin_counts = np.bincount(y)
-    # Sort the bin counts in ascending order
-    sorted_indices = np.argsort(bin_counts)
-    sorted_bin_counts = bin_counts[sorted_indices]
-    data_dict = {}
-    for i in range(len(sorted_bin_counts)):
-        data_dict[sorted_indices[i]] = sorted_bin_counts[i]
-    
-    def cosine_decay_weight(step, total_steps, initial_weight, final_weight):
-        cosine_decay = 0.5 * (1 + math.cos(math.pi * step / total_steps))
-        decayed = (1 - initial_weight) * cosine_decay + initial_weight
-        return decayed * final_weight
-    
-    # Define the initial and final weights and the total number of steps/categories
-    initial_weight = 0.1
-    final_weight = 1.0
-    total_steps = 23
-
-    # Create a dictionary to store the weights
-    weights = {}
-
-    # Compute the weight for each step using the cosine decay function
-    for n, i in enumerate(data_dict.keys()):
-        weight = cosine_decay_weight(n, total_steps, initial_weight, final_weight)
-        weights[i] = weight
-
-    # Print the dictionary of weights
-    # for w in weights:
-    #     print(f"Step {w}: {weights[w]}")
-    return weights
-
 def test_LSVC_models(args: argparse.Namespace, X:np.ndarray, y:np.ndarray):
     clf_name = "LinearSVC"
     data_name = "original"
@@ -124,7 +89,7 @@ def test_LSVC_models(args: argparse.Namespace, X:np.ndarray, y:np.ndarray):
     le.fit(y)
     y = le.transform(y)
 
-    weights = get_weights(y)
+    weights = tu.get_weights(y)
 
     train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.25, random_state=args.seed, stratify=y)
 
@@ -158,7 +123,7 @@ def build_and_test_model(args: argparse.Namespace, X:np.ndarray, y:np.ndarray, v
     le.fit(y)
     y = le.transform(y)
 
-    weights = get_weights(y)
+    weights = tu.get_weights(y)
 
     if unigrams:
         # make a dictionary with y labels as keys and their index as values
@@ -172,7 +137,7 @@ def build_and_test_model(args: argparse.Namespace, X:np.ndarray, y:np.ndarray, v
     pipe = Pipeline([
         # ("features", tu.tfidf_vectorizer()),
         # (f"{clf_name}", GradientBoostingClassifier(random_state=args.seed, max_depth=4, n_estimators=200, verbose=1))
-        (f"{clf_name}", LinearSVC(random_state=args.seed, max_iter=10000, class_weight=weights))
+        (f"{clf_name}", LinearSVC(random_state=args.seed, max_iter=10000, class_weight=weights, fit_intercept=False))
     ])
 
     try:
