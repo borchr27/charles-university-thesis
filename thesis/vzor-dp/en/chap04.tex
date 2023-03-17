@@ -6,14 +6,14 @@ Here we will explore the results of different classifiers and active learning st
 
 \subsection{Active Learning with PWC and RBF Kernel}
 
-In Figure \ref{fig:plot_all_results_rbf} we have the train and test errors for four different active learning sampling strategies and we can see that xPAL and PAL both perform relatively well before starting to overfit the training data. We reviewed the resulting error data and xPAL outperformed PAL by about 1.5\%. However, xPAL has much faster running time compared to PAL. 
+In Figure \ref{fig:plot_all_results_rbf} we have the train and test errors for four different active learning sampling strategies and we can see that xPAL and PAL both perform relatively well before starting to over-fit the training data. We reviewed the resulting error data and xPAL outperformed PAL by about 1.5\%. However, xPAL has much faster running time compared to PAL.
 
 We weren't satisfied with the testing error which leveled out to about 70\% for each sampling strategy. PAL and xPAL were able to rapidly reduce the testing error early on in the training process while random selection and QBC weren't able to determine the data with the highest information gain. 
 
 \begin{figure}[ht]
   \centering
   \includegraphics[width=\textwidth]{../img/plot_all_results_rbf.pdf}
-  \caption{Train and test error using different query stratagies and RBF kernel for the PWC classifier.}
+  \caption{Train and test error using different query strategies and RBF kernel for the PWC classifier.}
   \label{fig:plot_all_results_rbf}
 \end{figure}
 
@@ -24,13 +24,16 @@ In Figure \ref{fig:plot_all_results_cosine} we have the and test errors for the 
 \begin{figure}[ht]
   \centering
   \includegraphics[width=\textwidth]{../img/plot_all_results_cosine.pdf}
-  \caption{Train and test error using different query stratagies and Cosine kernel for the PWC classifier.}
+  \caption{Train and test error using different query strategies and Cosine kernel for the PWC classifier.}
   \label{fig:plot_all_results_cosine}
 \end{figure}
 
+
+In Figure \ref{fig:plot_all_results_cosine} PAL and xPAL were able to reduce the training error, by about 20\% and 25\% respectively, early in the training process compared to random selection and QBC.
+
 \subsection{Scikit-Learn Classifier Evaluation}
 
-We also decided to try out the boilerplate classifiers from Scikit-Learn to compare performances. Again we used the original data with the same TF-IDF vectorizer as used with the previous active learning models to stay consistent. Cross validation was also used here but was not used in the previous sections. We decided to use the Cosine kernel when using LinearSVC as we learned that the performance increased in comparison to the RBF kernel when using PWC. The results for a variety of different classifiers are shown in Figure \ref{fig:explore_classifiers}. In the box-plot, the whiskers extend from the box to the furthest data points that are within 1.5 times the interquartile range (IQR) of the box. Any data points that are beyond the whiskers are considered outliers and are plotted as individual points or symbols (diamonds) as seen in Figure \ref{fig:explore_classifiers}.
+We also decided to try out the boilerplate classifiers from Scikit-Learn to compare performances. Again we used the original data with the same TF-IDF vectorizer as used with the previous active learning models to stay consistent. Cross validation was also used here but was not used in the previous sections. We decided to use the Cosine kernel when using LinearSVC as we learned that the performance increased in comparison to the RBF kernel when using PWC. The results for a variety of different classifiers are shown in Figure \ref{fig:explore_classifiers}. In the box-plot, the whiskers extend from the box to the furthest data points that are within 1.5 times the inter-quartile range (IQR) of the box. Any data points that are beyond the whiskers are considered outliers and are plotted as individual points or symbols (diamonds) as seen in Figure \ref{fig:explore_classifiers}.
 
 \begin{figure}[ht]
   \centering

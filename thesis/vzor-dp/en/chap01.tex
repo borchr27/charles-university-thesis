@@ -53,7 +53,7 @@ Diversity sampling is the set of strategies for identifying unlabeled items that
 Either way this can result in poor or uneven performance when the model is applied or the data is changing over time. The goal of diversity sampling is to target new, unusual, or underrepresented items for annotation to give the algorithm a more complete picture of the problem space. 
 
 \subsection{Uncertainty Sampling}
-Uncertainty sampling is the set of strategies for identifying unlabeled items that are near a decision boundary in your current machine learning model  (\cite{munro2021human}). If you have a binary classification task, these items will have close to a 50\% probability of belonging to either label; therefore, the model is called uncertain or confused. 
+Uncertainty sampling is the set of strategies for identifying unlabeled items that are near a decision boundary in the current machine learning model (\cite{munro2021human}). Uncertainty sampling is simple given a classifier that estimates $P (C|w)$ (\cite{lewis1994uncertainty}). On each iteration, the current version of classifier can be applied to each data point, and the data with estimated $P(C|w)$ values closest to 0.5 are selected, since 0.5 corresponds to the classifier being most uncertain of the class label.
 
 These items are most likely to be wrongly classified, so they are the most likely to result in a label that differs from the predicted label, moving the decision boundary after they have been added to the training data and the model has been retrained.
 
@@ -69,7 +69,11 @@ These class posterior probabilities can be modeled as a random variable based on
 Active Learning with Cost Embedding (ALCE) is a non-probabilistic uncertainty sampling algorithm for cost-sensitive multiclass active learning. They first designed a cost-sensitive multiclass classification algorithm called cost embedding (CE), which embeds the cost information in the distance measure in a special hidden space by non-metric multidimensional scaling. They then use a mirroring trick to let CE embed the possibly asymmetric cost information in the symmetric distance measure (\cite{huang2016alce}).
 
 \subsection{QBC}
-Query by committee uses an ensemble of classifiers that are trained on bootstrapped replicates of the labeled set (\cite{seung1992qbc}).
+Query by committee uses an ensemble of classifiers that are trained on bootstrapped replicates of the labeled set (\cite{seung1992qbc}). The idea is to train a committee of classifiers on the available labeled data and then use the committee to select the most informative unlabeled data for labeling (\cite{freund1997qbc}). The committee consists of several classifiers, each trained on a slightly different subset of the available labeled data.
+
+The QBC algorithm measures the disagreement of the committee's predictions on each unlabeled data point. The intuition is that if the committee members disagree then it is likely to be a difficult data point for the current classifier and thus informative for labeling.
+
+The algorithm selects a fixed number of the most informative examples and asks the user or oracle to label them. The labeled examples are then added to the labeled dataset, and the committee is retrained on the expanded labeled dataset. This process is repeated until the algorithm achieves a desired level of accuracy or the available labeling budget is exhausted.
 
 \subsection{EER}
 Monte Carlo estimation of error reduction (EER) estimates future error rate by log-loss, using the entropy of the posterior class distribution on a sample of the unlabeled examples, or by 0-1 loss, using the posterior probabilities of the most probable class for the sampled unlabeled examples (\cite{roy2001eer}).

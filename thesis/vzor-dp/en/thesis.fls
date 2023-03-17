@@ -1006,11 +1006,6 @@ INPUT ./chap02.tex
 INPUT chap02.tex
 INPUT ./chap02.tex
 INPUT chap02.tex
-INPUT /Users/mitchellborchers/Library/TinyTeX/texmf-dist/fonts/tfm/public/cm/cmti8.tfm
-INPUT /Users/mitchellborchers/Library/TinyTeX/texmf-dist/fonts/tfm/public/cm/cmti7.tfm
-INPUT /Users/mitchellborchers/Library/TinyTeX/texmf-dist/fonts/tfm/public/cm/cmbxti10.tfm
-INPUT /Users/mitchellborchers/Library/TinyTeX/texmf-dist/fonts/tfm/public/cm/cmbxti10.tfm
-INPUT /Users/mitchellborchers/Library/TinyTeX/texmf-dist/fonts/tfm/public/cm/cmbxti10.tfm
 INPUT /Users/mitchellborchers/Library/TinyTeX/texmf-dist/tex/latex/bbold/Ubbold.fd
 INPUT /Users/mitchellborchers/Library/TinyTeX/texmf-dist/tex/latex/bbold/Ubbold.fd
 INPUT /Users/mitchellborchers/Library/TinyTeX/texmf-dist/tex/latex/bbold/Ubbold.fd
@@ -1018,6 +1013,11 @@ INPUT /Users/mitchellborchers/Library/TinyTeX/texmf-dist/tex/latex/bbold/Ubbold.
 INPUT /Users/mitchellborchers/Library/TinyTeX/texmf-dist/fonts/tfm/public/bbold/bbold12.tfm
 INPUT /Users/mitchellborchers/Library/TinyTeX/texmf-dist/fonts/tfm/public/bbold/bbold8.tfm
 INPUT /Users/mitchellborchers/Library/TinyTeX/texmf-dist/fonts/tfm/public/bbold/bbold6.tfm
+INPUT /Users/mitchellborchers/Library/TinyTeX/texmf-dist/fonts/tfm/public/cm/cmti8.tfm
+INPUT /Users/mitchellborchers/Library/TinyTeX/texmf-dist/fonts/tfm/public/cm/cmti7.tfm
+INPUT /Users/mitchellborchers/Library/TinyTeX/texmf-dist/fonts/tfm/public/cm/cmbxti10.tfm
+INPUT /Users/mitchellborchers/Library/TinyTeX/texmf-dist/fonts/tfm/public/cm/cmbxti10.tfm
+INPUT /Users/mitchellborchers/Library/TinyTeX/texmf-dist/fonts/tfm/public/cm/cmbxti10.tfm
 INPUT ./chap03.tex
 INPUT ./chap03.tex
 INPUT ./chap03.tex

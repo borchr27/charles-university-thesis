@@ -1,6 +1,6 @@
 \chapter{Understanding xPAL}
 
-We have introduced many different active learning models in the previous section, and we will test some of these models on our data. However, we will mainly focus on using the xPAL sampling strategy and a pool based query function. The xPAL sampling strategy is a decision-theoretic approach to measure the usefulness of a labeling candidate in terms of its expected performance gain (\cite{kottke2021toward}). We can estimate the data distribution but we are uncertain about the true class posterior probabilities. The class posterior probabilities are modeled as a random variable based on the current observations. Therefore a Bayesian approach is used by incorporating a conjugate prior to the observations. In general, the idea is to estimate the expected performance gain from a new labeled data point and select the best one. Variable descriptions are listed in Table \ref{tab:var_defs}
+We have introduced many different active learning models in the previous section, and we will test some of these models on our data. However, we will mainly focus on using the xPAL sampling strategy and a pool based query function. The xPAL sampling strategy is a decision-theoretic approach to measure the usefulness of a labeling candidate in terms of its expected performance gain (\cite{kottke2021toward}). We can estimate the data distribution but we are uncertain about the true class posterior probabilities. The class posterior probabilities are modeled as a random variable based on the current observations. Therefore a Bayesian approach is used by incorporating a conjugate prior to the observations. In general, the idea is to estimate the expected performance gain for the classifier, using the unlabeled data, and then select the best data point and request its label. Variable descriptions used in the following equations and explanations are listed in Table \ref{tab:var_defs}
 
 \begin{table}[ht]
 \centering
@@ -8,21 +8,23 @@ We have introduced many different active learning models in the previous section
 \hline
 {} & \textbf{Descriptions} \\
 \hline
-$x$                         & Input \\
+$C$                         & Number of classes \\
 \hline
-$y$                         & Output \\
+$x$                         & Input $x \in \mathbb{R}^n$\\
 \hline
-$\textit{L}$                & Loss \\
+$y$                         & Output $y \in l_1,...,l_C$ \\
 \hline
-$\textit{R}$                & Risk \\
+$\textit{L}$                & Loss ??\\
 \hline
-$\textit{R}_{\mathcal{E}}$  & Empirical Risk \\
+$\textit{R}$                & Risk $\textit{R}(f^{\mathcal{L}}) \in \mathbb{R}_0^x$ \\
 \hline
-$\mathcal{L}$               & Labeled Data \\
+$\textit{R}_{\mathcal{E}}$  & Empirical risk ??\\
 \hline
-$\mathcal{U}$               & Unlabeled Data $\{x_1,...,x_n\}$ \\
+$\mathcal{L}$               & Set of labeled data $\{(x_1,y_1),...,(x_n,y_n)\}$ \\
 \hline
-$\mathcal{E}$               & Labeled and Unlabeled Data \\
+$\mathcal{U}$               & Set of unlabeled data $\{x_1,...,x_n\}$ \\
+\hline
+$\mathcal{E}$               & Set of labeled and unlabeled data \\
 \hline
 $p(x,y)$                    & Joint distribution of random variables $x$ and $y$ \\
 \hline
@@ -58,8 +60,7 @@ For xPAL, Kottke et al. use the classifications error as the performance measure
 \textbf{\textit{L}}(y,f^{\mathcal{L}}(x)) &= \mathbb{1}_{f^{\mathcal{L}}(x)\neq y} 
 \end{flalign}
 
-Because it is not known how the data is generated $P(x)$ Kottke et al. use a Monte-Carlo integration with all the data $\mathcal{E}$ to represent the generator. The empirical risk $\textit{R}_{\mathcal{E}}$ is the average of the loss over all the data points in the dataset.
-Because it is not known how the data is generated $P(x)$ Kottke et al. use a Monte-Carlo integration with all the data $\mathcal{E}$ to represent the generator. The empirical risk $\textit{R}_{\mathcal{E}}$ is the average of the loss over all the data points in the dataset.
+Because it is not known how the data is generated Kottke et al. use a Monte-Carlo integration with all the data $\mathcal{E}$ to represent the generator. The empirical risk $\textit{R}_{\mathcal{E}}$ is the average of the loss over all the data points in the dataset.
 
 \begin{flalign}
 \textit{R}_{\mathcal{E}}(f^{\mathcal{L}}) &= \frac{1}{|\mathcal{E}|} \sum_{x \in \mathcal{E}} \underset{p(y|x)}{\mathbb{E}} \left[ \textbf{\textit{L}}(y,f^{\mathcal{L}}(x)) \right] \\

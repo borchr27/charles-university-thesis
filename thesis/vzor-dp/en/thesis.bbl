@@ -1,4 +1,4 @@
-\begin{thebibliography}{10}
+\begin{thebibliography}{12}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -18,6 +18,11 @@ Alexandre~Gramfort Fabian~Pedregosa, Gael~Varoquaux, Vincent Michel, et~al.
 \newblock
   \url{https://scikit-learn.org/stable/modules/feature_extraction.html}, 2023.
 \newblock [Accessed 03-Mar-2023].
+
+\bibitem[Freund et~al.(1997)Freund, Seung, Shamir, and Tishby]{freund1997qbc}
+Yoav Freund, H~Sebastian Seung, Eli Shamir, and Naftali Tishby.
+\newblock Selective sampling using the query by committee algorithm.
+\newblock \emph{Machine learning}, 28\penalty0 (2-3):\penalty0 133, 1997.
 
 \bibitem[Huang and Lin(2016)]{huang2016alce}
 Kuan-Hao Huang and Hsuan-Tien Lin.
@@ -43,6 +48,11 @@ Georg Krempl, Daniel Kottke, and Myra Spiliopoulou.
   Applications}, pages 1049--1050, Prague, Czech Republic, August 2014. IOS
   Press.
 \newblock Short Paper.
+
+\bibitem[Lewis and Gale(1994)]{lewis1994uncertainty}
+David~D Lewis and William~A Gale.
+\newblock A sequential algorithm for training text classifiers.
+\newblock \emph{arXiv preprint cmp-lg/9407020}, 1994.
 
 \bibitem[Munro(2021)]{munro2021human}
 Robert Munro.
