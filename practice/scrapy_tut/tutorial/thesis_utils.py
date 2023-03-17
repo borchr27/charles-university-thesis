@@ -1,6 +1,8 @@
+import os
 import math
 from typing import List
 from matplotlib import pyplot as plt
+import tensorflow as tf
 import psycopg2
 import re
 import numpy as np
@@ -11,11 +13,11 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import logging
 from sklearn.neighbors import KNeighborsClassifier
 from sqlalchemy import create_engine
-import os
 from sklearn.feature_selection import chi2
 import seaborn as sns
+from sklearn.pipeline import Pipeline
 from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.svm import LinearSVC
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.model_selection import cross_val_score
@@ -71,18 +73,7 @@ class Dataset:
         if db.connection:
             self.translated_data = pd.read_sql("SELECT * FROM translated_data;", db.connection)
             self.site_data = pd.read_sql("SELECT * FROM site_data;", db.connection)
-        db.close()            
-    
-    def get_indicies(self) -> tuple[list[int], list[int]]:
-        """Get the indicies of the original data and additional data."""
-        og_data_indicies = []
-        add_data_indicies = []
-        for item in self._class:
-            if item.data_category == "Original Data":
-                og_data_indicies.append(item.id)
-            else:
-                add_data_indicies.append(item.id)
-        return og_data_indicies, add_data_indicies
+        db.close()
 
 
 class PostgresDatabase:
@@ -317,6 +308,127 @@ def azure_translate(text:str, source_language:str = None, target_language:str ='
     
     return _translate(text, source_language, target_language, key, region, endpoint)
 
+def table_variable_importance(X:np.ndarray, y:np.ndarray, vectorizer:TfidfVectorizer) -> None:
+    """
+    This function is used to find the most important features in the dataset using a random forest regressor.
+    
+    Parameters:
+    X: The tfidf vectorized data
+    y: The labels for the data
+    vectorizer: The vectorizer used to vectorize the data
+    """
+
+    # lable encoder (for gbdt)
+    y_labels = np.unique(y)
+    le = LabelEncoder()
+    le.fit(y)
+    y = le.transform(y)
+
+    rf_model = RandomForestRegressor(n_estimators=100, random_state=42)
+    rf_model.fit(X.toarray(), y)
+    X = pd.DataFrame(X.toarray())
+    importances = pd.Series(data=rf_model.feature_importances_, index=X.columns)
+    importances_sorted = importances.sort_values(ascending=False)
+    # Turn the importances back into words with tdidf vectorizer
+    top = {}
+    bottom = {}
+    for i in range(20):
+        top[vectorizer.get_feature_names()[importances_sorted.index[i]]] = importances_sorted.values[i]
+        bottom[vectorizer.get_feature_names()[importances_sorted.index[-i-1]]] = importances_sorted.values[-i-1]
+    # create a pandas df for the top 20 and one for the bottom 20
+    top_df = pd.DataFrame.from_dict(top, orient='index', columns=['importance'])
+    top_df.rename(columns={'importance': 'Importance'}, inplace=True)
+    bottom_df = pd.DataFrame.from_dict(bottom, orient='index', columns=['importance'])
+    bottom_df.rename(columns={'importance': 'Importance'}, inplace=True)
+    top_df.to_latex(f"{FILE_PATH}table_top_20_features.tex")
+    bottom_df.to_latex(f"{FILE_PATH}table_bottom_20_features.tex")
+
+def data_prep(data:Dataset) -> tuple[np.ndarray, np.ndarray, TfidfVectorizer]:
+    sd_df = data.site_data
+    td_df = data.translated_data
+    data_df = pd.merge(td_df[['site_data_id', 'english_text']], \
+                       sd_df[['id', 'category', 'origin']], left_on='site_data_id', right_on='id')
+    filtered_df = data_df[data_df['origin'] == 'original']
+    # print(filtered_df.value_counts('category'))
+    train_data = filtered_df['english_text'].to_numpy()
+    # for each row in train data replace it with this regex (separates camel case words like howAreYou to how Are You)
+    train_data = np.array([re.sub(r'([a-z])([A-Z])', r'\1 \2', row) for row in train_data])
+    vectorizer = tfidf_vectorizer()
+    X = vectorizer.fit_transform(train_data)
+    y = filtered_df['category'].to_numpy()
+    return X, y, vectorizer
+
+
+def build_LSVC_models(args, X:np.ndarray, y:np.ndarray):
+    clf_name = "LinearSVC"
+
+    # lable encoder
+    y_labels = np.unique(y)
+    le = LabelEncoder()
+    le.fit(y)
+    y = le.transform(y)
+
+    weights = get_weights(y)
+
+    train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.25, random_state=args.seed, stratify=y)
+
+    model1 = LinearSVC(random_state=args.seed, max_iter=10000, class_weight=weights).fit(train_X, train_y)
+    model2 = LinearSVC(random_state=args.seed, max_iter=10000, class_weight='balanced').fit(train_X, train_y)
+    model3 = LinearSVC(random_state=args.seed, max_iter=10000).fit(train_X, train_y)
+    models = [model3, model2, model1]
+
+    for model in models:
+        pred = model.predict(test_X)
+        print("Error:", 1 - metrics.accuracy_score(test_y, pred, normalize=True))
+
+
+def build_tensor_flow_NN(args, X:np.ndarray, y:np.ndarray) -> None:
+
+    y_labels = np.unique(y)
+    le = LabelEncoder()
+    le.fit(y)
+    y = le.transform(y)
+
+    train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.25, random_state=args.seed, stratify=y)
+
+    train_X = train_X.toarray()
+    test_X = test_X.toarray()
+    model = tf.keras.Sequential([
+        tf.keras.layers.Flatten(input_shape=[train_X.shape[1]]),
+        tf.keras.layers.Dense(args.hidden_layer, activation=tf.nn.sigmoid),
+        tf.keras.layers.Dense(len(y_labels), activation=tf.nn.softmax),
+    ])
+
+    optimizer = tf.keras.optimizers.Adamax(jit_compile=False,)
+    optimizer.learning_rate = tf.keras.optimizers.schedules.CosineDecay(
+            initial_learning_rate=args.learning_rate,
+            decay_steps=train_X.shape[0] // args.batch_size * args.epochs,
+            alpha=args.learning_rate_final / args.learning_rate,
+        )
+
+    model.compile(
+        optimizer=optimizer,
+        loss=tf.keras.losses.sparse_categorical_crossentropy,
+        metrics=[tf.keras.metrics.sparse_categorical_accuracy],
+    )
+
+    model.fit(train_X, train_y, batch_size=args.batch_size, epochs=args.epochs)
+
+    # Evaluate the model
+    test_loss, test_acc = model.evaluate(test_X, test_y)
+
+    pred = model.predict(test_X)
+    pred = np.argmax(pred, axis=1)
+    
+    plot_confusion_matrix(y_labels, pred, test_y, 'NN')
+    print('Test accuracy:', test_acc)
+
+    # Save the model
+    # model.save(args.model, include_optimizer=False)
+
+    # Evaluating, either manually
+    # model = tf.keras.models.load_model(args.model, compile=False)
+
 
 def save_plot_image(plot:plt, file_name:str) -> None:
     """Saves the given plot to a file with the given filename to the thesis directory.
@@ -327,7 +439,7 @@ def save_plot_image(plot:plt, file_name:str) -> None:
     plt.savefig(f'{FILE_PATH}{file_name}.pdf')
 
 
-def plot_confusion_matrix(clf, y_labels, pred, test_target, train_target, name:str) -> None:
+def plot_confusion_matrix(y_labels, pred, test_target, name:str) -> None:
     """Plots a confusion matrix for the given classifier.
     
     clf: classifier
@@ -336,18 +448,17 @@ def plot_confusion_matrix(clf, y_labels, pred, test_target, train_target, name:s
     test_target: test target
     train_target: train target   
     """
-    cm = metrics.confusion_matrix(test_target, pred, labels=clf.classes_)
-    unique_categories, category_counts = np.unique(train_target, return_counts=True)
-    category_bins = [i for i in range(len(category_counts))]
+    cm = metrics.confusion_matrix(test_target, pred)
+    category_bins = [i for i in range(len(y_labels))]
     # category_labels = [i[:8] for i in unique_categories]
-    disp = metrics.ConfusionMatrixDisplay(confusion_matrix=cm,display_labels=clf.classes_)
+    disp = metrics.ConfusionMatrixDisplay(confusion_matrix=cm)
     disp.plot()
     # make x axis labels smaller
     plt.xticks(category_bins, y_labels, rotation='vertical', fontsize=8)
     plt.yticks(category_bins, y_labels, fontsize=8)
     plt.tight_layout()
     # plt.show()
-    save_plot_image(plt, f"plot_confusion_matrix_{name}")
+    save_plot_image(plt, f"plot_cm_{name}")
     plt.close()
 
 
@@ -446,7 +557,7 @@ def plot_original_histograms(data:Dataset, filename:str) -> None:
     # Sort by category
     df1_c = df1_c.sort_index()
     category_labels = sorted(categories, key=lambda s: s.split()[0])
-    ax.bar(df1_c.index, df1_c.values, bar_width, alpha=opacity, color='b', label='Original Data')
+    ax.bar(df1_c.index, df1_c.values, bar_width, alpha=opacity, color='b', label='Original English Data')
     ax.set_xlabel('Categories')
     ax.set_ylabel('Count')
     ax.set_xticks(np.arange(len(categories)))
@@ -511,18 +622,22 @@ def plot_all_results_from_probal() -> None:
         fig, axs = plt.subplots(count, count)
         i=0
         for file_name, ax in zip(k, axs.flatten()):
-            if not file_name.endswith('.csv'): continue
+            if not file_name.endswith('.csv'): 
+                continue
             loc = os.path.join(file_path, file_name)
             pattern = r'data_([a-zA-Z0-9]+)[\-_]'
             plt_title = re.findall(pattern, file_name)[0]
 
-            with open(loc, 'r') as f:
+            with open(loc, 'r', ) as f:
                 data = pd.read_csv(f)
                 ax.plot(data['train-error'], label='Train Error')
                 ax.plot(data['test-error'], label='Test Error')
-                if i ==0: ax.legend()
-                if i==0 or i==2: ax.set_ylabel('Error')
-                if i==2 or i==3: ax.set_xlabel('Budget')
+                if i ==0: 
+                    ax.legend()
+                if i==0 or i==2: 
+                    ax.set_ylabel('Error')
+                if i==2 or i==3: 
+                    ax.set_xlabel('Budget')
                 ax.set_ylim([0, 1.1])
                 ax.set_title(plt_title)
                 ax.grid(which='both', linewidth=0.3)
@@ -658,7 +773,7 @@ def table_classification_report(test, pred, labels, clf_name_and_info:str) -> No
     df.to_latex(f"{FILE_PATH}table_classification_report_{clf_name_and_info}.tex", float_format="%.2f")
 
 
-def table_data_category_counts(data:Dataset, group:List[str] = ['original', 'additional']) -> None:
+def table_data_category_counts(data:Dataset, file_name:str) -> None:
     """
     Creates latex .tex table file with 'original' or 'additional' data counts.
 
@@ -675,13 +790,21 @@ def table_data_category_counts(data:Dataset, group:List[str] = ['original', 'add
     """
     td_df = data.translated_data
     sd_df = data.site_data
-    for g in group:
-        # Merge the two DataFrames on the 'id' column
-        merged_data = pd.merge(sd_df, td_df, how='inner', left_on='id', right_on='site_data_id')
-        # Filter the merged DataFrame to only include rows where the 'origin' column == 'original'
-        filtered_data = merged_data[merged_data['origin'] == g]
-        # Group the filtered DataFrame by the 'category' column and count the number of rows in each group
-        grouped_data = filtered_data.groupby('category').size().reset_index(name='category count')
-        # export to latex without indices
-        df = pd.DataFrame(grouped_data)
-        df.to_latex(f"{FILE_PATH}table_{g}_category_counts.tex", index=False)
+    # Merge the two DataFrames on the 'id' column
+    merged_data = pd.merge(sd_df, td_df, how='inner', left_on='id', right_on='site_data_id')
+    # Filter the merged DataFrame to only include rows where the 'origin' column == 'original'
+    original = merged_data[merged_data['origin'] == 'original']
+    additional = merged_data[merged_data['origin'] == 'additional']
+    
+    # Group the filtered DataFrame by the 'category' column and count the number of rows in each group
+    group_original = sd_df.groupby('category').size().reset_index(name='Original')
+    group_og_english = original[original['original_language'] == 'en'].groupby('category').size().reset_index(name='Original English')
+    group_additional = additional.groupby('category').size().reset_index(name='Additonal')
+    group_translated = merged_data[merged_data['origin'] == 'original'].groupby('category').size().reset_index(name='Translated')
+    # export to latex without indices
+    re_merged = pd.merge(group_original, group_og_english, how='outer', left_on='category', right_on='category' )
+    re_merged = pd.merge(re_merged, group_translated, how='outer', left_on='category', right_on='category')
+    re_merged = pd.merge(re_merged, group_additional, how='outer', left_on='category', right_on='category')
+    re_merged = re_merged.fillna(0)
+    re_merged.rename(columns={'category': 'Category'}, inplace=True)
+    re_merged.to_latex(f"{FILE_PATH}{file_name}.tex", index=False, float_format="%.0f")

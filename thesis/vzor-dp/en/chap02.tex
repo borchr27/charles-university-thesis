@@ -1,28 +1,32 @@
 \chapter{Understanding xPAL}
 
-We have introduced many different active learning models in the previous section, and we will test some of these models on our data. However, we will mainly focus on using the xPAL sampling strategy and a pool based query function. The xPAL sampling strategy is a decision-theoretic approach to measure the usefulness of a labeling candidate in terms of its expected performance gain. We can estimate the data distribution but but we are uncertain about the true class posterior probabilities. The class posterior probabilities are modeled as a random variable based on the current observations. Therefore a Bayesian approach is used by incorporating a a conjugate prior to the observations. In general, the idea is to estimate the expected performance gain from a new labeled data point and select the best one (\cite{kottke2021toward}). Variable definitions are listed in Table \ref{tab:var_defs}
+We have introduced many different active learning models in the previous section, and we will test some of these models on our data. However, we will mainly focus on using the xPAL sampling strategy and a pool based query function. The xPAL sampling strategy is a decision-theoretic approach to measure the usefulness of a labeling candidate in terms of its expected performance gain (\cite{kottke2021toward}). We can estimate the data distribution but we are uncertain about the true class posterior probabilities. The class posterior probabilities are modeled as a random variable based on the current observations. Therefore a Bayesian approach is used by incorporating a conjugate prior to the observations. In general, the idea is to estimate the expected performance gain from a new labeled data point and select the best one. Variable descriptions are listed in Table \ref{tab:var_defs}
 
 \begin{table}[ht]
 \centering
 \begin{tabular}{|l|l|}
 \hline
-{} & \textbf{Definition} \\
+{} & \textbf{Descriptions} \\
 \hline
-$\textit{L}$ & Loss \\
+$x$                         & Input \\
 \hline
-$\textit{R}$ & Risk \\
+$y$                         & Output \\
 \hline
-$\textit{R}_{\mathcal{E}}$ & Empirical Risk \\
+$\textit{L}$                & Loss \\
 \hline
-$\mathcal{L}$ & Labeled Data \\
+$\textit{R}$                & Risk \\
 \hline
-$\mathcal{U}$ & Unlabeled Data $\{x_1,...,x_n\}$ \\
+$\textit{R}_{\mathcal{E}}$  & Empirical Risk \\
 \hline
-$\mathcal{E}$ & Labeled and Unlabeled Data \\
+$\mathcal{L}$               & Labeled Data \\
 \hline
-$p(x,y)$ & Joint distribution of random variables $x$ and $y$ \\
+$\mathcal{U}$               & Unlabeled Data $\{x_1,...,x_n\}$ \\
 \hline
-$f^{\mathcal{L}}$ & Classifier that maps input $x$ to output $y$ for class $l$ \\
+$\mathcal{E}$               & Labeled and Unlabeled Data \\
+\hline
+$p(x,y)$                    & Joint distribution of random variables $x$ and $y$ \\
+\hline
+$f^{\mathcal{L}}$           & Classifier that maps input $x$ to output $y$ \\
 \hline
 \end{tabular}
 \caption{Variable names and definitions.}
@@ -31,7 +35,7 @@ $f^{\mathcal{L}}$ & Classifier that maps input $x$ to output $y$ for class $l$ \
 
 \section{Kernel}
 
-A kernel based classifier is used in xPAL which determines the similarity of two data points. The kernel function $k(x,x')$ is a function that maps two data points to a real number. The kernel frequency estimate $\textbf{\textit{k}}^{\mathcal{L}}_x$ of an instance $\textbf{\textit{x}}$ is calculated using the labeled instances $\mathcal{L}$. The y-th element of that C-dimensional vector describes the similarity-weighted number of labels of class y.
+A kernel based classifier is used in xPAL which determines the similarity of two data points. The kernel function $\textbf{\textit{K}}(x,x')$ is a function that maps two data points to a real number. The kernel frequency estimate $\textbf{\textit{k}}^{\mathcal{L}}_x$ of an instance $\textbf{\textit{x}}$ is calculated using the labeled instances $\mathcal{L}$. The y-th element of that C-dimensional vector describes the similarity-weighted number of labels of class y.
 
 \begin{equation}
 \textbf{\textit{k}}^{\mathcal{L}}_x,y = \sum_{(x',y') \in \mathcal{L}} \mathbb{1}_{y=y'} \textbf{\textit{K}}(x,x')
@@ -41,35 +45,26 @@ A kernel based classifier is used in xPAL which determines the similarity of two
 The Parzen Window Classifier uses the labeled data for training and predicts the most frequent class. 
 
 \begin{equation}
-f^{\mathcal{L}}(x) = \underset{y \in \mathcal{Y}}{\arg \max} \left( \textbf{\textit{k}}^{\mathcal{L}}_{x,y} \right)
+f^{\mathcal{L}}(x) = \underset{y \in \mathcal{Y}}{\arg \max} \left( \textbf{\textit{k}}^{\mathcal{L}}_{x,y} \right) \hbox{.}
 \end{equation}
 
 \section{Risk}
 
 For xPAL, Kottke et al. use the classifications error as the performance measure and minimize the zero-one loss. The risk describes the expected value of the loss relative to the joint distribution given some classifier. The zero-one loss returns 0 if the prediction from the classifier is equal to the true class else it returns 1.
 
-\begin{equation}
-\textit{R}(f^{\mathcal{L}}) = \underset{p(x,y)}{\mathbb{E}} [ \textbf{\textit{L}}(y,f^{\mathcal{L}}(x)) ]
-\end{equation}
-
-\begin{equation}
-= \underset{p(x)}{\mathbb{E}} \left[ \underset{p(y|x)}{\mathbb{E}} [ \textbf{\textit{L}}(y,f^{\mathcal{L}}(x)) ] \right]
-\end{equation}
-
-\begin{equation}
-\textbf{\textit{L}}(y,f^{\mathcal{L}}(x)) = \mathbb{1}_{f^{\mathcal{L}}(x)\neq y}
-\end{equation}
+\begin{flalign}
+\textit{R}(f^{\mathcal{L}}) &= \underset{p(x,y)}{\mathbb{E}} [ \textbf{\textit{L}}(y,f^{\mathcal{L}}(x)) ] \\
+&= \underset{p(x)}{\mathbb{E}} \left[ \underset{p(y|x)}{\mathbb{E}} [ \textbf{\textit{L}}(y,f^{\mathcal{L}}(x)) ] \right] \\
+\textbf{\textit{L}}(y,f^{\mathcal{L}}(x)) &= \mathbb{1}_{f^{\mathcal{L}}(x)\neq y} 
+\end{flalign}
 
 Because it is not known how the data is generated $P(x)$ Kottke et al. use a Monte-Carlo integration with all the data $\mathcal{E}$ to represent the generator. The empirical risk $\textit{R}_{\mathcal{E}}$ is the average of the loss over all the data points in the dataset.
 Because it is not known how the data is generated $P(x)$ Kottke et al. use a Monte-Carlo integration with all the data $\mathcal{E}$ to represent the generator. The empirical risk $\textit{R}_{\mathcal{E}}$ is the average of the loss over all the data points in the dataset.
 
-\begin{equation}
-\textit{R}_{\mathcal{E}}(f^{\mathcal{L}}) = \frac{1}{|\mathcal{E}|} \sum_{x \in \mathcal{E}} \underset{p(y|x)}{\mathbb{E}} \left[ \textbf{\textit{L}}(y,f^{\mathcal{L}}(x)) \right]
-\end{equation}
-
-\begin{equation}
-= \frac{1}{|\mathcal{E}|} \sum_{x \in \mathcal{E}} \sum_{y \in \mathcal{Y}} p(y|x) \textbf{\textit{L}}(y,f^{\mathcal{L}}(x))
-\end{equation}
+\begin{flalign}
+\textit{R}_{\mathcal{E}}(f^{\mathcal{L}}) &= \frac{1}{|\mathcal{E}|} \sum_{x \in \mathcal{E}} \underset{p(y|x)}{\mathbb{E}} \left[ \textbf{\textit{L}}(y,f^{\mathcal{L}}(x)) \right] \\
+&= \frac{1}{|\mathcal{E}|} \sum_{x \in \mathcal{E}} \sum_{y \in \mathcal{Y}} p(y|x) \textbf{\textit{L}}(y,f^{\mathcal{L}}(x))
+\end{flalign}
 
 
 \section{Conjugate Prior}
@@ -89,28 +84,19 @@ p(y|x) \approx  p(y | \textbf{\textit{k}}^{\mathcal{L}}_x) = \underset{p(p|\text
 
 Bayes theorem is then used to determine the posterior probability of the ground truth at instance x in Equation \ref{eq:bayes}. The likelihood $p(\textbf{\textit{k}}^{\mathcal{L}}_x|p)$ is a multinomial distribution because each label has been drawn from $Cat(y|p)$. A prior is introduced and selected as a Dirichlet distribution with $\alpha \in \mathbb{R}^C$ as this is the conjugate prior of the multinomial distribution. An indifferent prior is choosen and each element of alpha is set to the same value. The Dirichlet distribution is an analytical solution for the posterior when the conjugate prior of the multinomial likelihood are used. 
 
-\begin{equation}
-p(p|\textbf{\textit{k}}^{\mathcal{L}}_x) = \frac{p(\textbf{\textit{k}}^{\mathcal{L}}_x|p)p(p)}{p(\textbf{\textit{k}}^{\mathcal{L}}_x)}
+\begin{flalign}
 \label{eq:bayes}
-\end{equation}
-
-\begin{equation}
-= \frac{\text{Mult}(\textbf{\textit{k}}^{\mathcal{L}}_x|p) \cdot \text{Dir}(p|\alpha)}{\int \text{Mult}(\textbf{\textit{k}}^{\mathcal{L}}_x|p) \cdot \text{Dir}(p|\alpha) dp}
-\end{equation}
-
-\begin{equation}
-= \text{Dir}(p|\textbf{\textit{k}}^{\mathcal{L}}_x + \alpha)
-\end{equation}
+p(p|\textbf{\textit{k}}^{\mathcal{L}}_x) &= \frac{p(\textbf{\textit{k}}^{\mathcal{L}}_x|p)p(p)}{p(\textbf{\textit{k}}^{\mathcal{L}}_x)} \\
+&= \frac{\text{Mult}(\textbf{\textit{k}}^{\mathcal{L}}_x|p) \cdot \text{Dir}(p|\alpha)}{\int \text{Mult}(\textbf{\textit{k}}^{\mathcal{L}}_x|p) \cdot \text{Dir}(p|\alpha) dp} \\
+&= \text{Dir}(p|\textbf{\textit{k}}^{\mathcal{L}}_x + \alpha)
+\end{flalign}
 
 The conditional class probability is determined next from Equation \ref{eq:kernel_estimate}. It is calculated with the expected value of the Dirichlet distribution.
 
-\begin{equation}
-p(y|\textbf{\textit{k}}^{\mathcal{L}}_x) = \underset{\text{Dir}(p|\textbf{\textit{k}}^{\mathcal{L}}_x+ \alpha)}{\mathbb{E}} \left[ p_y \right]
-\end{equation}
-
-\begin{equation}
-= \int \text{Dir}(p|\textbf{\textit{k}}^{\mathcal{L}}_x + \alpha) p_y dp = \frac{\textbf{(\textit{k}}^{\mathcal{L}}_x + \alpha)_y}{||\textbf{\textit{k}}^{\mathcal{L}}_x + \alpha ||_1}
-\end{equation}
+\begin{flalign}
+p(y|\textbf{\textit{k}}^{\mathcal{L}}_x) &= \underset{\text{Dir}(p|\textbf{\textit{k}}^{\mathcal{L}}_x+ \alpha)}{\mathbb{E}} \left[ p_y \right] \\
+&= \int \text{Dir}(p|\textbf{\textit{k}}^{\mathcal{L}}_x + \alpha) p_y dp = \frac{\textbf{(\textit{k}}^{\mathcal{L}}_x + \alpha)_y}{||\textbf{\textit{k}}^{\mathcal{L}}_x + \alpha ||_1}
+\end{flalign}
 
 The last term is the y-th element of the normalized vector. The 1-norm is used to normalize the vector.
 

@@ -3,7 +3,7 @@
 
 One of the main challenges of creating a successful machine learning model is obtaining labeled data. With easy access to a variety of modern tools, devices, and sensors, we are able to rapidly collect unlabeled data. But, in supervised learning, prediction models are trained using labeled data. The problem is that acquiring labels for the collected data can be expensive, time-consuming, or even impossible in some cases.  
 
-However, methods have been developed to help reduce the time required to label this data. Active learning is a semi-supervised machine learning method where the model is trained with a smaller set of labeled data but also aims to exploit trends within the unlabeled data. Active learning has been heavily researched in the past but typically with binary data. Multi-class active learning research is still in its infancy. 
+However, methods have been developed to help reduce the time required to label this data. Active learning is a semi-supervised machine learning method where the model is trained with a smaller set of labeled data but also aims to exploit trends within the unlabeled data. Active learning has been heavily researched in the past but typically with binary data.
 
 Active learning is different from other machine learning methods because it uses the unlabeled data and some evaluation criteria to determine which candidate could be the most beneficial to the model if it was given a label. In summary, the model requests the label from some oracle that provides the label then it takes this new labeled data point and rebuilds the model. We describe it as semi supervised active learning because of the oracle (typically a human) involved in the process that provides the label for the requested candidate data. 
 
@@ -11,5 +11,26 @@ In our case we have some data (website urls) for some company or business that a
 
 To reduce the burden of human labeling we propose creating a workflow using Scrapy, Postgres, translation services, and semi supervised Active Learning (bayesian, expected error, etc.) that only require occasional interaction where a human can label a candidate that is most beneficial to the model such as using a decision-theoretic approach to measure the usefulness of a labeling candidate in terms of expected performance gain. The workflow takes the website as input, navigates to the webpage, collects and translates the text, and adds it to a database. We then run the model using the data from the database and return the model. 
 
+% TODO: Add a overview of the sections in the paper
+
+\section{Miscellaneous Definitions}
+
+In this section we define some terms that will be helpful in understanding the upcoming sections.
+
+\begin{defn}[Active Learning]
+\label{def:active-learning}
+A semi-supervised machine learning method where the model is trained with a smaller set of labeled data but also aims to exploit trends within the unlabeled data.
+\end{defn}
+
+Beta Prior
+Conjugate Prior
+Decision-Theoretic
+Dirichlet Distribution
+Expected Performance Gain
+Ground Truth : The true value of a random variable. The label provided by the oracle.
+Posterior Probabilities
+Omniscient Oracles
+Random Variable
+Query Function
 
 
