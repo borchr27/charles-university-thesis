@@ -6,5 +6,6 @@
 \addvspace {10\p@ }
 \contentsline {figure}{\numberline {4.1}{\ignorespaces Train and test error using different query strategies and RBF kernel for the PWC classifier.}}{17}{figure.4.1}%
 \contentsline {figure}{\numberline {4.2}{\ignorespaces Train and test error using different query strategies and Cosine kernel for the PWC classifier.}}{18}{figure.4.2}%
-\contentsline {figure}{\numberline {4.3}{\ignorespaces Performance of standard Scikit-Learn classifiers without optimization.}}{19}{figure.4.3}%
+\contentsline {figure}{\numberline {4.3}{\ignorespaces Comparing test error using different query strategies and Cosine kernel for the PWC classifier.}}{19}{figure.4.3}%
+\contentsline {figure}{\numberline {4.4}{\ignorespaces Performance of standard Scikit-Learn classifiers without optimization.}}{20}{figure.4.4}%
 \addvspace {10\p@ }

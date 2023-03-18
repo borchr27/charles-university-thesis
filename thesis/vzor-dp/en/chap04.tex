@@ -1,4 +1,4 @@
-\chapter{Results}
+\chapter{Testing}
 
 \section{Original Data}
 
@@ -29,7 +29,17 @@ In Figure \ref{fig:plot_all_results_cosine} we have the and test errors for the 
 \end{figure}
 
 
-In Figure \ref{fig:plot_all_results_cosine} PAL and xPAL were able to reduce the training error, by about 20\% and 25\% respectively, early in the training process compared to random selection and QBC.
+In Figure \ref{fig:plot_all_results_cosine} PAL and xPAL were able to reduce the training error, by about 20\% and 25\% respectively, early in the training process compared to random selection and QBC. We also tested the other sampling strategies with the Cosine kernel and found that the results were similar. The other sampling strategies and their test data results are shown in Table \ref{fig:cos_test_results} along with the test data from Figure \ref{fig:plot_all_results_cosine}. 
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=\textwidth]{../img/plot_all_cos_test_results.pdf}
+    \caption{Comparing test error using different query strategies and Cosine kernel for the PWC classifier.}
+    \label{fig:cos_test_results}
+\end{figure}
+
+We can see that the sampling strategies test performance converges over time but xPAL has the absolute minimum near the 600 budget mark in addition to performing well at the 100 and 200 budget marks.
+
 
 \subsection{Scikit-Learn Classifier Evaluation}
 
@@ -42,25 +52,26 @@ We also decided to try out the boilerplate classifiers from Scikit-Learn to comp
   \label{fig:explore_classifiers}
 \end{figure}
 
-The LinearSVC classifier performed rather well compared to most other classifiers and it is a fast running algorithm even with data that has a large feature set. We decided to look further into LinearSVC and create a few models to evaluate its performance. We created three models, the first was a boilerplate LinearSVC with no argument modifications, the second model used the class weights parameter set to 'balanced'. The 'balanced' mode uses the values of y to automatically adjust weights inversely proportional to class frequencies in the input data as $n\_samples / (n\_classes * np.bincount(y))$. For the third test we created a dictionary of weights for each class using the Cosine Decay function. The weights for each category ranged from 0.1 to 1.0 where the most frequent classes had smaller weights. The results are shown in Table \ref{tab:lsvc_models}.
+The LinearSVC classifier performed rather well compared to most other classifiers and it is a fast running algorithm even with data that has a large feature set. We decided to look further into LinearSVC and create a few models to evaluate its performance. We created three models, the first was a boilerplate LinearSVC with no argument modifications, the second model used the class weights parameter set to 'balanced'. The 'balanced' mode uses the values of y to automatically adjust weights inversely proportional to class frequencies in the input data as $n\_samples / (n\_classes * np.bincount(y))$. For the third test we created a dictionary of weights for each class using the Cosine Decay function. The weights for each category ranged from 0.1 to 1.0 where the most frequent classes had smaller weights. The results are shown in Table \ref{tab:lsvc_errors}.
 
 
-\begin{table}[h]
+\begin{table}[!ht]
 \centering
-\begin{tabular}{|l|l|}
-\hline
-{} & \textbf{Error} \\
-\hline
-Balanced Weights & 0.441 \\
-\hline
-Boilerplate & 0.406 \\
-\hline
-Cosine Decay Weights & 0.392 \\
-\hline
-\end{tabular}
-\caption{Error for three different LinearSVC models.}
-\label{tab:lsvc_models}
+\caption{Error for three differing LinearSVC models.}
+\input{../img/table_lsvc_errors.tex}
+\label{tab:lsvc_errors}
+\end{table}
+
+We also tested some other models that we expected to perform well, namely K-Nearest Neighbors and Neural Networks. The results are shown in Table \ref{tab:best_errors}. We can see that the K-Nearest Neighbors classifier and the Tensor Flow Neural Network classifier performed poorly compared to LinearSVC.
+
+\begin{table}[!ht]
+\centering
+\caption{Keywords from TF-IDF with Chi Squared using the original data.}
+\input{../img/table_best_errors.tex}
+\label{tab:best_errors}
 \end{table}
 
 
 \section{Original and Additional Data}
+
+In this section we will explore the results of different classifiers and active learning strategies on the original data and the additional data.

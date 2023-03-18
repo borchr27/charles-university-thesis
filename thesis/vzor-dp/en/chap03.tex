@@ -19,26 +19,28 @@ State Hospital & http://hospital.com/ & Health   & '\{"Clinic"\}' \\ \hline
 
 The current process consists of giving the merchant url to an annotator and the annotator then views the website and either can instantly  provide a label and tags for the website or in some cases may need to browse further into the website (by viewing sibling pages such as the 'About Us' sections or product pages) to get an idea of how the website should be classified. 
 
-The merchant tags are ordered by relevance, with the first tag in the list being the most general and the final being the most specific. An example of the tag hierarchy is show in Table. \ref{tab:tags} where we can see that this sample consists of data from various categories all contained within the 'Eco' side tag grouping.
+The merchant tags are ordered by specificity, with the first tag in the list being the most general and the final being the most specific. An example of the tag hierarchy is show in Table. \ref{tab:tags} where we can see that this sample consists of data from various categories all contained within the 'Eco' side tag grouping.
 
 
 \begin{table}[h]
 \begin{tabular}{|l|l|l|l|l|}
 \hline
-Category       & Level 1                     & Level 2                       & Level 3      & Side Tag \\ \hline
-Travel         & Local Transport             & Micro-mobility                & Bike Sharing & Eco      \\ \hline
-               &                             & Public Transport              &              & Eco      \\ \hline
-Fashion        & Clothing - Other            & Second Hand                   &              & Eco      \\ \hline
-Car            & Charging Station            &                               &              & Eco      \\ \hline
-               & Car Sharing                 &                               &              & Eco      \\ \hline
+Category    & Level 1 Tag           & Level 2 Tag        & Level 3 Tag  & Side Tag \\ \hline
+Travel      & Local Transport       & Micro-mobility     & Bike Sharing & Eco      \\ \hline
+            &                       & Public Transport   &              & Eco      \\ \hline
+Fashion     & Clothing - Other      & Second Hand        &              & Eco      \\ \hline
+Car         & Charging Station      &                    &              & Eco      \\ \hline
+            & Car Sharing           &                    &              & Eco      \\ \hline
 \end{tabular}
 \caption{This is an example of how the tags use different levels.}
 \label{tab:tags}
 \end{table}
 
+The tags are important because they allow us to separate the data even further and group/ sort the data differently. However, in our work we didn't opt to use the tags at this time.
+
 \section{Collection}
 
-Similarly to the annotator our goal is to automate the navigation, collection/storing process, and classification of the website. This pipeline speeds up the browsing process and can allow the annotator to spend much less time annotating and require the annotator to only annotate data expected to drastically improve the classifier.
+Similarly to the annotator our goal is to automate the navigation, collection/ storing process, and classification of the website. This pipeline speeds up the browsing process and can allow the annotator to spend much less time annotating and require the annotator to only annotate data expected to drastically improve the classifier.
 
 The initial 1000 data points we received were labels with a pointer (a url) to where the text data is located. The labels needed the text from the websites that the annotator viewed to begin the classifying process. To gather the text data from the websites we used the Scrapy framework to extract text data from a single top level page of a website. We chose to only scrape the top level page text because
 of the results published in another study where it was observed that adding more pages to the data set does not necessarily mean obtaining better results (\cite{sahid2019ecommerce}). 
@@ -47,7 +49,7 @@ Out of these initial data points 179 contained links that could not be accessed 
 
 \section{Processing}
 
-It is important for us to have the data in English as it allows us to exploit stop words when using the Scikit-Learn TF-IDF vectorizer to construct our data set. Stop words are words like “and”, “the”, “him”, which are presumed to be uninformative in representing the content of a text, and which may be removed to avoid them being construed as signal for prediction (\cite{sklearn62feature}).
+It is important for us to have the data in English as it allows us to exploit stop words when using the Scikit-Learn TF-IDF vectorizer to construct our data set. Stop words are words like “and”, “the”, “him”, which are presumed to be uninformative in representing the content of a text, and which may be removed to avoid them being construed as signal for prediction (\cite{sklearn62feature}). This holds true for our data set as well.
 
 Out of the remaining 275 English data points the data was distributed into the categories as shown in Figure \ref{fig:original_english_counts}.
 
@@ -60,7 +62,7 @@ Out of the remaining 275 English data points the data was distributed into the c
 
 At this stage, it was clear that our data set wasn't representing all categories equally. The 'Food and Drink' category has many more data points then the 'Culture' and 'Investments' categories which each had a single data point. The 'Children' and 'Financial Services' categories weren't represented at all. Obviously this was problematic because we would like to have, minimum, three data points in each category to build train, test, and validation data sets.
 
-At this point we had a significant amount of data that wasn't being used. We decided to find a way to translate the existing data. We tried various libraries available on GitHub but we weren't getting good results. We found that Azure had a service available and a free option of up to 2 million characters translated per month. This was a perfect option and we were able to use this API to translate the remaining data.
+At this point we had a significant amount of data that wasn't being used. We decided to find a way to translate the existing data. We tried various libraries available on GitHub but we weren't getting good results. We found that Azure had a service available and a free option of up to 2 million characters translated per month. This was a viable option and we were able to use this API to translate the remaining data. We limited the number of characters to 1000 per data point from the scraped text to avoid maxing out the API.
 
 In addition to the original data we also manually collected and labeled 141 additional data points. All the original data and additional data are shown in Figure \ref{fig:all_hist} and discretely in Appendix \ref{app:attachments} in Table \ref{tab:en_data_counts}.
 

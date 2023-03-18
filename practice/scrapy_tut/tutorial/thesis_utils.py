@@ -308,41 +308,6 @@ def azure_translate(text:str, source_language:str = None, target_language:str ='
     
     return _translate(text, source_language, target_language, key, region, endpoint)
 
-def table_variable_importance(X:np.ndarray, y:np.ndarray, vectorizer:TfidfVectorizer) -> None:
-    """
-    This function is used to find the most important features in the dataset using a random forest regressor.
-    
-    Parameters:
-    X: The tfidf vectorized data
-    y: The labels for the data
-    vectorizer: The vectorizer used to vectorize the data
-    """
-
-    # lable encoder (for gbdt)
-    y_labels = np.unique(y)
-    le = LabelEncoder()
-    le.fit(y)
-    y = le.transform(y)
-
-    rf_model = RandomForestRegressor(n_estimators=100, random_state=42)
-    rf_model.fit(X.toarray(), y)
-    X = pd.DataFrame(X.toarray())
-    importances = pd.Series(data=rf_model.feature_importances_, index=X.columns)
-    importances_sorted = importances.sort_values(ascending=False)
-    # Turn the importances back into words with tdidf vectorizer
-    top = {}
-    bottom = {}
-    for i in range(20):
-        top[vectorizer.get_feature_names()[importances_sorted.index[i]]] = importances_sorted.values[i]
-        bottom[vectorizer.get_feature_names()[importances_sorted.index[-i-1]]] = importances_sorted.values[-i-1]
-    # create a pandas df for the top 20 and one for the bottom 20
-    top_df = pd.DataFrame.from_dict(top, orient='index', columns=['importance'])
-    top_df.rename(columns={'importance': 'Importance'}, inplace=True)
-    bottom_df = pd.DataFrame.from_dict(bottom, orient='index', columns=['importance'])
-    bottom_df.rename(columns={'importance': 'Importance'}, inplace=True)
-    top_df.to_latex(f"{FILE_PATH}table_top_20_features.tex")
-    bottom_df.to_latex(f"{FILE_PATH}table_bottom_20_features.tex")
-
 def data_prep(data:Dataset) -> tuple[np.ndarray, np.ndarray, TfidfVectorizer]:
     sd_df = data.site_data
     td_df = data.translated_data
@@ -359,7 +324,11 @@ def data_prep(data:Dataset) -> tuple[np.ndarray, np.ndarray, TfidfVectorizer]:
     return X, y, vectorizer
 
 
-def build_LSVC_models(args, X:np.ndarray, y:np.ndarray):
+def build_LSVC_models(args, X:np.ndarray, y:np.ndarray) -> None:
+    """
+    Builds three different LinearSVC models with different parameters and compares them.
+    
+    """
     clf_name = "LinearSVC"
 
     # lable encoder
@@ -372,17 +341,24 @@ def build_LSVC_models(args, X:np.ndarray, y:np.ndarray):
 
     train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.25, random_state=args.seed, stratify=y)
 
-    model1 = LinearSVC(random_state=args.seed, max_iter=10000, class_weight=weights).fit(train_X, train_y)
-    model2 = LinearSVC(random_state=args.seed, max_iter=10000, class_weight='balanced').fit(train_X, train_y)
-    model3 = LinearSVC(random_state=args.seed, max_iter=10000).fit(train_X, train_y)
-    models = [model3, model2, model1]
+    model1 = LinearSVC(random_state=args.seed, max_iter=10000, class_weight='balanced').fit(train_X, train_y)
+    model2 = LinearSVC(random_state=args.seed, max_iter=10000).fit(train_X, train_y)
+    model3 = LinearSVC(random_state=args.seed, max_iter=10000, class_weight=weights).fit(train_X, train_y)
 
-    for model in models:
-        pred = model.predict(test_X)
-        print("Error:", 1 - metrics.accuracy_score(test_y, pred, normalize=True))
+    error1 = 1 - metrics.accuracy_score(test_y, model1.predict(test_X), normalize=True)
+    error2 = 1 - metrics.accuracy_score(test_y, model2.predict(test_X), normalize=True)
+    error3 = 1 - metrics.accuracy_score(test_y, model3.predict(test_X), normalize=True)
 
+    #create df for errors   
+    errors = pd.DataFrame({'Model': [ 'Balanced Weights', 'Boilerplate', 'Cosine Decay Weights'], 'Error': [error1, error2, error3]})
+    errors = errors.sort_values(by='Error', ascending=True)
+    # save as latex table
+    errors.to_latex(f'{FILE_PATH}table_lsvc_errors.tex', index=False, float_format="%.3f")
 
-def build_tensor_flow_NN(args, X:np.ndarray, y:np.ndarray) -> None:
+def build_tensor_flow_NN(args, X:np.ndarray, y:np.ndarray) -> float:
+    """
+    Builds a simple neural network using Tensor Flow.
+    """
 
     y_labels = np.unique(y)
     le = LabelEncoder()
@@ -390,29 +366,37 @@ def build_tensor_flow_NN(args, X:np.ndarray, y:np.ndarray) -> None:
     y = le.transform(y)
 
     train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.25, random_state=args.seed, stratify=y)
-
     train_X = train_X.toarray()
     test_X = test_X.toarray()
-    model = tf.keras.Sequential([
-        tf.keras.layers.Flatten(input_shape=[train_X.shape[1]]),
-        tf.keras.layers.Dense(args.hidden_layer, activation=tf.nn.sigmoid),
-        tf.keras.layers.Dense(len(y_labels), activation=tf.nn.softmax),
-    ])
 
-    optimizer = tf.keras.optimizers.Adamax(jit_compile=False,)
-    optimizer.learning_rate = tf.keras.optimizers.schedules.CosineDecay(
-            initial_learning_rate=args.learning_rate,
-            decay_steps=train_X.shape[0] // args.batch_size * args.epochs,
-            alpha=args.learning_rate_final / args.learning_rate,
+    try:
+        # Try to load tf model
+        model = tf.keras.models.load_model(args.model)
+        print("Model loaded from disk")
+    except:
+        print("Model not found, building new model")
+        # Build the model
+        model = tf.keras.Sequential([
+            tf.keras.layers.Flatten(input_shape=[train_X.shape[1]]),
+            tf.keras.layers.Dense(args.hidden_layer, activation=tf.nn.sigmoid),
+            tf.keras.layers.Dense(len(y_labels), activation=tf.nn.softmax),
+        ])
+
+        optimizer = tf.keras.optimizers.Adamax(jit_compile=False,)
+        optimizer.learning_rate = tf.keras.optimizers.schedules.CosineDecay(
+                initial_learning_rate=args.learning_rate,
+                decay_steps=train_X.shape[0] // args.batch_size * args.epochs,
+                alpha=args.learning_rate_final / args.learning_rate,
+            )
+
+        model.compile(
+            optimizer=optimizer,
+            loss=tf.keras.losses.sparse_categorical_crossentropy,
+            metrics=[tf.keras.metrics.sparse_categorical_accuracy],
         )
-
-    model.compile(
-        optimizer=optimizer,
-        loss=tf.keras.losses.sparse_categorical_crossentropy,
-        metrics=[tf.keras.metrics.sparse_categorical_accuracy],
-    )
-
-    model.fit(train_X, train_y, batch_size=args.batch_size, epochs=args.epochs)
+        model.fit(train_X, train_y, batch_size=args.batch_size, epochs=args.epochs)
+        # # Save the model
+        model.save(args.model)
 
     # Evaluate the model
     test_loss, test_acc = model.evaluate(test_X, test_y)
@@ -421,13 +405,9 @@ def build_tensor_flow_NN(args, X:np.ndarray, y:np.ndarray) -> None:
     pred = np.argmax(pred, axis=1)
     
     plot_confusion_matrix(y_labels, pred, test_y, 'NN')
-    print('Test accuracy:', test_acc)
-
-    # Save the model
-    # model.save(args.model, include_optimizer=False)
-
-    # Evaluating, either manually
-    # model = tf.keras.models.load_model(args.model, compile=False)
+    error = 1-test_acc
+    print(f"NN Error:", error)
+    return error
 
 
 def save_plot_image(plot:plt, file_name:str) -> None:
@@ -596,7 +576,7 @@ def plot_all_results_individual() -> None:
 
 def plot_all_results_from_probal() -> None:
     """
-    Plots all test data from the probal results folder into one plot based on the kernel. Takes no arguments.
+    Plots all TEST and TRAIN data from the probal results folder into one figure based on the KERNEL.
     
     """
     file_path = '/Users/mitchellborchers/Documents/git/probal/results/'
@@ -646,6 +626,40 @@ def plot_all_results_from_probal() -> None:
         fig.tight_layout()
         save_plot_image(plt, f'plot_all_results_{n}')
         plt.close()
+
+def plot_test_data_probal() -> None:
+    """
+    Plots all TEST data from the probal results folder into one figure.
+    
+    """
+    file_path = '/Users/mitchellborchers/Documents/git/probal/results/'
+    file_names = os.listdir(file_path)
+    file_names = [s for s in file_names if not s.startswith('.')]
+    pattern = r"data_(.*?)_0"
+
+    fig, ax = plt.subplots()
+    for file_name in file_names:
+        if not file_name.endswith('.csv'): continue
+        loc = os.path.join(file_path, file_name)
+        with open(loc, 'r') as f:
+            data = pd.read_csv(f)
+            # remove .csv from file name
+            name = file_name[:-4]
+            match = re.search(pattern, name)
+            if match:
+                captured_text = match.group(1)
+                name = captured_text
+            ax.plot(data['test-error'], label=name, linewidth=0.4)
+
+    ax.set_xlabel('Budget')
+    ax.set_ylabel('Error')
+    ax.legend()
+    ax.grid(which='both', linewidth=0.3)
+    ax.set_ylim([0, 1.1])
+    fig.tight_layout()
+    save_plot_image(plt, 'plot_all_cos_test_results')
+    plt.close()
+    
 
 def get_weights(y:np.ndarray) -> dict:
     """
@@ -773,7 +787,7 @@ def table_classification_report(test, pred, labels, clf_name_and_info:str) -> No
     df.to_latex(f"{FILE_PATH}table_classification_report_{clf_name_and_info}.tex", float_format="%.2f")
 
 
-def table_data_category_counts(data:Dataset, file_name:str) -> None:
+def table_category_counts(data:Dataset, file_name:str) -> None:
     """
     Creates latex .tex table file with 'original' or 'additional' data counts.
 
@@ -808,3 +822,38 @@ def table_data_category_counts(data:Dataset, file_name:str) -> None:
     re_merged = re_merged.fillna(0)
     re_merged.rename(columns={'category': 'Category'}, inplace=True)
     re_merged.to_latex(f"{FILE_PATH}{file_name}.tex", index=False, float_format="%.0f")
+
+def table_variable_importance(X:np.ndarray, y:np.ndarray, vectorizer:TfidfVectorizer) -> None:
+    """
+    This function is used to find the most important features in the dataset using a random forest regressor.
+    
+    Parameters:
+    X: The tfidf vectorized data
+    y: The labels for the data
+    vectorizer: The vectorizer used to vectorize the data
+    """
+
+    # lable encoder (for gbdt)
+    y_labels = np.unique(y)
+    le = LabelEncoder()
+    le.fit(y)
+    y = le.transform(y)
+
+    rf_model = RandomForestRegressor(n_estimators=100, random_state=42)
+    rf_model.fit(X.toarray(), y)
+    X = pd.DataFrame(X.toarray())
+    importances = pd.Series(data=rf_model.feature_importances_, index=X.columns)
+    importances_sorted = importances.sort_values(ascending=False)
+    # Turn the importances back into words with tdidf vectorizer
+    top = {}
+    bottom = {}
+    for i in range(20):
+        top[vectorizer.get_feature_names()[importances_sorted.index[i]]] = importances_sorted.values[i]
+        bottom[vectorizer.get_feature_names()[importances_sorted.index[-i-1]]] = importances_sorted.values[-i-1]
+    # create a pandas df for the top 20 and one for the bottom 20
+    top_df = pd.DataFrame.from_dict(top, orient='index', columns=['importance'])
+    top_df.rename(columns={'importance': 'Importance'}, inplace=True)
+    bottom_df = pd.DataFrame.from_dict(bottom, orient='index', columns=['importance'])
+    bottom_df.rename(columns={'importance': 'Importance'}, inplace=True)
+    top_df.to_latex(f"{FILE_PATH}table_top_20_features.tex")
+    bottom_df.to_latex(f"{FILE_PATH}table_bottom_20_features.tex")

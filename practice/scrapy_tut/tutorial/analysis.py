@@ -27,10 +27,13 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--seed", default=42, type=int, help="Random seed.")
 parser.add_argument("--batch_size", default=10, type=int, help="Batch size.")
 parser.add_argument("--epochs", default=15, type=int, help="Number of epochs.")
-parser.add_argument("--model", default="tf_NN.model", type=str, help="Output model path.")
+parser.add_argument("--model", default="model_NN.model", type=str, help="Output model path.")
 parser.add_argument("--hidden_layer", default=1000, type=int, help="Size of the hidden layer.")
 parser.add_argument("--learning_rate", default=0.1, type=float, help="Initial learning rate.")
 parser.add_argument("--learning_rate_final", default=0.01, type=float, help="Final learning rate.")
+
+parser.add_argument("--plot", default=None, type=str, help=["all_histograms", "original_histograms", "all_results_from_probal", "probal_test_data_one_figure", "test_data_probal"])
+parser.add_argument("--table", default=None, type=str, help=["correlated_unigrams", "classification_report", "data_category_counts", "variable_importance"])
 
 
 ##########################################################################################
@@ -40,7 +43,7 @@ parser.add_argument("--learning_rate_final", default=0.01, type=float, help="Fin
 # (not additional) translated_data.
 
 
-def build_and_test_model(args: argparse.Namespace, X:np.ndarray, y:np.ndarray, vectorizer:TfidfVectorizer, csv:bool=False, unigrams:bool=False, cm:bool=False, clf_report:bool=False, clf_name:str="LinearSVC"):
+def test_model(args, X:np.ndarray, y:np.ndarray, vectorizer:TfidfVectorizer, csv:bool=False, unigrams:bool=False, cm:bool=False, clf_report:bool=False, clf_name:str="LinearSVC") -> float:
     data_name = "original"
 
     # lable encoder
@@ -63,7 +66,7 @@ def build_and_test_model(args: argparse.Namespace, X:np.ndarray, y:np.ndarray, v
     if clf_name == "LinearSVC":
         pipe = Pipeline([
             # (f"{clf_name}", GradientBoostingClassifier(random_state=args.seed, max_depth=4, n_estimators=200, verbose=1))
-            (f"{clf_name}", LinearSVC(random_state=args.seed, max_iter=10000, class_weight=weights, fit_intercept=False))
+            (f"{clf_name}", LinearSVC(random_state=args.seed, max_iter=10000, class_weight=weights))
         ])
     elif clf_name == "KNN":
         pipe = Pipeline([
@@ -79,33 +82,62 @@ def build_and_test_model(args: argparse.Namespace, X:np.ndarray, y:np.ndarray, v
 
     try:
         print("Loading the model...")
-        with lzma.open("model.model" , "rb") as modelFile:
+        with lzma.open(f"model_{clf_name}.model" , "rb") as modelFile:
             model = pickle.load(modelFile)
     except:
         print("Model could not be found, training a new model...")
         model = pipe.fit(train_X, train_y)
-        with lzma.open("model.model", "wb") as model_file: 
+        with lzma.open(f"model_{clf_name}.model", "wb") as model_file: 
             pickle.dump(model , model_file)
 
     pred = model.predict(test_X)
     clf = model.named_steps[clf_name]
-    print("Error:", 1 - metrics.accuracy_score(test_y, pred, normalize=True))
+    error = 1 - metrics.accuracy_score(test_y, pred, normalize=True)
+    print(f"{clf_name} Error:", error)
     if cm:
         tu.plot_confusion_matrix(y_labels, pred, test_y, clf_name)
     if clf_report:
         tu.table_classification_report(test_y, pred, y_labels, clf_name)
 
+    return error
+
+def compare_top_three_models(args, X, y, vectorizer) -> None:
+    nn_error = tu.build_tensor_flow_NN(args, X, y)
+    knn_error = test_model(args, X, y, vectorizer, clf_name="KNN")
+    lsvc_error = test_model(args, X, y, vectorizer, clf_name="LinearSVC")
+
+    # create df of errors
+    errors = pd.DataFrame({"Model": ["Neural Network", "KNN", "LinearSVC"], "Error": [nn_error, knn_error, lsvc_error]})
+    errors = errors.sort_values(by="Error", ascending=True)
+    errors.to_latex(f"{tu.FILE_PATH}table_best_errors.tex", index=False, float_format="%.3f")
 
 if __name__ == "__main__":
     args = parser.parse_args([] if "__file__" not in globals() else None)
     data = tu.Dataset()
     X, y, vectorizer = tu.data_prep(data)
-    tu.table_variable_importance(X, y, vectorizer)
     # build_and_test_model(args, X, y, vectorizer, cm=True, clf_name="KNN")
-    # tu.build_tensor_flow_NN(args, X, y)
-    # tu.plot_all_histograms(data, "plot_all_hist")
-    # tu.plot_original_histograms(data, "plot_original_english_counts")
-    # tu.plot_all_results_from_probal()
-    # tu.table_data_category_counts(data, "table_category_counts")
-    # tu.plot_explore_classifiers(args, X, y)
-    # tu.build_LSVC_models(args, X, y)
+    tu.build_LSVC_models(args, X, y)
+    # compare_top_three_models(args, X, y, vectorizer)
+
+    if args.plot == "all_histograms":
+        tu.plot_all_histograms(data, "plot_all_hist")
+    if args.plot == "original_histograms":
+        tu.plot_original_histograms(data, "plot_original_english_counts")
+    if args.plot == "all_results_from_probal":
+        tu.plot_all_results_from_probal()
+    if args.plot == "probal_test_data_one_figure":
+        tu.plot_test_data_probal()
+    if args.plot == "explore_classifiers":
+        tu.plot_explore_classifiers(args, X, y)
+    if args.plot == "test_data_probal":
+        tu.plot_test_data_probal()
+    
+
+    if args.table == "correlated_unigrams":
+        tu.table_correlated_unigrams(X, y, vectorizer, "table_correlated_unigrams")
+    if args.table == "classification_report":
+        tu.table_classification_report(y, "table_classification_report")
+    if args.table == "data_category_counts":
+        tu.table_category_counts(data, "table_category_counts")
+    if args.table == "variable_importance":
+        tu.table_variable_importance(args, X, y, "table_variable_importance")

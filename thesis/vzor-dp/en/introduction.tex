@@ -17,22 +17,49 @@ To reduce the burden of human labeling we propose creating a workflow using Scra
 
 \section{Miscellaneous Definitions}
 
-In this section we define some terms that will be helpful in understanding the upcoming sections.
+In this section we define some terms and ideas that will be helpful in understanding the upcoming sections.
 
-\begin{defn}[Active Learning]
-\label{def:active-learning}
-A semi-supervised machine learning method where the model is trained with a smaller set of labeled data but also aims to exploit trends within the unlabeled data.
+\begin{defn}[Beta Prior]
+\label{def:beta_prior}
+A beta prior is a conjugate prior for the binomial distribution. It is a continuous probability distribution defined on the interval [0, 1] and is parameterized by two positive shape parameters, \(\alpha\) and \(\beta\). The beta distribution is defined as: 
+\[\text{Beta}(\alpha, \beta) = \frac{\Gamma(\alpha + \beta)}{\Gamma(\alpha)\Gamma(\beta)}x^{\alpha - 1}(1 - x)^{\beta - 1}\]
+where \(\Gamma\) is the gamma function and \(x\) is a random variable.
 \end{defn}
 
-Beta Prior
-Conjugate Prior
-Decision-Theoretic
-Dirichlet Distribution
-Expected Performance Gain
-Ground Truth : The true value of a random variable. The label provided by the oracle.
-Posterior Probabilities
-Omniscient Oracles
-Random Variable
-Query Function
+\begin{defn}[Conjugate Prior]
+\label{def:conjugate_prior}
+A conjugate prior is a prior distribution that has the same functional form as the likelihood function. In other words, the posterior distribution will have the same functional form as the prior distribution.
+\end{defn}
 
+\begin{defn}[Decision-Theoretic]
+\label{def:decision_theoretic}
+Decision-theoretic active learning is a framework that uses the expected performance gain of a candidate to determine which candidate to label. The expected performance gain is the expected performance of the classifier after labeling the candidate minus the expected performance of the classifier before labeling the candidate. The expected performance of the classifier is the expected value of the performance measure given the posterior distribution of the classifier.
+\end{defn}
+
+\begin{defn}[Dirichlet Distribution]
+\label{def:dirichlet_distribution}
+The Dirichlet distribution is a multivariate generalization of the beta distribution. It is a continuous probability distribution defined on the \(K\)-simplex, \(\Delta_K = \{x \in \mathbb{R}^K: x_i \geq 0, \sum_{i=1}^K x_i = 1\}\). The Dirichlet distribution is parameterized by a vector of positive shape parameters, \(\alpha = (\alpha_1, \alpha_2, \dots, \alpha_K)\). The Dirichlet distribution is defined as:
+\[\text{Dir}(\alpha) = \frac{\Gamma(\sum_{i=1}^K \alpha_i)}{\prod_{i=1}^K \Gamma(\alpha_i)}\prod_{i=1}^K x_i^{\alpha_i - 1}\]
+where \(\Gamma\) is the gamma function and \(x\) is a random vector.
+\end{defn}
+
+\begin{defn}[Expected Error Reduction]
+\label{def:expected_error_reduction}
+Expected error reduction is a framework that uses the expected error of the classifier after labeling the candidate minus the expected error of the classifier before labeling the candidate to determine which candidate to label. The expected error of the classifier is the expected value of the error measure given the posterior distribution of the classifier.
+\end{defn}
+
+\begin{defn}[Ground Truth]
+\label{def:ground_truth}
+Ground truth is the true label of a data point.
+\end{defn}
+
+\begin{defn}[Posterior Probabilities]
+\label{def:posterior_probabilities}
+The posterior probability is a type of conditional probability that results from updating the prior probability with information summarized by the likelihood via an application of Bayes' rule. The posterior probability is the probability of an event occurring given that another event has occurred.
+\end{defn}
+
+\begin{defn}[Omniscient Oracles]
+\label{def:omniscient_oracles}
+Omniscient oracles are oracles that have access to the ground truth.
+\end{defn}
 
