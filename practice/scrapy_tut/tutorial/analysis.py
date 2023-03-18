@@ -32,7 +32,7 @@ parser.add_argument("--hidden_layer", default=1000, type=int, help="Size of the 
 parser.add_argument("--learning_rate", default=0.1, type=float, help="Initial learning rate.")
 parser.add_argument("--learning_rate_final", default=0.01, type=float, help="Final learning rate.")
 
-parser.add_argument("--plot", default=None, type=str, help=["all_histograms", "original_histograms", "all_results_from_probal", "probal_test_data_one_figure", "test_data_probal"])
+parser.add_argument("--plot", default=None, type=str, help=["all_histograms", "original_en_hist", "all_results_from_probal", "test_data_probal", "explore_classifiers"])
 parser.add_argument("--table", default=None, type=str, help=["correlated_unigrams", "classification_report", "data_category_counts", "variable_importance"])
 
 
@@ -109,28 +109,26 @@ def compare_top_three_models(args, X, y, vectorizer) -> None:
     # create df of errors
     errors = pd.DataFrame({"Model": ["Neural Network", "KNN", "LinearSVC"], "Error": [nn_error, knn_error, lsvc_error]})
     errors = errors.sort_values(by="Error", ascending=True)
-    errors.to_latex(f"{tu.FILE_PATH}table_best_errors.tex", index=False, float_format="%.3f")
+    errors.to_latex(f"{tu.IMG_FILE_PATH}table_best_errors.tex", index=False, float_format="%.3f")
 
 if __name__ == "__main__":
     args = parser.parse_args([] if "__file__" not in globals() else None)
     data = tu.Dataset()
     X, y, vectorizer = tu.data_prep(data)
     # build_and_test_model(args, X, y, vectorizer, cm=True, clf_name="KNN")
-    tu.build_LSVC_models(args, X, y)
+    # tu.build_LSVC_models(args, X, y)
     # compare_top_three_models(args, X, y, vectorizer)
 
     if args.plot == "all_histograms":
         tu.plot_all_histograms(data, "plot_all_hist")
-    if args.plot == "original_histograms":
-        tu.plot_original_histograms(data, "plot_original_english_counts")
+    if args.plot == "original_en_hist":
+        tu.plot_original_en_histograms(data, "plot_original_english_counts")
     if args.plot == "all_results_from_probal":
         tu.plot_all_results_from_probal()
-    if args.plot == "probal_test_data_one_figure":
+    if args.plot == "test_data_probal":
         tu.plot_test_data_probal()
     if args.plot == "explore_classifiers":
         tu.plot_explore_classifiers(args, X, y)
-    if args.plot == "test_data_probal":
-        tu.plot_test_data_probal()
     
 
     if args.table == "correlated_unigrams":

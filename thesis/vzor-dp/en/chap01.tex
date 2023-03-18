@@ -42,7 +42,7 @@ On each trial the learner constructs a point in input space and requests its lab
 
 \section{Sampling Strategies}
 
-Sampling strategies are the core of the active learning process. The goal of sampling is to select the most useful data points from the unlabeled pool to label. The most useful data points are those that are expected to improve the model the most.
+Sampling strategies, also referred to as selection strategies, are the core of the active learning process. The goal of sampling is to select the most useful data points from the unlabeled pool to label. The most useful data points are those that are expected to improve the classifier the most.
 
 \subsection{Random Sampling}
 Random sampling is self explanatory as it randomly selects an unlabeled data point from the pool and requests to have it labeled then used in the model.
@@ -66,7 +66,7 @@ Extended probabilistic gain for active learning (xPAL) is a decision-theoretic s
 These class posterior probabilities can be modeled as a random variable based on the current observations in the dataset. For this model, a Bayesian approach is used by incorporating a conjugate prior to the observations. This produces more robust usefulness estimates for the candidates.
 
 \subsection{ALCE}
-Active Learning with Cost Embedding (ALCE) is a non-probabilistic uncertainty sampling algorithm for cost-sensitive multiclass active learning. They first designed a cost-sensitive multiclass classification algorithm called cost embedding (CE), which embeds the cost information in the distance measure in a special hidden space by non-metric multidimensional scaling. They then use a mirroring trick to let CE embed the possibly asymmetric cost information in the symmetric distance measure (\cite{huang2016alce}).
+Active Learning with Cost Embedding (ALCE) is a non-probabilistic uncertainty sampling algorithm for cost-sensitive multiclass active learning (\cite{huang2016alce}). They first designed a cost-sensitive multiclass classification algorithm called cost embedding (CE), which embeds the cost information in the distance measure in a special hidden space by non-metric multidimensional scaling. They then use a mirroring trick to let CE embed the possibly asymmetric cost information in the symmetric distance measure.
 
 \subsection{QBC}
 Query by committee uses an ensemble of classifiers that are trained on bootstrapped replicates of the labeled set (\cite{seung1992qbc}). The idea is to train a committee of classifiers on the available labeled data and then use the committee to select the most informative unlabeled data for labeling (\cite{freund1997qbc}). The committee consists of several classifiers, each trained on a slightly different subset of the available labeled data.

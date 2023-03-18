@@ -43,7 +43,7 @@ matplotlib.rcParams.update({
     'pgf.rcfonts': False,
 })
 
-FILE_PATH = "/Users/mitchellborchers/Documents/git/charles-university-thesis/thesis/vzor-dp/img/"
+IMG_FILE_PATH = "/Users/mitchellborchers/Documents/git/charles-university-thesis/thesis/vzor-dp/img/"
 
 logging.basicConfig(filename='thesis.log', level=logging.DEBUG, format='%(asctime)s:%(levelname)s:%(message)s')
 
@@ -353,7 +353,7 @@ def build_LSVC_models(args, X:np.ndarray, y:np.ndarray) -> None:
     errors = pd.DataFrame({'Model': [ 'Balanced Weights', 'Boilerplate', 'Cosine Decay Weights'], 'Error': [error1, error2, error3]})
     errors = errors.sort_values(by='Error', ascending=True)
     # save as latex table
-    errors.to_latex(f'{FILE_PATH}table_lsvc_errors.tex', index=False, float_format="%.3f")
+    errors.to_latex(f'{IMG_FILE_PATH}table_lsvc_errors.tex', index=False, float_format="%.3f")
 
 def build_tensor_flow_NN(args, X:np.ndarray, y:np.ndarray) -> float:
     """
@@ -416,7 +416,7 @@ def save_plot_image(plot:plt, file_name:str) -> None:
     plot: plot to save
     filename: name of the file to save the plot to
     """
-    plt.savefig(f'{FILE_PATH}{file_name}.pdf')
+    plt.savefig(f'{IMG_FILE_PATH}{file_name}.pdf')
 
 
 def plot_confusion_matrix(y_labels, pred, test_target, name:str) -> None:
@@ -511,8 +511,8 @@ def plot_all_histograms(data:Dataset, filename:str) -> None:
     plt.close(fig)
 
 
-def plot_original_histograms(data:Dataset, filename:str) -> None:
-    """Plot the lannguage and categorical histograms for the original english site data.
+def plot_original_en_histograms(data:Dataset, filename:str) -> None:
+    """Plot the language and categorical histograms for the original english site data.
     
     data: Dataset object
     filename: filename to save the plot to
@@ -542,6 +542,8 @@ def plot_original_histograms(data:Dataset, filename:str) -> None:
     ax.set_ylabel('Count')
     ax.set_xticks(np.arange(len(categories)))
     ax.set_xticklabels(category_labels, rotation=90, fontsize=10)
+    # turn on y grid
+    ax.yaxis.grid(True)
     ax.legend()
     fig.tight_layout()
     # plt.show()
@@ -760,7 +762,7 @@ def table_correlated_unigrams(X:np.ndarray, y:np.ndarray, v:TfidfVectorizer, cat
         # print("  . Most correlated unigrams:\n. {}".format('\n. '.join(unigrams[-N:])))
     # Convert the dictionary to a dataframe
     df = pd.DataFrame.from_dict(uni_dict, orient='index', columns=['Keyword 1', 'Keyword 2', 'Keyword 3'])
-    df.to_latex(f"{FILE_PATH}{file_name}.tex")
+    df.to_latex(f"{IMG_FILE_PATH}{file_name}.tex")
 
 
 def table_classification_report(test, pred, labels, clf_name_and_info:str) -> None:
@@ -784,7 +786,7 @@ def table_classification_report(test, pred, labels, clf_name_and_info:str) -> No
     """
     report = metrics.classification_report(test, pred, target_names=labels, output_dict=True, zero_division=0)
     df = pd.DataFrame(report).transpose()
-    df.to_latex(f"{FILE_PATH}table_classification_report_{clf_name_and_info}.tex", float_format="%.2f")
+    df.to_latex(f"{IMG_FILE_PATH}table_classification_report_{clf_name_and_info}.tex", float_format="%.2f")
 
 
 def table_category_counts(data:Dataset, file_name:str) -> None:
@@ -821,7 +823,7 @@ def table_category_counts(data:Dataset, file_name:str) -> None:
     re_merged = pd.merge(re_merged, group_additional, how='outer', left_on='category', right_on='category')
     re_merged = re_merged.fillna(0)
     re_merged.rename(columns={'category': 'Category'}, inplace=True)
-    re_merged.to_latex(f"{FILE_PATH}{file_name}.tex", index=False, float_format="%.0f")
+    re_merged.to_latex(f"{IMG_FILE_PATH}{file_name}.tex", index=False, float_format="%.0f")
 
 def table_variable_importance(X:np.ndarray, y:np.ndarray, vectorizer:TfidfVectorizer) -> None:
     """
@@ -855,5 +857,5 @@ def table_variable_importance(X:np.ndarray, y:np.ndarray, vectorizer:TfidfVector
     top_df.rename(columns={'importance': 'Importance'}, inplace=True)
     bottom_df = pd.DataFrame.from_dict(bottom, orient='index', columns=['importance'])
     bottom_df.rename(columns={'importance': 'Importance'}, inplace=True)
-    top_df.to_latex(f"{FILE_PATH}table_top_20_features.tex")
-    bottom_df.to_latex(f"{FILE_PATH}table_bottom_20_features.tex")
+    top_df.to_latex(f"{IMG_FILE_PATH}table_top_20_features.tex")
+    bottom_df.to_latex(f"{IMG_FILE_PATH}table_bottom_20_features.tex")

@@ -13,9 +13,9 @@ In our case we have some data (website urls) for some company or business that a
 
 To reduce the burden of human labeling we propose creating a workflow using Scrapy, Postgres, translation services, and semi supervised Active Learning (bayesian, expected error, etc.) that only require occasional interaction where a human can label a candidate that is most beneficial to the model such as using a decision-theoretic approach to measure the usefulness of a labeling candidate in terms of expected performance gain. The workflow takes the website as input, navigates to the webpage, collects and translates the text, and adds it to a database. We then run the model using the data from the database and return the model. 
 
-% TODO: Add a overview of the sections in the paper
+In the first section we introduce active learning and the different components of active learning. In the second and third sections we discuss the details of xPAL and the process of collecting and preparing the data, respectively. In the fourth section we look at combinations of different sampling strategies / classifiers and their performance results.
 
-\section{Miscellaneous Definitions}
+\section{Notable Definitions}
 
 In this section we define some terms and ideas that will be helpful in understanding the upcoming sections.
 
@@ -40,12 +40,9 @@ Decision-theoretic active learning is a framework that uses the expected perform
 \label{def:dirichlet_distribution}
 The Dirichlet distribution is a multivariate generalization of the beta distribution. It is a continuous probability distribution defined on the \(K\)-simplex, \(\Delta_K = \{x \in \mathbb{R}^K: x_i \geq 0, \sum_{i=1}^K x_i = 1\}\). The Dirichlet distribution is parameterized by a vector of positive shape parameters, \(\alpha = (\alpha_1, \alpha_2, \dots, \alpha_K)\). The Dirichlet distribution is defined as:
 \[\text{Dir}(\alpha) = \frac{\Gamma(\sum_{i=1}^K \alpha_i)}{\prod_{i=1}^K \Gamma(\alpha_i)}\prod_{i=1}^K x_i^{\alpha_i - 1}\]
-where \(\Gamma\) is the gamma function and \(x\) is a random vector.
-\end{defn}
-
-\begin{defn}[Expected Error Reduction]
-\label{def:expected_error_reduction}
-Expected error reduction is a framework that uses the expected error of the classifier after labeling the candidate minus the expected error of the classifier before labeling the candidate to determine which candidate to label. The expected error of the classifier is the expected value of the error measure given the posterior distribution of the classifier.
+where \(\Gamma\) is the gamma function and \(x\) is a random vector. The gamma function is defined as:
+\[\Gamma(x) = \int_0^\infty t^{x - 1}e^{-t}dt\]
+The gamma function is used as a normalizing constant to ensure that the probability density function integrates to 1 over the simplex, which is the space of all probability vectors that sum to 1.
 \end{defn}
 
 \begin{defn}[Ground Truth]
@@ -55,11 +52,11 @@ Ground truth is the true label of a data point.
 
 \begin{defn}[Posterior Probabilities]
 \label{def:posterior_probabilities}
-The posterior probability is a type of conditional probability that results from updating the prior probability with information summarized by the likelihood via an application of Bayes' rule. The posterior probability is the probability of an event occurring given that another event has occurred.
+Posterior probability is a type of conditional probability that results from updating the prior probability with information summarized by the likelihood via an application of Bayes' rule. The posterior probability is the probability of an event occurring given that another event has occurred.
 \end{defn}
 
 \begin{defn}[Omniscient Oracles]
 \label{def:omniscient_oracles}
-Omniscient oracles are oracles that have access to the ground truth.
+Omniscient oracle is a hypothetical entity that has complete knowledge of the true labels of all data points in a given dataset. An omniscient oracle knows the ground truth labels of all data points.
 \end{defn}
 
