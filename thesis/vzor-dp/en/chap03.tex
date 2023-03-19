@@ -42,8 +42,7 @@ The tags are important because they allow us to separate the data even further a
 
 Similarly to the annotator our goal is to automate the navigation, collection/ storing process, and classification of the website. This pipeline speeds up the browsing process and can allow the annotator to spend much less time annotating and require the annotator to only annotate data expected to drastically improve the classifier.
 
-The initial 1000 data points we received were labels with a pointer (a url) to where the text data is located. The labels needed the text from the websites that the annotator viewed to begin the classifying process. To gather the text data from the websites we used the Scrapy framework to extract text data from a single top level page of a website. We chose to only scrape the top level page text because
-of the results published in another study where it was observed that adding more pages to the data set does not necessarily mean obtaining better results (\cite{sahid2019ecommerce}). 
+The initial 1000 data points we received were labels with a pointer (a url) to where the text data is located. The labels needed the text from the websites that the annotator viewed to begin the classifying process. To gather the text data from the websites we used the Scrapy framework to extract text data from a single top level page of a website. We chose only to scrape the top level (main or home) page text because of the results published in another study where it was observed that adding more pages to the data set does not necessarily mean obtaining better results (\cite{sahid2019ecommerce}). 
 
 Out of these initial data points 179 contained links that could not be accessed or links that provided no text data that could be scraped. Out of the remaining 821 data points 274 of them were in English. 
 
@@ -75,7 +74,9 @@ In addition to the original data we also manually collected and labeled 141 addi
 \end{figure}
 
 
-After translating the data we used the TF-IDF vectorizer from Scikit-Learn. We were able to find highly correlated words for each category using Chi Squared analysis with only the original data, shown below in Table \ref{tab:correlated_unigrams_original}. Some categories such as 'Culture', 'Digital Services', 'Shopping Online' that have few data points have words such as 'kihnu', 'td', 'patria', respectively, which have no relative meaning to the category in English. This is likely because the collected data is sparse and the quality of the scraped text data is low.
+After translating the data we used the TF-IDF vectorizer from Scikit-Learn. We were able to find highly correlated words for each category using Chi Squared analysis with only the original data, shown below in Table \ref{tab:correlated_unigrams_original}. Some categories such as 'Culture', 'Digital Services', 'Shopping Online' that have few data points have words such as 'kihnu', 'td', 'patria', respectively, which have no relative meaning to the category in English. 
+
+From what we discussed in the previous section, we can see that the 'Culture' category has only one data point and the 'Digital Services' category has only two data points. This is problematic because if the single data point we have is doesn't represent the category well then we will continue to have difficulty classifying until we have more robust data.
 
 
 \begin{table}[!ht]
@@ -86,15 +87,7 @@ After translating the data we used the TF-IDF vectorizer from Scikit-Learn. We w
 \end{table}
 
 
-We also calculated the variable importance using the RandomForestRegressor from Scikit-Learn and provided a list of the top 20 most important words from the TF-IDF vectorizer. This helps us orient ourselves within the data as well as check if there may be any anomalies. The list of top 20 most important words are shown in Table \ref{tab:top_20_words}.
-
-
-\begin{table}[!ht]
-\centering
-\caption{Variable importance, top 20 words from the vectorizer.}
-\input{../img/table_top_20_features.tex}
-\label{tab:top_20_words}
-\end{table}
+We also calculated the variable importance using the RandomForestRegressor from Scikit-Learn and provided a list of the top 20 most important words from the TF-IDF vectorizer. This helps us orient ourselves within the data as well as check if there may be any anomalies. The list of top 20 most important words are shown in Table \ref{tab:top_20_words} in the Appendix.
 
 
 

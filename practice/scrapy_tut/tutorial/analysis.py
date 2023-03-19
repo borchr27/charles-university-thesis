@@ -13,10 +13,11 @@ from sklearn import metrics
 from sklearn.svm import LinearSVC
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import LabelEncoder
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.ensemble import BaggingClassifier, GradientBoostingClassifier
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.naive_bayes import MultinomialNB
 import thesis_utils as tu
 import matplotlib.pyplot as plt
 
@@ -65,12 +66,10 @@ def test_model(args, X:np.ndarray, y:np.ndarray, vectorizer:TfidfVectorizer, csv
 
     if clf_name == "LinearSVC":
         pipe = Pipeline([
-            # (f"{clf_name}", GradientBoostingClassifier(random_state=args.seed, max_depth=4, n_estimators=200, verbose=1))
             (f"{clf_name}", LinearSVC(random_state=args.seed, max_iter=10000, class_weight=weights))
         ])
     elif clf_name == "KNN":
         pipe = Pipeline([
-            # (f"{clf_name}", GradientBoostingClassifier(random_state=args.seed, max_depth=4, n_estimators=200, verbose=1))
             (f"{clf_name}", KNeighborsClassifier(n_neighbors=8, metric='cosine'))
         ])
     elif clf_name == "GBDT":
@@ -106,10 +105,40 @@ def compare_top_three_models(args, X, y, vectorizer) -> None:
     knn_error = test_model(args, X, y, vectorizer, clf_name="KNN")
     lsvc_error = test_model(args, X, y, vectorizer, clf_name="LinearSVC")
 
-    # create df of errors
     errors = pd.DataFrame({"Model": ["Neural Network", "KNN", "LinearSVC"], "Error": [nn_error, knn_error, lsvc_error]})
     errors = errors.sort_values(by="Error", ascending=True)
     errors.to_latex(f"{tu.IMG_FILE_PATH}table_best_errors.tex", index=False, float_format="%.3f")
+
+def optimize_classifier(args, X, y):
+    y_labels = np.unique(y)
+    le = LabelEncoder()
+    le.fit(y)
+    y = le.transform(y)
+    weights = tu.get_weights('cosine', y)
+    train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.25, random_state=args.seed, stratify=y)
+    
+    param_grid = {
+        'C': [1,2,3], 
+        'loss': ['squared_hinge'], 
+        'fit_intercept': [True, False], 
+        'intercept_scaling': [0.5], 
+        'class_weight': [None, weights]}
+    clf =LinearSVC(random_state=args.seed, max_iter=10000)
+
+    grid_search = GridSearchCV(clf, param_grid, cv=5, verbose=2)
+    grid_search.fit(train_X, train_y)
+
+    # Print the best parameters found by GridSearchCV
+    print(f"best params: {grid_search.best_params_}")
+    print(f"best score: {grid_search.best_score_}")
+    print(f"best estimator: {grid_search.best_estimator_}")
+    print(f"best index: {grid_search.best_index_}")
+
+    best_estimator = grid_search.best_estimator_
+    pred = best_estimator.predict(test_X)
+    error = 1 - metrics.accuracy_score(test_y, pred, normalize=True)
+    print(f"Error: {error}")
+
 
 if __name__ == "__main__":
     args = parser.parse_args([] if "__file__" not in globals() else None)
@@ -118,6 +147,7 @@ if __name__ == "__main__":
     # build_and_test_model(args, X, y, vectorizer, cm=True, clf_name="KNN")
     # tu.build_LSVC_models(args, X, y)
     # compare_top_three_models(args, X, y, vectorizer)
+    optimize_classifier(args, X, y)
 
     if args.plot == "all_histograms":
         tu.plot_all_histograms(data, "plot_all_hist")

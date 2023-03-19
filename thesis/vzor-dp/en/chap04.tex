@@ -17,9 +17,18 @@ We weren't satisfied with the testing error which leveled out to about 70\% for 
   \label{fig:plot_all_results_rbf}
 \end{figure}
 
+The radial bias function (RBF) kernel is a popular kernel function. It is defined as:
+
+\begin{equation}
+    K(x_i, x_j) = \exp\left(- \frac{\left\| x_i - x_j \right\|^2}{2 \sigma^2}\right)
+\label{eq:rbf_kernel}
+\end{equation}
+
+where $\sigma$ is a parameter that controls the smoothness of the kernel and $x_i$ and $x_j$ are the two points in the feature space to compare. As seen in the Figure \ref{fig:plot_all_results_rbf} when the PWC classifier uses the RBF kernel it doesn't perform well with this data.
+
 \subsection{Active Learning with PWC and Cosine Kernel}
 
-In Figure \ref{fig:plot_all_results_cosine} we have the and test errors for the same four different active learning sampling strategies and tested on the same data except instead of using the RBF kernel the Cosine kernel was used. We found that using the Cosine kernel reduced the training error across the board by roughly 17\%.  
+In Figure \ref{fig:plot_all_results_cosine} we have the and test errors for the same four different active learning sampling strategies and tested on the same data except instead of using the RBF kernel the Cosine kernel was used. We found that using the Cosine kernel reduced the training error across the board by 15\%.  
 
 \begin{figure}[ht]
   \centering
@@ -31,6 +40,15 @@ In Figure \ref{fig:plot_all_results_cosine} we have the and test errors for the 
 
 In Figure \ref{fig:plot_all_results_cosine} PAL and xPAL were able to reduce the training error, by about 20\% and 25\% respectively, early in the training process compared to random selection and QBC. We also tested the other sampling strategies with the Cosine kernel and found that the results were similar. The other sampling strategies and their test data results are shown in Table \ref{fig:cos_test_results} along with the test data from Figure \ref{fig:plot_all_results_cosine}. 
 
+The Cosine kernel is another important kernel function that is used in many machine learning algorithms. It is defined as:
+
+\begin{equation}
+    K(x_i, x_j) = \frac{x_i \cdot x_j}{\left\| x_i \right\| \left\| x_j \right\|}
+\label{eq:cosine_kernel}
+\end{equation}
+
+where $x_i$ and $x_j$ are the two points in the feature space to compare.
+
 \begin{figure}[ht]
     \centering
     \includegraphics[width=\textwidth]{../img/plot_all_cos_test_results.pdf}
@@ -38,12 +56,14 @@ In Figure \ref{fig:plot_all_results_cosine} PAL and xPAL were able to reduce the
     \label{fig:cos_test_results}
 \end{figure}
 
-We can see that the sampling strategies test performance converges over time but xPAL has the absolute minimum near the 600 budget mark in addition to performing well at the 100 and 200 budget marks.
+We can see that the sampling strategies test performance converges over time (as we are using the same data and classifier) but xPAL has the absolute minimum near the 600 budget mark in addition to performing well with in the 100-200 budget range.
 
 
 \subsection{Scikit-Learn Classifier Evaluation}
 
-We also decided to try out the boilerplate classifiers from Scikit-Learn to compare performances. Again we used the original data with the same TF-IDF vectorizer as used with the previous active learning models to stay consistent. Cross validation was also used here but was not used in the previous sections. We decided to use the Cosine kernel when using LinearSVC as we learned that the performance increased in comparison to the RBF kernel when using PWC. The results for a variety of different classifiers are shown in Figure \ref{fig:explore_classifiers}. In the box-plot, the whiskers extend from the box to the furthest data points that are within 1.5 times the inter-quartile range (IQR) of the box. Any data points that are beyond the whiskers are considered outliers and are plotted as individual points or symbols (diamonds) as seen in Figure \ref{fig:explore_classifiers}.
+We also decided to try out the boilerplate classifiers from Scikit-Learn to compare performances. Again we used the original data with the same TF-IDF vectorizer as used with the previous active learning models to stay consistent. Cross validation was also used here but was not used in the previous sections. We decided to use the Cosine kernel when using LinearSVC as we learned that the performance increased in comparison to the RBF kernel when using PWC. 
+
+The results for a variety of different classifiers are shown in Figure \ref{fig:explore_classifiers}. In the box-plot, the whiskers extend from the box to the furthest data points that are within 1.5 times the inter-quartile range (IQR) of the box. Any data points that are beyond the whiskers are considered outliers and are plotted as individual points or symbols (diamonds) as seen in Figure \ref{fig:explore_classifiers}.
 
 \begin{figure}[ht]
   \centering
@@ -52,7 +72,16 @@ We also decided to try out the boilerplate classifiers from Scikit-Learn to comp
   \label{fig:explore_classifiers}
 \end{figure}
 
-The LinearSVC classifier performed rather well compared to most other classifiers and it is a fast running algorithm even with data that has a large feature set. We decided to look further into LinearSVC and create a few models to evaluate its performance. We created three models, the first was a boilerplate LinearSVC with no argument modifications, the second model used the class weights parameter set to 'balanced'. The 'balanced' mode uses the values of y to automatically adjust weights inversely proportional to class frequencies in the input data as $n\_samples / (n\_classes * np.bincount(y))$. For the third test we created a dictionary of weights for each class using the Cosine Decay function. The weights for each category ranged from 0.1 to 1.0 where the most frequent classes had smaller weights. The results are shown in Table \ref{tab:lsvc_errors}.
+The LinearSVC classifier performed best compared to other classifiers and it is a fast running algorithm even with data that has a large feature set. We decided to look further into LinearSVC and create a few models to evaluate its performance. We created three models, the first was a boilerplate LinearSVC with no argument modifications, the second model used the class weights parameter set to 'balanced'. The 'balanced' mode uses the values of y to automatically adjust weights inversely proportional to class frequencies in the input data as $n\_samples / (n\_classes * np.bincount(y))$. 
+
+For the third test we created a dictionary of weights for each class using the Cosine decay function. The weights for each category ranged from 0.1 to 1.0 where the most frequent classes had smaller weights. The results are shown in Table \ref{tab:lsvc_errors}. The Cosine decay function is defined as:
+
+\begin{equation}
+    w_i = \frac{1}{2} \left(1 + \cos \left(\frac{\pi t}{T}\right)\right)
+\label{eq:cosine_decay}
+\end{equation}
+
+where $w_i$ is the weight for the $i^{th}$ class, $t$ is the current iteration, and $T$ is the total number of iterations. The Cosine decay function is a common function used for weights in machine learning algorithms.
 
 
 \begin{table}[!ht]
@@ -62,7 +91,7 @@ The LinearSVC classifier performed rather well compared to most other classifier
 \label{tab:lsvc_errors}
 \end{table}
 
-We also tested some other models that we expected to perform well, namely K-Nearest Neighbors and Neural Networks. The results are shown in Table \ref{tab:best_errors}. We can see that the K-Nearest Neighbors classifier and the Tensor Flow Neural Network classifier performed poorly compared to LinearSVC.
+We also tested some other models that we expected to perform well, namely K-Nearest Neighbors and Neural Networks. The results are shown in Table \ref{tab:best_errors}. We can see that the K-Nearest Neighbors classifier and the Tensor Flow Neural Network classifier performed slightly worse compared to LinearSVC.
 
 \begin{table}[!ht]
 \centering
@@ -71,7 +100,9 @@ We also tested some other models that we expected to perform well, namely K-Near
 \label{tab:best_errors}
 \end{table}
 
+We attempted to boost performance from the LinearSVC classifier using GridSearchCV and Bagging but were not able to make significant improvements in performance from what we observed in Table \ref{tab:best_errors}.
+
 
 \section{Original and Additional Data}
 
-In this section we will explore the results of different classifiers and active learning strategies on the original data and the additional data.
+In this section we will explore the results of different classifiers and active learning strategies on the original data plus the additional data.

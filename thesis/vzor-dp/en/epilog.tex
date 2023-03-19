@@ -1,2 +1,18 @@
 \chapter*{Conclusion}
 \addcontentsline{toc}{chapter}{Conclusion}
+
+The entire process of data collection, storage, retrieval, processing, and testing allowed us to create a customized pipeline and explore active learning using website text data to classify online merchants and other websites. The collected data wasn't perfect but we were able to use the data to create a model that could classify websites into 1 of 23 categories with $\sim$60\% accuracy using a linear support vector classifier.
+
+Pairing this classifier with xPAL allows us to create a pipeline to choose the most informative data points to add to the training set and reduces the amount of time it takes to train the model as well as the size of the classifier.
+
+Many sites had multiple languages present on the websites and this could be seen in our scraped data. This posed a challenge for us because when using the API for translation we were making it more difficult to detect the language but also adding non english words into the TF-IDF. Solving this issue could potentially help improve the performance of the classifier. 
+
+\section*{Improvements}
+
+To improve the results of the active learning process we would suggest possibly making a number of changes. One of the first changes would be to find a better way to profile a website and make sure the quality of the text data from the websites were better. For example, a stronger web scraper would have allowed us to avoid potential IP address restriction issues and scrape data from social media websites that refused to allow our scraper to collect any data and resulted in some unusable data. We could have also run our own tests regarding how the number of sibling pages could have fortified the data.
+
+To be extremely thorough, we could have run exhaustive tests for \textit{all} the available classifiers within Scikit-Learn using GridSearchCV and other ensemble methods to see if any more performance gains were attainable.
+
+\section*{Moving Forward}
+
+Next steps could include constructing an industrial web scraper. The scraper could be designed to scrape multiple pages of a website, scrape social media pages, and possibly scrape other websites that are linked to the original website. This could improve the quality of the data and allow for more accurate classification.

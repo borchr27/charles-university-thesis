@@ -11,7 +11,9 @@ In our case we will provide a set of labeled data to the active learning framewo
 
 In our case we have some data (website urls) for some company or business that are given to us from our partner. From this data our partner currently utilizes human labor to browse the website and then label the url with a category (~23 labels) and a sub-category (~234+ tags) that branch from the main category but still have some relation. This is a repetitive and expensive task that could be automated using active learning.
 
-To reduce the burden of human labeling we propose creating a workflow using Scrapy, Postgres, translation services, and semi supervised Active Learning (bayesian, expected error, etc.) that only require occasional interaction where a human can label a candidate that is most beneficial to the model such as using a decision-theoretic approach to measure the usefulness of a labeling candidate in terms of expected performance gain. The workflow takes the website as input, navigates to the webpage, collects and translates the text, and adds it to a database. We then run the model using the data from the database and return the model. 
+To reduce the burden of human labeling we propose using a combination of tools, namely, Scrapy, Postgres, translation services, and semi supervised active learning that require occasional interaction where a human can label a candidate (if unlabeled) that is expected to be most beneficial to the classifier. 
+
+A website is required as input, then we use Scrapy to navigate to the webpage, collect and store the scraped data into the database. Next we access the data, translate the text, and add the translated data back into the database. We then create the model using the data from the database. 
 
 In the first section we introduce active learning and the different components of active learning. In the second and third sections we discuss the details of xPAL and the process of collecting and preparing the data, respectively. In the fourth section we look at combinations of different sampling strategies / classifiers and their performance results.
 

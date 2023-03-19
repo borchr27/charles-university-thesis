@@ -663,7 +663,7 @@ def plot_test_data_probal() -> None:
     plt.close()
     
 
-def get_weights(y:np.ndarray) -> dict:
+def get_weights(method:str, y:np.ndarray) -> dict:
     """
     This function is used to get the weights for the imbalanced data.
     """
@@ -690,7 +690,10 @@ def get_weights(y:np.ndarray) -> dict:
 
     # Compute the weight for each step using the cosine decay function
     for n, i in enumerate(data_dict.keys()):
-        weight = cosine_decay_weight(n, total_steps, initial_weight, final_weight)
+        if method == 'cosine':
+            weight = cosine_decay_weight(n, total_steps, initial_weight, final_weight)
+        elif method == 'linear':
+            weight = 1 - (n/total_steps)
         weights[i] = weight
 
     # Print the dictionary of weights
@@ -703,7 +706,7 @@ def plot_explore_classifiers(args, X, y):
     y = le.fit_transform(y)
     # train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.25, random_state=args.seed, stratify=y)
 
-    weights = get_weights(y)
+    weights = get_weights('cosine', y)
 
     models = [
         LinearSVC(class_weight=weights, fit_intercept=False),

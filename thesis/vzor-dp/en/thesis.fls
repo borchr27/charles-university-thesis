@@ -1046,10 +1046,6 @@ INPUT ../img/table_correlated_unigrams_original.tex
 INPUT ../img/table_correlated_unigrams_original.tex
 INPUT ../img/table_correlated_unigrams_original.tex
 INPUT ../img/table_correlated_unigrams_original.tex
-INPUT ../img/table_top_20_features.tex
-INPUT ../img/table_top_20_features.tex
-INPUT ../img/table_top_20_features.tex
-INPUT ../img/table_top_20_features.tex
 INPUT ./chap04.tex
 INPUT ./chap04.tex
 INPUT ./chap04.tex
@@ -1125,6 +1121,10 @@ INPUT ../img/table_category_counts.tex
 INPUT ../img/table_category_counts.tex
 INPUT ../img/table_category_counts.tex
 INPUT ../img/table_category_counts.tex
+INPUT ../img/table_top_20_features.tex
+INPUT ../img/table_top_20_features.tex
+INPUT ../img/table_top_20_features.tex
+INPUT ../img/table_top_20_features.tex
 INPUT thesis.aux
 INPUT ./title.aux
 INPUT title.aux
