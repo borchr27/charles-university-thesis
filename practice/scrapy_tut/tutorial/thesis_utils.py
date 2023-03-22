@@ -15,8 +15,8 @@ from sklearn.neighbors import KNeighborsClassifier
 from sqlalchemy import create_engine
 from sklearn.feature_selection import chi2
 import seaborn as sns
-from sklearn.pipeline import Pipeline
 from sklearn.linear_model import LogisticRegression
+from sklearn.pipeline import Pipeline, make_pipeline
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.svm import LinearSVC
 from sklearn.naive_bayes import MultinomialNB
@@ -25,10 +25,10 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.svm import SVC
-from sklearn.metrics.pairwise import pairwise_kernels
-from sklearn.preprocessing import LabelEncoder
-from sklearn.metrics.pairwise import cosine_distances
-
+from sklearn.metrics.pairwise import pairwise_kernels, cosine_distances
+from sklearn.preprocessing import LabelEncoder, label_binarize
+from sklearn.metrics import precision_recall_curve, average_precision_score
+from sklearn.multiclass import OneVsRestClassifier
 import configparser
 import requests
 from dotenv import load_dotenv
@@ -629,12 +629,12 @@ def plot_all_results_from_probal() -> None:
         save_plot_image(plt, f'plot_all_results_{n}')
         plt.close()
 
-def plot_test_data_probal() -> None:
+def plot_test_results(folder:str = 'kernel_cos') -> None:
     """
-    Plots all TEST data from the probal results folder into one figure.
+    Plots all TEST data from the probal results folder into one figure (this is plotting just the single runs).
     
     """
-    file_path = '/Users/mitchellborchers/Documents/git/probal/results/'
+    file_path = f'/Users/mitchellborchers/Documents/git/probal/results/{folder}'
     file_names = os.listdir(file_path)
     file_names = [s for s in file_names if not s.startswith('.')]
     pattern = r"data_(.*?)_0"
@@ -659,7 +659,130 @@ def plot_test_data_probal() -> None:
     ax.grid(which='both', linewidth=0.3)
     ax.set_ylim([0, 1.1])
     fig.tight_layout()
-    save_plot_image(plt, 'plot_all_cos_test_results')
+    save_plot_image(plt, f'plot_{folder}_test_results')
+    plt.close()
+
+def plot_test_results_averaged(folder:str = 'kernel_cos_averaged') -> None:
+    """
+    Plots all TEST data AVERAGED from the probal results folder into one figure.
+    
+    """
+    file_path = f'/Users/mitchellborchers/Documents/git/probal/results/{folder}'
+    file_names = os.listdir(file_path)
+    file_names = [s for s in file_names if not s.startswith('.')]
+    pattern = r"data_(.*?)_0"
+
+    # group files together and open in groups and aggregate test data
+
+    groups = ['alce', 'pal', 'xpal', 'log-loss', 'random', 'qbc', 'entropy']
+    fig, ax = plt.subplots()
+    for g in groups:
+        group_data = pd.DataFrame()
+        for file_name in file_names:
+            if not file_name.endswith('.csv'): continue
+            name = file_name[:-4]
+            match = re.search(pattern, name)
+            if match:
+                captured_text = match.group(1)
+                name = captured_text
+                if g == name:
+                    loc = os.path.join(file_path, file_name)
+                    with open(loc, 'r') as f:
+                        data = pd.read_csv(f)
+                        group_data = pd.concat([group_data, data['test-error']])
+
+        group_data = group_data.groupby(group_data.index).mean()
+        # print(group_data.shape)
+        ax.plot(group_data, label=g, linewidth=0.4)
+
+    ax.set_xlabel('Budget')
+    ax.set_ylabel('Error')
+    ax.legend()
+    ax.grid(which='both', linewidth=0.3)
+    ax.set_ylim([0, 1.1])
+    fig.tight_layout()
+    save_plot_image(plt, f'plot_{folder}_test_results')
+    plt.close()
+
+def plot_pr_curve(args, X:np.ndarray, y:np.ndarray) -> None:
+    """
+    Plots and saves the precision recall curve for the given data with LSVC as a pdf.
+    
+    Parameters
+    ----------
+    X : np.ndarray
+        The data to be used for the plot
+    y : np.ndarray
+        The labels for the data
+    
+    """
+    y_labels = np.unique(y)
+    n_classes = len(y_labels)
+    y_binarized = label_binarize(y, classes=y_labels)
+    train_X, test_X, train_y, test_y = train_test_split(X, y_binarized, test_size=0.25, random_state=args.seed, stratify=y)
+
+
+    classifier = OneVsRestClassifier(
+        make_pipeline(LinearSVC(random_state=args.seed, max_iter=100000, C=1, intercept_scaling=0.5))
+    )
+    classifier.fit(train_X, train_y)
+    y_score = classifier.decision_function(test_X)
+    # For each class
+    precision = dict()
+    recall = dict()
+    average_precision = dict()
+    for i in range(n_classes):
+        precision[i], recall[i], _ = precision_recall_curve(test_y[:, i], y_score[:, i])
+        average_precision[i] = average_precision_score(test_y[:, i], y_score[:, i])
+
+    # A "micro-average": quantifying score on all classes jointly
+    precision["micro"], recall["micro"], _ = precision_recall_curve(
+        test_y.ravel(), y_score.ravel()
+    )
+    average_precision["micro"] = average_precision_score(test_y, y_score, average="micro")
+
+    _, ax = plt.subplots(figsize=(10, 6))
+
+    f_scores = np.linspace(0.2, 0.8, num=4)
+    lines, labels = [], []
+    for f_score in f_scores:
+        x = np.linspace(0.01, 1)
+        y = f_score * x / (2 * x - f_score)
+        (l,) = plt.plot(x[y >= 0], y[y >= 0], color="gray", alpha=0.2)
+        plt.annotate("f1={0:0.1f}".format(f_score), xy=(0.9, y[45] + 0.02))
+
+    display = metrics.PrecisionRecallDisplay(
+        recall=recall["micro"],
+        precision=precision["micro"],
+        average_precision=average_precision["micro"],
+    )
+    display.plot(ax=ax, name="Micro-average PR", color="gold")
+
+    for i, label in zip(range(n_classes), y_labels):
+        display = metrics.PrecisionRecallDisplay(
+            recall=recall[i],
+            precision=precision[i],
+            average_precision=average_precision[i],
+        )
+        if i < 10:
+            display.plot(ax=ax, name=f"PR for {label}")
+        elif i < 20:
+            display.plot(ax=ax, name=f"PR for {label}", linestyle=":")
+        else:
+            display.plot(ax=ax, name=f"PR for {label}", linestyle="--")
+
+    # add the legend for the iso-f1 curves
+    handles, labels = display.ax_.get_legend_handles_labels()
+    handles.extend([l])
+    labels.extend(["iso-f1 curves"])
+    # set the legend and the axes
+    ax.set_xlim([0.0, 1.0])
+    ax.set_ylim([0.0, 1.05])
+    # ax.legend(handles=handles, labels=labels, loc="best")
+    ax.legend(handles=handles, labels=labels, loc='center left', bbox_to_anchor=(1, 0.5))
+    ax.set_title("Extension of Precision-Recall curve to multi-class")
+    plt.tight_layout()
+    save_plot_image(plt, "plot_pr_curve")
     plt.close()
     
 

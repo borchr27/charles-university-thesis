@@ -28,7 +28,14 @@ where $\sigma$ is a parameter that controls the smoothness of the kernel and $x_
 
 \subsection{Active Learning with PWC and Cosine Kernel}
 
-In Figure \ref{fig:plot_all_results_cosine} we have the and test errors for the same four different active learning sampling strategies and tested on the same data except instead of using the RBF kernel the Cosine kernel was used. We found that using the Cosine kernel reduced the training error across the board by 15\%.  
+In Figure \ref{fig:plot_all_results_cosine} we have the train and test errors for the same four different active learning sampling strategies tested on the same data. The only change was that we used Cosine kernel instead of the RBF kernel.The Cosine kernel is another important kernel function that is used in many machine learning algorithms. It is defined as:
+
+\begin{equation}
+    K(x_i, x_j) = \frac{x_i \cdot x_j}{\left\| x_i \right\| \left\| x_j \right\|}
+\label{eq:cosine_kernel}
+\end{equation}
+
+where $x_i$ and $x_j$ are the two points in the feature space to compare. We found that using the Cosine kernel reduced the test error across the board by $\sim$15\%.  
 
 \begin{figure}[ht]
   \centering
@@ -40,23 +47,24 @@ In Figure \ref{fig:plot_all_results_cosine} we have the and test errors for the 
 
 In Figure \ref{fig:plot_all_results_cosine} PAL and xPAL were able to reduce the training error, by about 20\% and 25\% respectively, early in the training process compared to random selection and QBC. We also tested the other sampling strategies with the Cosine kernel and found that the results were similar. The other sampling strategies and their test data results are shown in Table \ref{fig:cos_test_results} along with the test data from Figure \ref{fig:plot_all_results_cosine}. 
 
-The Cosine kernel is another important kernel function that is used in many machine learning algorithms. It is defined as:
-
-\begin{equation}
-    K(x_i, x_j) = \frac{x_i \cdot x_j}{\left\| x_i \right\| \left\| x_j \right\|}
-\label{eq:cosine_kernel}
-\end{equation}
-
-where $x_i$ and $x_j$ are the two points in the feature space to compare.
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=\textwidth]{../img/plot_all_cos_test_results.pdf}
+    \includegraphics[width=\textwidth]{../img/plot_kernel_cos_test_results.pdf}
     \caption{Comparing test error using different query strategies and Cosine kernel for the PWC classifier.}
     \label{fig:cos_test_results}
 \end{figure}
 
-We can see that the sampling strategies test performance converges over time (as we are using the same data and classifier) but xPAL has the absolute minimum near the 600 budget mark in addition to performing well with in the 100-200 budget range.
+We can see that the sampling strategies test performance converges over time (as we are using the same data and classifier) but xPAL has the appears to have an absolute minimum near the 600 budget mark in comparison to all sampling strategies. XPAL also appears to be performing well early on in the training process, in the 100-200 budget range.
+
+Figure \ref{fig:cos_test_results} shows that xPAL seems to be performing the best with our data but we wanted to see if we ran more tests with different train-test splits how the results would average out and which sampling strategy would perform the best. We ran 10 different data splits with each of the 7 sampling strategies and then took the average to get a smoother curve compared to the single run results shown in Figure \ref*{fig:cos_test_results}. The results for this experiment are shown in Figure \ref{fig:cos_avg_test_results}.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=\textwidth]{../img/plot_kernel_cos_averaged_test_results.pdf}
+    \caption{Comparing test error using different query strategies and Cosine kernel for the PWC classifier.}
+    \label{fig:cos_avg_test_results}
+\end{figure}
 
 
 \subsection{Scikit-Learn Classifier Evaluation}
@@ -100,7 +108,25 @@ We also tested some other models that we expected to perform well, namely K-Near
 \label{tab:best_errors}
 \end{table}
 
-We attempted to boost performance from the LinearSVC classifier using GridSearchCV and Bagging but were not able to make significant improvements in performance from what we observed in Table \ref{tab:best_errors}.
+We attempted to boost performance from the LinearSVC classifier using GridSearchCV and Bagging but were not able to make significant improvements in performance from what we observed in Table \ref{tab:best_errors}. The precision-recall curve is shown in Figure \ref{fig:pr_curve} and the confusion matrix is shown in Figure \ref{fig:confusion_matrix} for the best performing LinearSVC classifier.
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=\textwidth]{../img/plot_pr_curve.pdf}
+  \caption{Precision-recall curve for the best performing LinearSVC classifier.}
+  \label{fig:pr_curve}
+\end{figure}
+
+It is important to note that the precision-recall curve is not a perfect metric for this problem as the classes are not balanced. We can see this imbalance clearly in Figure \ref{fig:pr_curve} where we have straight lines and clear divisions. This is a result of having a small number of data in a class. However, we can also see that for some classes the precision is very high even though we have very few data points. Here we are namely concerned with the 'Culture' and 'Beauty' categories which have 10 and 31 data points respectively.
+
+The confusion matrix may be a better metric for visualizing this problem as it shows the number of true positives, false positives, true negatives, and false negatives. 
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=\textwidth]{../img/plot_cm_LinearSVC.pdf}
+  \caption{Confusion matrix for the best performing LinearSVC classifier.}
+  \label{fig:confusion_matrix}
+\end{figure}
 
 
 \section{Original and Additional Data}

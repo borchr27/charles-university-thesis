@@ -2,17 +2,17 @@
 #!/usr/bin/env python3
 import os
 os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "2")  # Report only TF errors by default
-
 import lzma
 import pickle
+import re
 import warnings
 import argparse
 import numpy as np
 import pandas as pd
 from sklearn import metrics
 from sklearn.svm import LinearSVC
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import LabelEncoder
+from sklearn.pipeline import Pipeline, make_pipeline
+from sklearn.preprocessing import LabelEncoder, StandardScaler, label_binarize
 from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.ensemble import BaggingClassifier, GradientBoostingClassifier
@@ -20,6 +20,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.naive_bayes import MultinomialNB
 import thesis_utils as tu
 import matplotlib.pyplot as plt
+from itertools import cycle
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
 warnings.simplefilter(action='ignore', category=UserWarning)
@@ -33,7 +34,7 @@ parser.add_argument("--hidden_layer", default=1000, type=int, help="Size of the 
 parser.add_argument("--learning_rate", default=0.1, type=float, help="Initial learning rate.")
 parser.add_argument("--learning_rate_final", default=0.01, type=float, help="Final learning rate.")
 
-parser.add_argument("--plot", default=None, type=str, help=["all_histograms", "original_en_hist", "all_results_from_probal", "test_data_probal", "explore_classifiers"])
+parser.add_argument("--plot", default=None, type=str, help=["all_histograms", "original_en_hist", "all_results_from_probal", "test_results", "explore_classifiers", "pr_curve", "test_results_averaged"])
 parser.add_argument("--table", default=None, type=str, help=["correlated_unigrams", "classification_report", "data_category_counts", "variable_importance"])
 
 
@@ -100,7 +101,7 @@ def test_model(args, X:np.ndarray, y:np.ndarray, vectorizer:TfidfVectorizer, csv
 
     return error
 
-def compare_top_three_models(args, X, y, vectorizer) -> None:
+def table_compare_top_three_models(args, X, y, vectorizer) -> None:
     nn_error = tu.build_tensor_flow_NN(args, X, y)
     knn_error = test_model(args, X, y, vectorizer, clf_name="KNN")
     lsvc_error = test_model(args, X, y, vectorizer, clf_name="LinearSVC")
@@ -113,17 +114,17 @@ def optimize_classifier(args, X, y):
     y_labels = np.unique(y)
     le = LabelEncoder()
     le.fit(y)
-    y = le.transform(y)
-    weights = tu.get_weights('cosine', y)
-    train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.25, random_state=args.seed, stratify=y)
+    y_encoded = le.transform(y)
+    weights = tu.get_weights('cosine', y_encoded)
+    train_X, test_X, train_y, test_y = train_test_split(X, y_encoded, test_size=0.25, random_state=args.seed, stratify=y)
     
     param_grid = {
-        'C': [1,2,3], 
+        'C': [1,2], 
         'loss': ['squared_hinge'], 
         'fit_intercept': [True, False], 
         'intercept_scaling': [0.5], 
         'class_weight': [None, weights]}
-    clf =LinearSVC(random_state=args.seed, max_iter=10000)
+    clf =LinearSVC(random_state=args.seed, max_iter=100000)
 
     grid_search = GridSearchCV(clf, param_grid, cv=5, verbose=2)
     grid_search.fit(train_X, train_y)
@@ -142,12 +143,14 @@ def optimize_classifier(args, X, y):
 
 if __name__ == "__main__":
     args = parser.parse_args([] if "__file__" not in globals() else None)
-    data = tu.Dataset()
-    X, y, vectorizer = tu.data_prep(data)
+    data, X, y, vectorizer = None, None, None, None
+    # data = tu.Dataset()
+    # X, y, vectorizer = tu.data_prep(data)
     # build_and_test_model(args, X, y, vectorizer, cm=True, clf_name="KNN")
     # tu.build_LSVC_models(args, X, y)
-    # compare_top_three_models(args, X, y, vectorizer)
-    optimize_classifier(args, X, y)
+    # table_compare_top_three_models(args, X, y, vectorizer)
+    # optimize_classifier(args, X, y)
+
 
     if args.plot == "all_histograms":
         tu.plot_all_histograms(data, "plot_all_hist")
@@ -155,10 +158,14 @@ if __name__ == "__main__":
         tu.plot_original_en_histograms(data, "plot_original_english_counts")
     if args.plot == "all_results_from_probal":
         tu.plot_all_results_from_probal()
-    if args.plot == "test_data_probal":
-        tu.plot_test_data_probal()
+    if args.plot == "test_results":
+        tu.plot_test_results()
+    if args.plot == "test_results_averaged":
+        tu.plot_test_results_averaged()
     if args.plot == "explore_classifiers":
         tu.plot_explore_classifiers(args, X, y)
+    if args.plot == "pr_curve":
+        tu.plot_pr_curve(args, X, y)
     
 
     if args.table == "correlated_unigrams":

@@ -44,7 +44,7 @@ A kernel based classifier is used in xPAL which determines the similarity of two
 \label{eq:kernel}
 \end{equation}
 
-The Parzen Window Classifier uses the labeled data for training and predicts the most frequent class. 
+The Parzen Window Classifier uses the labeled data for training and predicts the most frequent class and was selected by Kottke et al. to use because of its speed and ability to implement different kernels depending on the data (\cite{kottke2021toward}). It was used for all the selection strategies in their experiments. 
 
 \begin{equation}
 f^{\mathcal{L}}(x) = \underset{y \in \mathcal{Y}}{\arg \max} \left( \textbf{\textit{k}}^{\mathcal{L}}_{x,y} \right) \hbox{.}
@@ -114,7 +114,7 @@ Next, we insert equation \ref{eq:cond_class_prob} into the empirical risk equati
     \hat{R}_{\mathcal{E}} (f^{\mathcal{L}}, \mathcal{L}) = \frac{1}{|\mathcal{E}|} \sum_{x \in \mathcal{E}} \sum_{y \in \mathcal{Y}}  \frac{\textbf{(\textit{k}}^{\mathcal{L}}_x + \alpha)_y}{||\textbf{\textit{k}}^{\mathcal{L}}_x + \alpha ||_1} \cdot \textit{L} (y,f^{\mathcal{L}}(x))
 \end{equation}
 
-Now lets assume we add a new labeled candidate $(x_c,y_c)$ to the labeled data set $\mathcal{L}$. We will now denote the set with the newly labeled data point $\mathcal{L}^+ = \mathcal{L} \cup \{(x_c,y_c)\}$. Next we need to determine how much the how well this new data point improved our classifier. We then make an estimate of the gain in terms of risk difference using the probability to estimate the ground truth.
+Now lets assume we add a new labeled candidate $(x_c,y_c)$ to the labeled data set $\mathcal{L}$. We will now denote the set with the newly labeled data point $\mathcal{L}^+ = \mathcal{L} \cup \{(x_c,y_c)\}$. Next we need to determine how much this new data point improved our classifier. We then make an estimate of the gain in terms of risk difference using the probability to estimate the ground truth.
 
 \begin{flalign}
     \Delta \hat{R}_{\mathcal{E}} (f^{\mathcal{L}^+}, f^{\mathcal{L}}, \mathcal{L}^+) &= \hat{R}_{\mathcal{E}} (f^{\mathcal{L}^+}, \mathcal{L}^+) - \hat{R}_{\mathcal{E}} (f^{\mathcal{L}}, \mathcal{L}^+) \\
