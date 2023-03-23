@@ -1123,7 +1123,6 @@ INPUT ./thesis.bbl
 INPUT thesis.bbl
 INPUT ./thesis.bbl
 INPUT thesis.bbl
-INPUT /Users/mitchellborchers/Library/TinyTeX/texmf-dist/fonts/tfm/public/cm/cmtt12.tfm
 INPUT ./thesis.lof
 INPUT thesis.lof
 INPUT thesis.lof
@@ -1186,4 +1185,3 @@ INPUT /Users/mitchellborchers/Library/TinyTeX/texmf-dist/fonts/type1/public/amsf
 INPUT /Users/mitchellborchers/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb
 INPUT /Users/mitchellborchers/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb
 INPUT /Users/mitchellborchers/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb
-INPUT /Users/mitchellborchers/Library/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb

@@ -7,31 +7,29 @@ import psycopg2
 import re
 import numpy as np
 import pycld2 as cld2
-from sklearn import metrics
-import pandas as pd
-from sklearn.feature_extraction.text import TfidfVectorizer
-import logging
-from sklearn.neighbors import KNeighborsClassifier
-from sqlalchemy import create_engine
-from sklearn.feature_selection import chi2
 import seaborn as sns
+import pandas as pd
+import logging
+from dotenv import load_dotenv
+import configparser
+import requests
+from sqlalchemy import create_engine
+
+from sklearn import metrics
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_selection import chi2
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline, make_pipeline
-from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
-from sklearn.svm import LinearSVC
-from sklearn.naive_bayes import MultinomialNB
-from sklearn.model_selection import cross_val_score
-from sklearn.model_selection import train_test_split
-from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor, GradientBoostingClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.svm import LinearSVC, SVC
+from sklearn.naive_bayes import MultinomialNB, GaussianNB
+from sklearn.model_selection import cross_val_score, train_test_split
 from sklearn.neural_network import MLPClassifier
-from sklearn.svm import SVC
 from sklearn.metrics.pairwise import pairwise_kernels, cosine_distances
 from sklearn.preprocessing import LabelEncoder, label_binarize
 from sklearn.metrics import precision_recall_curve, average_precision_score
 from sklearn.multiclass import OneVsRestClassifier
-import configparser
-import requests
-from dotenv import load_dotenv
 
 # Settings to create pdf plots for thesis
 import matplotlib
@@ -334,8 +332,7 @@ def build_LSVC_models(args, X:np.ndarray, y:np.ndarray) -> None:
     # lable encoder
     y_labels = np.unique(y)
     le = LabelEncoder()
-    le.fit(y)
-    y = le.transform(y)
+    y = le.fit_transform(y)
 
     weights = get_weights(y)
 
@@ -362,8 +359,7 @@ def build_tensor_flow_NN(args, X:np.ndarray, y:np.ndarray) -> float:
 
     y_labels = np.unique(y)
     le = LabelEncoder()
-    le.fit(y)
-    y = le.transform(y)
+    y = le.fit_transform(y)
 
     train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.25, random_state=args.seed, stratify=y)
     train_X = train_X.toarray()
@@ -480,6 +476,7 @@ def plot_all_histograms(data:Dataset, filename:str) -> None:
     ax[0].set_xlabel('Categories')
     ax[0].set_ylabel('Count')
     ax[0].set_ylim([0, max(df1_c.max(), df2_c.max()) * 1.1])
+    ax[0].yaxis.grid(True)
     ax[0].set_xticks(np.arange(len(categories)))
     ax[0].set_xticklabels(category_labels, rotation=90, fontsize=8)
     ax[0].legend()
@@ -502,6 +499,7 @@ def plot_all_histograms(data:Dataset, filename:str) -> None:
     ax[1].bar(df2_l.index, df2_l.values, bar_width, alpha=opacity, color='r', label='Additional Data', bottom=df1_l.values)
     ax[1].set_xlabel('Languages')
     ax[1].set_ylabel('Count')
+    ax[1].yaxis.grid(True)
     ax[1].set_xticks(np.arange(len(languages)))
     ax[1].set_xticklabels(language_labels, fontsize=7, ha='center')
     ax[1].legend()
@@ -637,6 +635,7 @@ def plot_test_results(folder:str = 'kernel_cos') -> None:
     file_path = f'/Users/mitchellborchers/Documents/git/probal/results/{folder}'
     file_names = os.listdir(file_path)
     file_names = [s for s in file_names if not s.startswith('.')]
+    file_names = sorted(file_names)
     pattern = r"data_(.*?)_0"
 
     fig, ax = plt.subplots()
@@ -675,6 +674,7 @@ def plot_test_results_averaged(folder:str = 'kernel_cos_averaged') -> None:
     # group files together and open in groups and aggregate test data
 
     groups = ['alce', 'pal', 'xpal', 'log-loss', 'random', 'qbc', 'entropy']
+    groups = sorted(groups)
     fig, ax = plt.subplots()
     for g in groups:
         group_data = pd.DataFrame()
@@ -765,11 +765,11 @@ def plot_pr_curve(args, X:np.ndarray, y:np.ndarray) -> None:
             average_precision=average_precision[i],
         )
         if i < 10:
-            display.plot(ax=ax, name=f"PR for {label}")
+            display.plot(ax=ax, name=f"{label}")
         elif i < 20:
-            display.plot(ax=ax, name=f"PR for {label}", linestyle=":")
+            display.plot(ax=ax, name=f"{label}", linestyle=":")
         else:
-            display.plot(ax=ax, name=f"PR for {label}", linestyle="--")
+            display.plot(ax=ax, name=f"{label}", linestyle="--")
 
     # add the legend for the iso-f1 curves
     handles, labels = display.ax_.get_legend_handles_labels()
@@ -780,7 +780,7 @@ def plot_pr_curve(args, X:np.ndarray, y:np.ndarray) -> None:
     ax.set_ylim([0.0, 1.05])
     # ax.legend(handles=handles, labels=labels, loc="best")
     ax.legend(handles=handles, labels=labels, loc='center left', bbox_to_anchor=(1, 0.5))
-    ax.set_title("Extension of Precision-Recall curve to multi-class")
+    # ax.set_title("Multi-Class Precision-Recall Curve")
     plt.tight_layout()
     save_plot_image(plt, "plot_pr_curve")
     plt.close()
@@ -832,14 +832,14 @@ def plot_explore_classifiers(args, X, y):
     weights = get_weights('cosine', y)
 
     models = [
-        LinearSVC(class_weight=weights, fit_intercept=False),
-        KNeighborsClassifier(n_neighbors=5, metric='cosine'),
-        MLPClassifier(random_state=1, max_iter=200, hidden_layer_sizes=500),
-        SVC(kernel='precomputed'),
-        GradientBoostingClassifier(n_estimators=100, learning_rate=1.0, max_depth=1, random_state=0),
-        LogisticRegression(random_state=0),
-        MultinomialNB(),
-        RandomForestClassifier(n_estimators=200, max_depth=3, random_state=0),
+        LinearSVC(class_weight=weights, max_iter=10000),
+        KNeighborsClassifier(n_neighbors=8, metric='cosine'),
+        MLPClassifier(random_state=1, max_iter=100, hidden_layer_sizes=500),
+        SVC(),
+        GradientBoostingClassifier(n_estimators=100, learning_rate=.09, max_depth=3, random_state=0),
+        GaussianNB(),
+        LogisticRegression(random_state=0, max_iter=1000),
+        RandomForestClassifier(n_estimators=200, class_weight=weights, random_state=0),
     ]
 
     CV = 5
@@ -850,9 +850,11 @@ def plot_explore_classifiers(args, X, y):
         if model_name == 'SVC':
             train_X_cosine = pairwise_kernels(X, metric='cosine')
             accuracies = cross_val_score(model, train_X_cosine, y, scoring='accuracy', cv=CV)
+        if model_name == 'GaussianNB':
+            accuracies = cross_val_score(model, X.toarray(), y, scoring='accuracy', cv=CV)
         else:
             accuracies = cross_val_score(model, X, y, scoring='accuracy', cv=CV)
-            # use error instead of accuracy
+        # use error instead of accuracy
         errors = 1 - accuracies
         for fold_idx, error in enumerate(errors):
             entries.append((model_name, fold_idx, error))
@@ -860,8 +862,8 @@ def plot_explore_classifiers(args, X, y):
     cv_df = pd.DataFrame(entries, columns=['Classifier', 'fold_idx', 'Error'])
     sns.boxplot(x='Classifier', y='Error', data=cv_df)
     plt.xticks(rotation=90)
-    # set y axis to 0 to 1
     plt.ylim([0, 1])
+    plt.grid(True, axis='y')
     plt.tight_layout()
     save_plot_image(plt, 'plot_explore_classifiers')
     plt.close()
@@ -964,8 +966,7 @@ def table_variable_importance(X:np.ndarray, y:np.ndarray, vectorizer:TfidfVector
     # lable encoder (for gbdt)
     y_labels = np.unique(y)
     le = LabelEncoder()
-    le.fit(y)
-    y = le.transform(y)
+    y = le.fit_transform(y)
 
     rf_model = RandomForestRegressor(n_estimators=100, random_state=42)
     rf_model.fit(X.toarray(), y)

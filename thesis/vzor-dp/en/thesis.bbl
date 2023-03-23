@@ -11,14 +11,6 @@ Yoram Baram, Ran~El Yaniv, and Kobi Luz.
 \newblock \emph{Journal of Machine Learning Research}, 5\penalty0
   (Mar):\penalty0 255--291, 2004.
 
-\bibitem[Fabian~Pedregosa et~al.(2023)Fabian~Pedregosa, Michel,
-  et~al.]{sklearn62feature}
-Alexandre~Gramfort Fabian~Pedregosa, Gael~Varoquaux, Vincent Michel, et~al.
-\newblock 6.2. {F}eature extraction --- scikit-learn.org.
-\newblock
-  \url{https://scikit-learn.org/stable/modules/feature_extraction.html}, 2023.
-\newblock [Accessed 03-Mar-2023].
-
 \bibitem[Freund et~al.(1997)Freund, Seung, Shamir, and Tishby]{freund1997qbc}
 Yoav Freund, H~Sebastian Seung, Eli Shamir, and Naftali Tishby.
 \newblock Selective sampling using the query by committee algorithm.
@@ -58,6 +50,16 @@ David~D Lewis and William~A Gale.
 Robert Munro.
 \newblock \emph{Human-in-the-loop machine learning}.
 \newblock Manning Publications, New York, NY, July 2021.
+
+\bibitem[Pedregosa et~al.(2011)Pedregosa, Varoquaux, Gramfort, Michel, Thirion,
+  Grisel, Blondel, Prettenhofer, Weiss, Dubourg, Vanderplas, Passos,
+  Cournapeau, Brucher, Perrot, and Duchesnay]{sklearn62feature}
+F.~Pedregosa, G.~Varoquaux, A.~Gramfort, V.~Michel, B.~Thirion, O.~Grisel,
+  M.~Blondel, P.~Prettenhofer, R.~Weiss, V.~Dubourg, J.~Vanderplas, A.~Passos,
+  D.~Cournapeau, M.~Brucher, M.~Perrot, and E.~Duchesnay.
+\newblock Scikit-learn: Machine learning in {P}ython.
+\newblock \emph{Journal of Machine Learning Research}, 12:\penalty0 2825--2830,
+  2011.
 
 \bibitem[Roy and McCallum(2001)]{roy2001eer}
 Nicholas Roy and Andrew McCallum.

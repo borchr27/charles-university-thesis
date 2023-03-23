@@ -62,7 +62,7 @@ Figure \ref{fig:cos_test_results} shows that xPAL seems to be performing the bes
 \begin{figure}[ht]
     \centering
     \includegraphics[width=\textwidth]{../img/plot_kernel_cos_averaged_test_results.pdf}
-    \caption{Comparing test error using different query strategies and Cosine kernel for the PWC classifier.}
+    \caption{Comparing test error using different query strategies and Cosine kernel for the PWC classifier with results averaged over 10 different data splits.}
     \label{fig:cos_avg_test_results}
 \end{figure}
 
@@ -117,9 +117,7 @@ We attempted to boost performance from the LinearSVC classifier using GridSearch
   \label{fig:pr_curve}
 \end{figure}
 
-It is important to note that the precision-recall curve is not a perfect metric for this problem as the classes are not balanced. We can see this imbalance clearly in Figure \ref{fig:pr_curve} where we have straight lines and clear divisions. This is a result of having a small number of data in a class. However, we can also see that for some classes the precision is very high even though we have very few data points. Here we are namely concerned with the 'Culture' and 'Beauty' categories which have 10 and 31 data points respectively.
-
-The confusion matrix may be a better metric for visualizing this problem as it shows the number of true positives, false positives, true negatives, and false negatives. 
+It is important to note that the precision-recall curve is not a perfect metric for this problem as the classes are not balanced. We can see this imbalance clearly in Figure \ref{fig:pr_curve} where we have straight lines and large clear steps in some plotted category lines. This is a result of having a small number of data in a class. However, we can also see that for some classes the precision is very high even though we have very few data points. Here we are namely concerned with the 'Culture' and 'Beauty' categories which have 10 and 31 data points respectively. The confusion matrix shown in Figure \ref{fig:confusion_matrix} may be a better metric for visualizing this data. 
 
 \begin{figure}[ht]
   \centering

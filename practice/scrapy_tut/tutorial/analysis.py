@@ -143,9 +143,9 @@ def optimize_classifier(args, X, y):
 
 if __name__ == "__main__":
     args = parser.parse_args([] if "__file__" not in globals() else None)
-    data, X, y, vectorizer = None, None, None, None
-    # data = tu.Dataset()
-    # X, y, vectorizer = tu.data_prep(data)
+    # data, X, y, vectorizer = None, None, None, None
+    data = tu.Dataset()
+    X, y, vectorizer = tu.data_prep(data)
     # build_and_test_model(args, X, y, vectorizer, cm=True, clf_name="KNN")
     # tu.build_LSVC_models(args, X, y)
     # table_compare_top_three_models(args, X, y, vectorizer)
