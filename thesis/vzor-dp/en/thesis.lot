@@ -1,13 +1,15 @@
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {2.1}{\ignorespaces Variable names and definitions.}}{9}{table.2.1}%
+\contentsline {table}{\numberline {2.1}{\ignorespaces Variable names and definitions.}}{10}{table.2.1}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {3.1}{\ignorespaces This is an example of a single data point from the original data set.}}{13}{table.3.1}%
-\contentsline {table}{\numberline {3.2}{\ignorespaces This is an example of how the tags use different levels.}}{13}{table.3.2}%
-\contentsline {table}{\numberline {3.3}{\ignorespaces Keywords from TF-IDF with Chi Squared using the original data.}}{16}{table.3.3}%
+\contentsline {table}{\numberline {3.1}{\ignorespaces This is an example of a single data point from the original data set.}}{14}{table.3.1}%
+\contentsline {table}{\numberline {3.2}{\ignorespaces This is an example of how the tags use different levels.}}{14}{table.3.2}%
+\contentsline {table}{\numberline {3.3}{\ignorespaces Raw text collected by scraper and the translated text.}}{16}{table.3.3}%
+\contentsline {table}{\numberline {3.4}{\ignorespaces Keywords from TF-IDF with Chi Squared using the original data.}}{17}{table.3.4}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {4.1}{\ignorespaces Error for three differing LinearSVC models.}}{21}{table.4.1}%
-\contentsline {table}{\numberline {4.2}{\ignorespaces Keywords from TF-IDF with Chi Squared using the original data.}}{21}{table.4.2}%
+\contentsline {table}{\numberline {4.1}{\ignorespaces Error for three differing LinearSVC models.}}{22}{table.4.1}%
+\contentsline {table}{\numberline {4.2}{\ignorespaces Testing errors for best performing classifiers.}}{23}{table.4.2}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {A.1}{\ignorespaces Category counts of usable given data sorted by originally given, originally given data that is English, originally given translated to English (+ English data), and supplementary data.}}{29}{table.A.1}%
-\contentsline {table}{\numberline {A.2}{\ignorespaces Variable importance, top 20 words from the vectorizer.}}{30}{table.A.2}%
+\contentsline {table}{\numberline {A.1}{\ignorespaces Category counts of usable given data sorted by originally given, originally given data that is English, originally given translated to English (+ English data), and supplementary data.}}{30}{table.A.1}%
+\contentsline {table}{\numberline {A.2}{\ignorespaces Variable importance, top 20 words from the vectorizer.}}{31}{table.A.2}%
+\contentsline {table}{\numberline {A.3}{\ignorespaces Best LinearSVC model classification report.}}{32}{table.A.3}%

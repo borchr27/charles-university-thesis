@@ -25,12 +25,14 @@ In this section we define some terms and ideas that will be helpful in understan
 \label{def:beta_prior}
 A beta prior is a conjugate prior for the binomial distribution. It is a continuous probability distribution defined on the interval [0, 1] and is parameterized by two positive shape parameters, \(\alpha\) and \(\beta\). The beta distribution is defined as: 
 \[\text{Beta}(\alpha, \beta) = \frac{\Gamma(\alpha + \beta)}{\Gamma(\alpha)\Gamma(\beta)}x^{\alpha - 1}(1 - x)^{\beta - 1}\]
-where \(\Gamma\) is the gamma function and \(x\) is a random variable.
+where \(\Gamma\) is the gamma function and \(x\) is a random variable. The gamma function is defined as:
+\[\Gamma(x) = \int_0^\infty t^{x - 1}e^{-t}dt\]
+The gamma function is used as a normalizing constant to ensure that the probability density function integrates to 1 over the simplex, which is the space of all probability vectors that sum to 1.
 \end{defn}
 
 \begin{defn}[Conjugate Prior]
 \label{def:conjugate_prior}
-A conjugate prior is a prior distribution that has the same functional form as the likelihood function. In other words, the posterior distribution will have the same functional form as the prior distribution.
+A conjugate prior is a prior distribution that is in the same family of distributions as the likelihood function. In other words, the posterior distribution will have a similar functional form to the prior distribution.
 \end{defn}
 
 \begin{defn}[Decision-Theoretic]
@@ -42,9 +44,7 @@ Decision-theoretic active learning is a framework that uses the expected perform
 \label{def:dirichlet_distribution}
 The Dirichlet distribution is a multivariate generalization of the beta distribution. It is a continuous probability distribution defined on the \(K\)-simplex, \(\Delta_K = \{x \in \mathbb{R}^K: x_i \geq 0, \sum_{i=1}^K x_i = 1\}\). The Dirichlet distribution is parameterized by a vector of positive shape parameters, \(\alpha = (\alpha_1, \alpha_2, \dots, \alpha_K)\). The Dirichlet distribution is defined as:
 \[\text{Dir}(\alpha) = \frac{\Gamma(\sum_{i=1}^K \alpha_i)}{\prod_{i=1}^K \Gamma(\alpha_i)}\prod_{i=1}^K x_i^{\alpha_i - 1}\]
-where \(\Gamma\) is the gamma function and \(x\) is a random vector. The gamma function is defined as:
-\[\Gamma(x) = \int_0^\infty t^{x - 1}e^{-t}dt\]
-The gamma function is used as a normalizing constant to ensure that the probability density function integrates to 1 over the simplex, which is the space of all probability vectors that sum to 1.
+where \(\Gamma\) is the gamma function as defined in Definition \ref{def:beta_prior} and where \(x\) is a random vector.
 \end{defn}
 
 \begin{defn}[Ground Truth]

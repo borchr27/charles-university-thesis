@@ -1139,6 +1139,10 @@ INPUT ../img/table_top_20_features.tex
 INPUT ../img/table_top_20_features.tex
 INPUT ../img/table_top_20_features.tex
 INPUT ../img/table_top_20_features.tex
+INPUT ../img/table_classification_report_LinearSVC.tex
+INPUT ../img/table_classification_report_LinearSVC.tex
+INPUT ../img/table_classification_report_LinearSVC.tex
+INPUT ../img/table_classification_report_LinearSVC.tex
 INPUT thesis.aux
 INPUT ./title.aux
 INPUT title.aux

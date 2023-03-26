@@ -786,7 +786,7 @@ def plot_pr_curve(args, X:np.ndarray, y:np.ndarray) -> None:
     plt.close()
     
 
-def get_weights(method:str, y:np.ndarray) -> dict:
+def get_weights(y:np.ndarray, method:str='cosine') -> dict:
     """
     This function is used to get the weights for the imbalanced data.
     """

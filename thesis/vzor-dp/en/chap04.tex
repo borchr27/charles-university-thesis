@@ -51,18 +51,20 @@ In Figure \ref{fig:plot_all_results_cosine} PAL and xPAL were able to reduce the
 \begin{figure}[ht]
     \centering
     \includegraphics[width=\textwidth]{../img/plot_kernel_cos_test_results.pdf}
-    \caption{Comparing test error using different query strategies and Cosine kernel for the PWC classifier.}
+    \caption{Comparing test error with one data split using different query strategies and Cosine kernel for the PWC classifier.}
     \label{fig:cos_test_results}
 \end{figure}
 
-We can see that the sampling strategies test performance converges over time (as we are using the same data and classifier) but xPAL has the appears to have an absolute minimum near the 600 budget mark in comparison to all sampling strategies. XPAL also appears to be performing well early on in the training process, in the 100-200 budget range.
+We can see that the sampling strategies test performance converges over time (as we are using the same data and classifier) but xPAL appears to have an absolute minimum near the 600 budget mark in comparison to all sampling strategies. XPAL also appears to be performing well early on in the training process, in the 100-200 budget range. However, this test is only showing the results of one data split. We can get a better idea if we run more tests with different train-test splits and see how the results average out.
 
-Figure \ref{fig:cos_test_results} shows that xPAL seems to be performing the best with our data but we wanted to see if we ran more tests with different train-test splits how the results would average out and which sampling strategy would perform the best. We ran 10 different data splits with each of the 7 sampling strategies and then took the average to get a smoother curve compared to the single run results shown in Figure \ref*{fig:cos_test_results}. The results for this experiment are shown in Figure \ref{fig:cos_avg_test_results}.
+Figure \ref{fig:cos_test_results} shows that xPAL seems to be performing the best with our data but we wanted to see if we ran more tests with different train-test splits how the results would average out and which sampling strategy would perform the best on average. We ran 10 different data splits with each of the 7 sampling strategies and then took the average to get a smoother curve compared to the single run results shown in Figure \ref*{fig:cos_test_results}. The results for this experiment are shown in Figure \ref{fig:cos_avg_test_results}. 
+
+It is clear in Figure \ref{fig:cos_avg_test_results} that xPAL is performing the best early on (budget from 0-100) in the sample selection process. XPAL selects the data that minimizes the test error and builds the strongest classifier quickly while it takes the other sampling strategies more data points to get to the same level of performance. Around the 100 budget mark we can see that the other selection strategies catch up to xPAL performance wise.
 
 \begin{figure}[ht]
     \centering
     \includegraphics[width=\textwidth]{../img/plot_kernel_cos_averaged_test_results.pdf}
-    \caption{Comparing test error using different query strategies and Cosine kernel for the PWC classifier with results averaged over 10 different data splits.}
+    \caption{Comparing test error using different query strategies and Cosine kernel for the PWC classifier with results averaged over ten different data splits.}
     \label{fig:cos_avg_test_results}
 \end{figure}
 
@@ -103,7 +105,7 @@ We also tested some other models that we expected to perform well, namely K-Near
 
 \begin{table}[!ht]
 \centering
-\caption{Keywords from TF-IDF with Chi Squared using the original data.}
+\caption{Testing errors for best performing classifiers.}
 \input{../img/table_best_errors.tex}
 \label{tab:best_errors}
 \end{table}
@@ -117,7 +119,9 @@ We attempted to boost performance from the LinearSVC classifier using GridSearch
   \label{fig:pr_curve}
 \end{figure}
 
-It is important to note that the precision-recall curve is not a perfect metric for this problem as the classes are not balanced. We can see this imbalance clearly in Figure \ref{fig:pr_curve} where we have straight lines and large clear steps in some plotted category lines. This is a result of having a small number of data in a class. However, we can also see that for some classes the precision is very high even though we have very few data points. Here we are namely concerned with the 'Culture' and 'Beauty' categories which have 10 and 31 data points respectively. The confusion matrix shown in Figure \ref{fig:confusion_matrix} may be a better metric for visualizing this data. 
+It is important to note that the precision-recall curve is not a perfect metric for this problem as the classes are not balanced. We can see this imbalance clearly in Figure \ref{fig:pr_curve} where we have straight lines and large clear steps in some plotted category lines. This is a result of having a small number of data in a class. However, we can also see that for some classes the precision is relatively high even though we have few data points. Here we are namely concerned with the 'Culture' and 'Beauty' categories which have 10 and 31 data points respectively. It may be that the keywords in the 'Culture' and 'Beauty' categories are drastically different from the other categories so the performance is better. 
+
+The confusion matrix shown in Figure \ref{fig:confusion_matrix} may be a better metric for visualizing this data. The classification report for the LinearSVC classifier is shown in Appendix Table \ref{tab:classification_report_LinearSVC} with F1, accuracy, precision, recall, and support scores.
 
 \begin{figure}[ht]
   \centering
