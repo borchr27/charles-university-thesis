@@ -145,7 +145,7 @@ if __name__ == "__main__":
     # test_model(args, X, y, vectorizer, cm=True, clf_name=args.clf)
     # tu.build_LSVC_models(args, X, y)
     # table_compare_top_three_models(args, X, y, vectorizer)
-    optimize_classifier(args, X, y)
+    # optimize_classifier(args, X, y)
 
 
     if args.plot == "all_histograms":
@@ -169,3 +169,5 @@ if __name__ == "__main__":
         tu.table_category_counts(data, "table_category_counts")
     if args.table == "variable_importance":
         tu.table_variable_importance(args, X, y, "table_variable_importance")
+    if args.table == 'cosine_decay_weights':
+        tu.table_cosine_decay_weights(args, y)

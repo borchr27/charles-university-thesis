@@ -829,17 +829,17 @@ def plot_explore_classifiers(args, X, y):
     y = le.fit_transform(y)
     # train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.25, random_state=args.seed, stratify=y)
 
-    weights = get_weights('cosine', y)
+    weights = get_weights(y)
 
     models = [
-        LinearSVC(class_weight=weights, max_iter=10000),
+        LinearSVC(random_state=args.seed, class_weight=weights, max_iter=10000),
         KNeighborsClassifier(n_neighbors=8, metric='cosine'),
-        MLPClassifier(random_state=1, max_iter=100, hidden_layer_sizes=500),
+        MLPClassifier(random_state=args.seed, max_iter=100, hidden_layer_sizes=500),
         SVC(),
-        GradientBoostingClassifier(n_estimators=100, learning_rate=.09, max_depth=3, random_state=0),
+        # GradientBoostingClassifier(n_estimators=100, learning_rate=.09, max_depth=3, random_state=args.seed),
         GaussianNB(),
-        LogisticRegression(random_state=0, max_iter=1000),
-        RandomForestClassifier(n_estimators=200, class_weight=weights, random_state=0),
+        LogisticRegression(random_state=args.seed, max_iter=1000),
+        RandomForestClassifier(random_state=args.seed, n_estimators=200, class_weight=weights),
     ]
 
     CV = 5
@@ -868,6 +868,34 @@ def plot_explore_classifiers(args, X, y):
     save_plot_image(plt, 'plot_explore_classifiers')
     plt.close()
 
+    # create a pandas data frame from the models and their parameters
+    df = pd.DataFrame(columns=['Classifier', 'Parameters'])
+    with pd.option_context("max_colwidth", 1000):
+        for model in models:
+            params = model.get_params()
+            if 'class_weight' in params.keys():
+                params['class_weight'] = 'precomputed'
+            df = df.append({'Classifier': model.__class__.__name__,
+                            'Parameters': params}, ignore_index=True)
+        # save df as a latex table
+        df.to_latex(f"{IMG_FILE_PATH}table_explore.tex", index=False, column_format='p{4.3cm}|p{9cm}')
+
+def table_cosine_decay_weights(args, y) -> None:
+    """
+    Creates latex .tex table file with the cosine decay weights.
+    
+    """
+    le = LabelEncoder()
+    y = le.fit_transform(y)
+    w = get_weights(y)
+    # turn dict into table
+    table = pd.DataFrame.from_dict(w, orient="index")
+    # add column names
+    table.columns = ["Weight"]
+    # turn numbers back into labels
+    table.index = le.inverse_transform(table.index)
+    # save table as latex
+    table.to_latex(f"{IMG_FILE_PATH}table_cosine_decay_weights.tex", index=True, float_format="%.3f")
 
 def table_correlated_unigrams(X:np.ndarray, y:np.ndarray, v:TfidfVectorizer, category_to_id:dict, file_name:str) -> None:
     """

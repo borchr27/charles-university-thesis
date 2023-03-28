@@ -6,7 +6,7 @@ Here we will explore the results of different classifiers and active learning st
 
 \subsection{Active Learning with PWC and RBF Kernel}
 
-In Figure \ref{fig:plot_all_results_rbf} we have the train and test errors for four different active learning sampling strategies and we can see that xPAL and PAL both perform relatively well before starting to over-fit the training data. We reviewed the resulting error data and xPAL outperformed PAL by about 1.5\%. However, xPAL has much faster running time compared to PAL.
+In Figure \ref{fig:plot_all_results_rbf} we have the train and test errors for four different active learning sampling strategies. XPAL appears to perform slightly better than PAL but not significantly better. With our data we found that PAL runs slower than xPAL, which was unexpected based on the mean computation time results published by \cite{kottke2021toward}. We expect this drop in calculation time is a result of the high dimensional data.
 
 We weren't satisfied with the testing error which leveled out to about 70\% for each sampling strategy. PAL and xPAL were able to rapidly reduce the testing error early on in the training process while random selection and QBC weren't able to determine the data with the highest information gain. 
 
@@ -69,30 +69,43 @@ It is clear in Figure \ref{fig:cos_avg_test_results} that xPAL is performing the
 \end{figure}
 
 
-\subsection{Scikit-Learn Classifier Evaluation}
+\subsection{Classifier Evaluation}
 
-We also decided to try out the boilerplate classifiers from Scikit-Learn to compare performances. Again we used the original data with the same TF-IDF vectorizer as used with the previous active learning models to stay consistent. Cross validation was also used here but was not used in the previous sections. We decided to use the Cosine kernel when using LinearSVC as we learned that the performance increased in comparison to the RBF kernel when using PWC. 
+We also decided to test out some classifiers from the Scikit-Learn library to compare performances. Again we used the original data with the same TF-IDF vectorizer as used with the previous active learning models to stay consistent. It should be noted that cross validation was used here but it was not used in the previous sections.
 
-The results for a variety of different classifiers are shown in Figure \ref{fig:explore_classifiers}. In the box-plot, the whiskers extend from the box to the furthest data points that are within 1.5 times the inter-quartile range (IQR) of the box. Any data points that are beyond the whiskers are considered outliers and are plotted as individual points or symbols (diamonds) as seen in Figure \ref{fig:explore_classifiers}.
+The goal of this exploratory phase was to try and decide which classifier to conduct more thorough testing with. As a result, we didn't use GridSearchCV for each classifier at this stage and we mostly used the default parameters and their cross validation scores with all of the original data (i.e. additional data not included). In some cases where using weights was an option for the classifier we included the precomputed Cosine decay weights. A table of the parameters used for each classifier is shown in Appendix Table \ref{tab:explore_classifiers_params}.
+
+The results for the different classifiers are shown in Figure \ref{fig:explore_classifiers}. In the box-plot, the whiskers extend from the box to the furthest data points that are within 1.5 times the inter-quartile range (IQR) of the box. Any data points that are beyond the whiskers are considered outliers and are plotted as individual points or symbols (diamonds) as seen in the figure.
+
 
 \begin{figure}[ht]
   \centering
   \includegraphics[width=\textwidth]{../img/plot_explore_classifiers.pdf}
-  \caption{Performance of standard Scikit-Learn classifiers without optimization.}
+  \caption{Performance of classifiers without GridSearchCV optimization.}
   \label{fig:explore_classifiers}
-\end{figure}
+\end{figure} 
 
-The LinearSVC classifier performed best compared to other classifiers and it is a fast running algorithm even with data that has a large feature set. We decided to look further into LinearSVC and create a few models to evaluate its performance. We created three models, the first was a boilerplate LinearSVC with no argument modifications, the second model used the class weights parameter set to 'balanced'. The 'balanced' mode uses the values of y to automatically adjust weights inversely proportional to class frequencies in the input data as $n\_samples / (n\_classes * np.bincount(y))$. 
+The LinearSVC classifier performed best compared to other classifiers and it is a fast running algorithm even with data that has many features. We decided to look further into LinearSVC because it performed so well. We also wanted to conduct more testing with KNeighborsClassifier and Neural Networks. 
 
-For the third test we created a dictionary of weights for each class using the Cosine decay function. The weights for each category ranged from 0.1 to 1.0 where the most frequent classes had smaller weights. The results are shown in Table \ref{tab:lsvc_errors}. The Cosine decay function is defined as:
+We created three models for LinearSVC, the first was a boilerplate LinearSVC with no argument modifications, the second model used the class weights parameter set to 'balanced'. The 'balanced' mode uses the values of y to automatically adjust weights inversely proportional to class frequencies in the input data as $n\_samples / (n\_classes * np.bincount(y))$. 
+
+For the third test we created a dictionary of weights for each class using the Cosine decay function. The weights for each category ranged from 0.1 to 1.0 where the most frequent classes had smaller weights. The Cosine decay function is defined as:
 
 \begin{equation}
     w_i = \frac{1}{2} \left(1 + \cos \left(\frac{\pi t}{T}\right)\right)
 \label{eq:cosine_decay}
 \end{equation}
 
-where $w_i$ is the weight for the $i^{th}$ class, $t$ is the current iteration, and $T$ is the total number of iterations. The Cosine decay function is a common function used for weights in machine learning algorithms.
+where $w_i$ is the weight for the $i^{th}$ class, $t$ is the current iteration, and $T$ is the total number of iterations. The Cosine decay function is a common function used for weights in machine learning algorithms. The calculated cosine weights are shown in Figure \ref{tab:cosine_decay_weights}.
 
+\begin{table}[!ht]
+\centering
+\caption{Cosine decay weights for each category.}
+\input{../img/table_cosine_decay_weights.tex}
+\label{tab:cosine_decay_weights}
+\end{table}
+
+The results for the LinearSVC classifier experiments are shown in Table \ref{tab:lsvc_errors} where the LinearSVC with the Cosine decay weights performed just slightly better than the unmodified LinearSVC.
 
 \begin{table}[!ht]
 \centering
@@ -101,7 +114,9 @@ where $w_i$ is the weight for the $i^{th}$ class, $t$ is the current iteration, 
 \label{tab:lsvc_errors}
 \end{table}
 
-We also tested some other models that we expected to perform well, namely K-Nearest Neighbors and Neural Networks. The results are shown in Table \ref{tab:best_errors}. We can see that the K-Nearest Neighbors classifier and the Tensor Flow Neural Network classifier performed slightly worse compared to LinearSVC.
+Using K-Neighbors Classifier (KNN) and a Neural Network from TensorFlow we conducted additional experiments. For the KNN we found that using 8 neighbors and the cosine distance metric provided the lowest error. 
+
+For the Neural Network we used a dense hidden-layer with 1000 neurons with Sigmoid activation and 23 output neurons with Softmax activation. For the NN optimizer we used Adamax with Cosine decay with an initial learning rate of 0.1, alpha value of 0.1 and 915 decay steps ($X\_data\_size // batch\_size * num_epochs$). The results are shown in Table \ref{tab:best_errors}. We can see that the K-Nearest Neighbors classifier and the Neural Network classifier performed slightly worse compared to LinearSVC.
 
 \begin{table}[!ht]
 \centering
@@ -110,7 +125,7 @@ We also tested some other models that we expected to perform well, namely K-Near
 \label{tab:best_errors}
 \end{table}
 
-We attempted to boost performance from the LinearSVC classifier using GridSearchCV and Bagging but were not able to make significant improvements in performance from what we observed in Table \ref{tab:best_errors}. The precision-recall curve is shown in Figure \ref{fig:pr_curve} and the confusion matrix is shown in Figure \ref{fig:confusion_matrix} for the best performing LinearSVC classifier.
+We attempted to boost performance of the LinearSVC classifier using GridSearchCV and Bagging but were not able to make significant improvements in performance from what we observed in Table \ref{tab:best_errors}. The precision-recall curve is shown in Figure \ref{fig:pr_curve} and the confusion matrix is shown in Figure \ref{fig:confusion_matrix} for the best performing LinearSVC classifier.
 
 \begin{figure}[ht]
   \centering
@@ -119,9 +134,9 @@ We attempted to boost performance from the LinearSVC classifier using GridSearch
   \label{fig:pr_curve}
 \end{figure}
 
-It is important to note that the precision-recall curve is not a perfect metric for this problem as the classes are not balanced. We can see this imbalance clearly in Figure \ref{fig:pr_curve} where we have straight lines and large clear steps in some plotted category lines. This is a result of having a small number of data in a class. However, we can also see that for some classes the precision is relatively high even though we have few data points. Here we are namely concerned with the 'Culture' and 'Beauty' categories which have 10 and 31 data points respectively. It may be that the keywords in the 'Culture' and 'Beauty' categories are drastically different from the other categories so the performance is better. 
+The precision-recall curve gives us an idea at how well our classifier can correctly categorize the data. It also gives us a visualization of how unbalanced our categories are. We can see this imbalance clearly in Figure \ref{fig:pr_curve} where we have straight lines and large steps for some categories. This is a result of having a small number of data in a class. However, we can also see that for some classes the precision is relatively high even though we have few data points. Here we are namely concerned with the 'Culture' and 'Beauty' categories which have 10 and 31 data points respectively. It may be that the keywords in the 'Culture' and 'Beauty' categories are drastically different from the other categories so the performance is better. 
 
-The confusion matrix shown in Figure \ref{fig:confusion_matrix} may be a better metric for visualizing this data. The classification report for the LinearSVC classifier is shown in Appendix Table \ref{tab:classification_report_LinearSVC} with F1, accuracy, precision, recall, and support scores.
+The confusion matrix shown in Figure \ref{fig:confusion_matrix} may be a better metric for visualizing this data. In addition, the classification report for the LinearSVC classifier is shown in Appendix Table \ref{tab:classification_report_LinearSVC} with F1, accuracy, precision, recall, and support scores.
 
 \begin{figure}[ht]
   \centering
