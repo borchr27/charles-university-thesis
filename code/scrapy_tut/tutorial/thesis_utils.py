@@ -14,6 +14,7 @@ from dotenv import load_dotenv
 import configparser
 import requests
 from sqlalchemy import create_engine
+from analysis import test_model
 
 from sklearn import metrics
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -41,7 +42,10 @@ matplotlib.rcParams.update({
     'pgf.rcfonts': False,
 })
 
-IMG_FILE_PATH = "/Users/mitchellborchers/Documents/git/charles-university-thesis/thesis/vzor-dp/img/"
+CONFIG = configparser.ConfigParser()
+CONFIG.read('/Users/mitchellborchers/.config/azure/my_config_file.ini')
+# IMG_FILE_PATH = "/Users/mitchellborchers/Documents/git/charles-university-thesis/thesis/vzor-dp/img/"
+IMG_FILE_PATH = CONFIG['cognitive_services']['img_file_path']
 
 logging.basicConfig(filename='thesis.log', level=logging.DEBUG, format='%(asctime)s:%(levelname)s:%(message)s')
 
@@ -269,11 +273,8 @@ def azure_translate(text:str, source_language:str = None, target_language:str ='
 
     Helpful link https://techcommunity.microsoft.com/t5/educator-developer-blog/translate-your-notes-with-azure-translator-and-python/ba-p/3267201
     """
-
-    config = configparser.ConfigParser()
-    config.read('/Users/mitchellborchers/.config/azure/my_config_file.ini')
-    auth_key = config['cognitive_services']['auth_key']
-    location = config['cognitive_services']['location']
+    auth_key = CONFIG['cognitive_services']['auth_key']
+    location = CONFIG['cognitive_services']['location']
 
     load_dotenv()
     key = auth_key
@@ -306,21 +307,50 @@ def azure_translate(text:str, source_language:str = None, target_language:str ='
     
     return _translate(text, source_language, target_language, key, region, endpoint)
 
-def data_prep(data:Dataset) -> tuple[np.ndarray, np.ndarray, TfidfVectorizer]:
+def data_prep(data:Dataset, origin_filter:str = 'additional', min_str_len:int=0, max_str_len:int=1000) -> tuple[np.ndarray, np.ndarray, TfidfVectorizer]:
     sd_df = data.site_data
     td_df = data.translated_data
     data_df = pd.merge(td_df[['site_data_id', 'english_text']], \
                        sd_df[['id', 'category', 'origin']], left_on='site_data_id', right_on='id')
-    filtered_df = data_df[data_df['origin'] == 'original']
+    
+    data_df = data_df[data_df['english_text'].str.len() > min_str_len]
+    data_df = data_df[data_df['english_text'].str.len() < max_str_len] # max 1000
+    # print the category counts
+    category_counts = data_df['category'].value_counts()
+    print(category_counts)
+    
+    y = data_df['category'].to_numpy()
+    assert len(np.unique(y)) == 23, "All 23 categories are not represented in the data."
+
+    le = LabelEncoder()
+    le.fit(y)
+
+    if origin_filter != None:
+        filtered_df = data_df[data_df['origin'] == origin_filter]
+        data_df = data_df['english_text'].to_numpy()
+    else:
+        filtered_df = data_df
+        data_df = data_df['english_text'].to_numpy()
+    
     # print(filtered_df.value_counts('category'))
     train_data = filtered_df['english_text'].to_numpy()
     # for each row in train data replace it with this regex (separates camel case words like howAreYou to how Are You)
     train_data = np.array([re.sub(r'([a-z])([A-Z])', r'\1 \2', row) for row in train_data])
     vectorizer = tfidf_vectorizer()
-    X = vectorizer.fit_transform(train_data)
-    y = filtered_df['category'].to_numpy()
+    vectorizer.fit(data_df)
+    X = vectorizer.transform(train_data)
+    y = le.transform(filtered_df['category'].to_numpy()) # may need to comment this out when making plots to have labels be correct
     return X, y, vectorizer
 
+def build_csv(args, X:np.ndarray, y:np.ndarray, name:str=None) -> None:
+    """
+    Builds a csv file from the TF-IDF data to be used in the xPAL and other algorithms.
+    """
+    
+    # y_labels = np.unique(y)
+    # le = LabelEncoder()
+    # y = le.fit_transform(y)
+    tfidf_to_csv(X.toarray(), y, f"{name}.csv")
 
 def build_LSVC_models(args, X:np.ndarray, y:np.ndarray) -> None:
     """
@@ -351,6 +381,66 @@ def build_LSVC_models(args, X:np.ndarray, y:np.ndarray) -> None:
     errors = errors.sort_values(by='Error', ascending=True)
     # save as latex table
     errors.to_latex(f'{IMG_FILE_PATH}table_lsvc_errors.tex', index=False, float_format="%.3f")
+
+def build_tensor_flow_LSTM(args, X:np.ndarray, y:np.ndarray) -> None:
+    from nltk.corpus import stopwords
+    from tensorflow.keras.preprocessing.text import Tokenizer
+    from tensorflow.keras.preprocessing.sequence import pad_sequences
+
+    Z = tf.strings.regex_replace(X, r'\b(' + r'|'.join(stopwords.words('english')) + r')\b\s*',"").numpy()
+    Z = [z.decode('utf-8') for z in Z]
+
+    max_features = 5000
+    max_len = 100
+    batch_size = 32
+
+    # Create a tokenizer object
+    tokenizer = Tokenizer(num_words=5000)
+    # Fit the tokenizer on your text data
+    tokenizer.fit_on_texts(Z)
+    # Convert the text data to sequences of integers
+    sequences = tokenizer.texts_to_sequences(Z)
+    # pad sequences
+    padded_sequences = pad_sequences(sequences, maxlen=max_len)
+
+    vocab_size = len(tokenizer.word_index) + 1
+    one_hot_padded_sequences = np.zeros((len(padded_sequences), max_len, vocab_size), dtype=np.float32)
+    for i, seq in enumerate(padded_sequences):
+        one_hot_padded_sequences[i, np.arange(max_len), seq] = 1
+
+    # Convert the padded sequences to word embeddings
+    embedding_dim = 100
+    embedding_matrix = np.random.rand(vocab_size, embedding_dim)
+    embedding_layer = tf.keras.layers.Embedding(input_dim=vocab_size, output_dim=embedding_dim, embeddings_initializer=tf.keras.initializers.Constant(embedding_matrix), trainable=False)
+    embedded_padded_sequences = embedding_layer(padded_sequences)
+
+    y_labels = np.unique(y)
+    le = LabelEncoder()
+    y = le.fit_transform(y)
+    # one hot encode the y text labels to be used in the model
+    y = tf.keras.utils.to_categorical(y)
+
+    # train_X, test_X, train_y, test_y = train_test_split(embedded_padded_sequences, y, test_size=0.25, random_state=args.seed, stratify=y)
+    # train_X = train_X.toarray()
+    # test_X = test_X.toarray()
+
+    model = tf.keras.models.Sequential([
+        embedding_layer,
+        tf.keras.layers.LSTM(128, dropout=0.2, recurrent_dropout=0.2),
+        tf.keras.layers.Dense(len(y_labels), activation='softmax')
+    ])
+
+    model.compile(
+        optimizer=tf.keras.optimizers.Adam(jit_compile=False),
+        loss=tf.keras.losses.categorical_crossentropy,
+        metrics=[tf.keras.metrics.SparseCategoricalAccuracy],)
+    model.fit(embedded_padded_sequences, y, batch_size=batch_size, epochs=2)
+
+    # score = model.evaluate(test_X, test_y, batch_size=batch_size)
+    # print("Test loss:", score[0])
+    # print("Test accuracy:", score[1])
+
+
 
 def build_tensor_flow_NN(args, X:np.ndarray, y:np.ndarray) -> float:
     """
@@ -669,11 +759,17 @@ def plot_test_results_averaged(folder:str = 'kernel_cos_averaged') -> None:
     file_path = f'/Users/mitchellborchers/Documents/git/probal/results/{folder}'
     file_names = os.listdir(file_path)
     file_names = [s for s in file_names if not s.startswith('.')]
-    pattern = r"data_(.*?)_0"
+    # remove names with string sample
+    file_names = [s for s in file_names if not 'sample' in s]
+    if folder == 'kernel_cos_averaged':
+        pattern = r"data_all_(.*?)_0" # for 'kernel_cos_averaged' folder
+    if folder == 'all_data_new_vectorizer':
+        pattern = r"(data_|additional_)(.*?)_0"  # for 'all_data_new_vectorizer' folder
+    assert pattern, 'Pattern for plot averaged test results is not defined'
 
     # group files together and open in groups and aggregate test data
 
-    groups = ['alce', 'pal', 'xpal', 'log-loss', 'random', 'qbc', 'entropy']
+    groups = ['alce', 'pal', 'xpal', 'log-loss', 'random', 'qbc', 'entropy', 'xpal-original', 'xpal-0.006']
     groups = sorted(groups)
     fig, ax = plt.subplots()
     for g in groups:
@@ -681,9 +777,9 @@ def plot_test_results_averaged(folder:str = 'kernel_cos_averaged') -> None:
         for file_name in file_names:
             if not file_name.endswith('.csv'): continue
             name = file_name[:-4]
-            match = re.search(pattern, name)
+            match = re.search(pattern, name) 
             if match:
-                captured_text = match.group(1)
+                captured_text = match.group(2) # 2 was 1 originally
                 name = captured_text
                 if g == name:
                     loc = os.path.join(file_path, file_name)
@@ -782,9 +878,64 @@ def plot_pr_curve(args, X:np.ndarray, y:np.ndarray) -> None:
     ax.legend(handles=handles, labels=labels, loc='center left', bbox_to_anchor=(1, 0.5))
     # ax.set_title("Multi-Class Precision-Recall Curve")
     plt.tight_layout()
-    save_plot_image(plt, "plot_pr_curve")
+    save_plot_image(plt, "plot_pr_curve_filtered_data")
     plt.close()
+
+def plot_data_length_grid_search(args, data:Dataset) -> None:
+    """
+    Plots and saves the error rate for different data lengths for the given data with LSVC as a pdf.
     
+    Parameters
+    ----------
+    data : Dataset
+        The data to be used for the plot
+    """
+    y_bottom_up_error = []
+    x_bottom_up_error = []
+    # for i in range(0,20,5):
+    for i in range(0,200,5):
+        X, y, vectorizer = data_prep(data, origin_filter=None, min_str_len=i)
+        y_bottom_up_error.append(test_model(args, X, y, vectorizer, clf_name='LinearSVC'))
+        x_bottom_up_error.append(i)
+
+    y_top_down_error = []
+    x_top_down_error = []
+    # for i in range(999, 900, -10):
+    for i in range(999, 200, -10): # for min str len = 0
+        X, y, vectorizer = data_prep(data, origin_filter=None, max_str_len=i)
+        y_top_down_error.append(test_model(args, X, y, vectorizer, clf_name='LinearSVC'))
+        x_top_down_error.append(i)
+
+    fig, ax = plt.subplots()
+
+    min_index_top = np.argmin(y_top_down_error)
+    min_index_bottom = np.argmin(y_bottom_up_error)
+    ax.plot(x_top_down_error, y_top_down_error)
+    ax.plot(x_bottom_up_error, y_bottom_up_error)
+    
+    ax.plot(x_top_down_error[min_index_top], y_top_down_error[min_index_top], 'o', color='red')
+    ax.plot(x_bottom_up_error[min_index_bottom], y_bottom_up_error[min_index_bottom], 'o', color='red')
+
+    ax.set_xlabel("String Length")
+    ax.set_ylabel("Error")
+    ax.set_ylim(0, 1)
+    ax.set_xlim(0, 1000)
+    ax.grid(True)
+
+    ax.annotate(f'({y_top_down_error[min_index_top]:.2f}, {x_top_down_error[min_index_top]})', xy=(x_top_down_error[min_index_top], y_top_down_error[min_index_top]), 
+                xytext=(x_top_down_error[min_index_top]+1, y_top_down_error[min_index_top]-.05),
+                )
+    ax.annotate(f'({y_bottom_up_error[min_index_bottom]:.2f}, {x_bottom_up_error[min_index_bottom]})', xy=(x_bottom_up_error[min_index_bottom], y_bottom_up_error[min_index_bottom]),
+                xytext=(x_bottom_up_error[min_index_bottom]+1, y_bottom_up_error[min_index_bottom]-.05),
+                )
+    ax.legend(['Max string size', 'Min string size'], loc='lower right')
+    save_plot_image(plt, "plot_data_length_grid_search")
+    plt.close()
+
+    # best results
+    # X, y, vectorizer = data_prep(data, origin_filter=None, min_str_len=155)
+    # test_model(args, X, y, vectorizer, clf_name='LinearSVC')
+
 
 def get_weights(y:np.ndarray, method:str='cosine') -> dict:
     """

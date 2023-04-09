@@ -1,4 +1,5 @@
 # coding=utf8
+#!/usr/bin/env python3
 import numpy as np
 import matplotlib.pyplot as plt
 import re
@@ -161,12 +162,48 @@ def cosine_decay():
     # Show the plot
     plt.show()
 
+def test_tensor_flow_LSTM():
+    import os
+    import tensorflow as tf
+    from tf.keras.datasets import imdb
+    from tf.keras.preprocessing import sequence
+    os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "2")  # Report only TF errors by default
+
+    max_features = 5000
+    max_len = 200
+    batch_size = 64
+
+    (x_train, y_train), (x_test, y_test) = imdb.load_data(num_words=max_features)
+    x_train = sequence.pad_sequences(x_train, maxlen=max_len)
+    x_test = sequence.pad_sequences(x_test, maxlen=max_len)
+
+    model = tf.keras.models.Sequential([
+        tf.keras.layers.Embedding(max_features, 128),
+        tf.keras.layers.LSTM(128, dropout=0.2, recurrent_dropout=0.2),
+        tf.keras.layers.Dense(1, activation='sigmoid')
+    ])
+
+    model.compile(
+        optimizer=tf.keras.optimizers.Adam(jit_compile=False),
+        loss=tf.keras.losses.binary_crossentropy,
+        metrics=[tf.keras.metrics.binary_accuracy],)
+    model.fit(x_train, y_train, batch_size=batch_size, epochs=2)
+
+    score = model.evaluate(x_test, y_test, batch_size=batch_size)
+    print("Test loss:", score[0])
+    print("Test accuracy:", score[1])
+
+def re_tests():
+    string = "blue_bike_jump"
+    match = re.search(r"(blue|red)_(.*?)_jump", string)
+    if match:
+        word_between = match.group(2)
+        print(word_between)
 
 if __name__ == "__main__":
     # language_prediction_test()
     # tfidf_to_csv_test()
-    # print(where())
     # lang_translation()
-    table_test()
-
-
+    # table_test()
+    # test_tensor_flow_LSTM()
+    re_tests()

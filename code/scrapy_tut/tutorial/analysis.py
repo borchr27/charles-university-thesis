@@ -35,6 +35,7 @@ parser.add_argument("--learning_rate", default=0.1, type=float, help="Initial le
 parser.add_argument("--learning_rate_final", default=0.01, type=float, help="Final learning rate.")
 
 parser.add_argument("--csv", default=False, type=bool, help="Output a csv file with the tfidf data for probal/.")
+parser.add_argument("--filter", default="test", type=str, help="Choose the data to select for building csv.")
 parser.add_argument("--plot", default=None, type=str, help=["all_histograms", "original_en_hist", "all_results_from_probal", "test_results", "explore_classifiers", "pr_curve", "test_results_averaged"])
 parser.add_argument("--table", default=None, type=str, help=["correlated_unigrams", "classification_report", "data_category_counts", "variable_importance"])
 parser.add_argument("--clf", default=None, type=str, help="Choose a classifier for the test model function. [KNN, LinearSVC, GBDT]")
@@ -54,15 +55,12 @@ def test_model(args, X:np.ndarray, y:np.ndarray, vectorizer:TfidfVectorizer, uni
     y_labels = np.unique(y)
     le = LabelEncoder()
     y = le.fit_transform(y)
-
     weights = tu.get_weights(y)
 
     if unigrams:
         # make a dictionary with y labels as keys and their index as values
         category_to_id = dict(zip(y_labels, range(len(y_labels))))
         tu.table_correlated_unigrams(X, y, vectorizer, category_to_id, f"table_correlated_unigrams_{data_name}")
-    if args.csv:
-        tu.tfidf_to_csv(X.toarray(), y, "tfidf_data.csv")
 
     train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.25, random_state=args.seed, stratify=y)
 
@@ -81,15 +79,18 @@ def test_model(args, X:np.ndarray, y:np.ndarray, vectorizer:TfidfVectorizer, uni
     else:
         raise ValueError("Please choose a valid classifier (LinearSVC, KNN, GBDT)")
 
-    try:
-        print("Loading the model...")
-        with lzma.open(f"model_{clf_name}.model" , "rb") as modelFile:
-            model = pickle.load(modelFile)
-    except:
-        print("Model could not be found, training a new model...")
-        model = pipe.fit(train_X, train_y)
-        with lzma.open(f"model_{clf_name}.model", "wb") as model_file: 
-            pickle.dump(model , model_file)
+    # commented out if running experiments where we build the model each run
+    # try:
+    #     print("Loading the model...")
+    #     with lzma.open(f"model_{clf_name}.model" , "rb") as modelFile:
+    #         model = pickle.load(modelFile)
+    # except:
+    #     print("Model could not be found, training a new model...")
+    #     model = pipe.fit(train_X, train_y)
+    #     with lzma.open(f"model_{clf_name}.model", "wb") as model_file: 
+    #         pickle.dump(model , model_file)
+
+    model = pipe.fit(train_X, train_y)
 
     pred = model.predict(test_X)
     clf = model.named_steps[clf_name]
@@ -118,11 +119,19 @@ def optimize_classifier(args, X, y):
     weights = tu.get_weights(y)
     train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.25, random_state=args.seed, stratify=y)
     
-    clf = LinearSVC(random_state=args.seed, max_iter=10000, class_weight=weights)
-    param_grid = {
-        'intercept_scaling': [0.5,1],
+    base_classifier = LinearSVC()
+    bagging_classifier = BaggingClassifier(base_estimator=base_classifier, n_estimators=20, random_state=args.seed)
+    params = {
+        'base_estimator__random_state': [args.seed],
+        'base_estimator__max_iter': [10000],
+        'base_estimator__intercept_scaling': np.linspace(0.1, 1, 20),
+        'base_estimator__loss': ['hinge', 'squared_hinge'],
+        'base_estimator__penalty': ['l1', 'l2'],
+        'base_estimator__class_weight': [None, weights],
+        'base_estimator__C': np.linspace(0.1, 1000, 50),
+        'base_estimator__multi_class': ['ovr', 'crammer_singer']
         }
-    grid_search = GridSearchCV(clf, param_grid, cv=5, verbose=2)
+    grid_search = GridSearchCV(estimator=bagging_classifier, param_grid=params, cv=5, verbose=2, scoring='accuracy')
     grid_search.fit(train_X, train_y)
     
     # Print the best parameters found by GridSearchCV
@@ -137,16 +146,18 @@ def optimize_classifier(args, X, y):
     print(f"Error: {error}")
 
 
+
 if __name__ == "__main__":
     args = parser.parse_args([] if "__file__" not in globals() else None)
-    # data, X, y, vectorizer = None, None, None, None
+    data, X, y, vectorizer = None, None, None, None
     data = tu.Dataset()
-    X, y, vectorizer = tu.data_prep(data)
+    X, y, vectorizer = tu.data_prep(data, origin_filter=None, min_str_len=155) # min_str_len=155 best results all data
     # test_model(args, X, y, vectorizer, cm=True, clf_name=args.clf)
     # tu.build_LSVC_models(args, X, y)
     # table_compare_top_three_models(args, X, y, vectorizer)
     # optimize_classifier(args, X, y)
-
+    # tu.build_tensor_flow_LSTM(args, X, y)
+    # tu.plot_test_results_averaged(folder='all_data_experiments')
 
     if args.plot == "all_histograms":
         tu.plot_all_histograms(data, "plot_all_hist")
@@ -157,11 +168,15 @@ if __name__ == "__main__":
     if args.plot == "test_results":
         tu.plot_test_results()
     if args.plot == "test_results_averaged":
-        tu.plot_test_results_averaged()
+        folder_name = "all_data_new_vectorizer"
+        print(f'Make sure the correct folder has been selected. [{folder_name}] folder selected.')
+        tu.plot_test_results_averaged(folder=folder_name)
     if args.plot == "explore_classifiers":
         tu.plot_explore_classifiers(args, X, y)
     if args.plot == "pr_curve":
         tu.plot_pr_curve(args, X, y)
+    if args.plot == "data_length_grid_search":
+        tu.plot_data_length_grid_search(args, data)
     
     if args.table == "correlated_unigrams":
         tu.table_correlated_unigrams(X, y, vectorizer, "table_correlated_unigrams")
@@ -171,3 +186,6 @@ if __name__ == "__main__":
         tu.table_variable_importance(args, X, y, "table_variable_importance")
     if args.table == 'cosine_decay_weights':
         tu.table_cosine_decay_weights(args, y)
+
+    if args.csv:
+        tu.build_csv(args, X, y, 'all_data_filtered')

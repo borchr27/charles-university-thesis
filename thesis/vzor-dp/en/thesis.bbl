@@ -8,8 +8,7 @@
 \bibitem[Baram et~al.(2004)Baram, Yaniv, and Luz]{baram2004online}
 Yoram Baram, Ran~El Yaniv, and Kobi Luz.
 \newblock Online choice of active learning algorithms.
-\newblock \emph{Journal of Machine Learning Research}, 5\penalty0
-  (Mar):\penalty0 255--291, 2004.
+\newblock \emph{Journal of Machine Learning Research}, 5\penalty0 (Mar):\penalty0 255--291, 2004.
 
 \bibitem[Freund et~al.(1997)Freund, Seung, Shamir, and Tishby]{freund1997qbc}
 Yoav Freund, H~Sebastian Seung, Eli Shamir, and Naftali Tishby.
@@ -18,27 +17,18 @@ Yoav Freund, H~Sebastian Seung, Eli Shamir, and Naftali Tishby.
 
 \bibitem[Huang and Lin(2016)]{huang2016alce}
 Kuan-Hao Huang and Hsuan-Tien Lin.
-\newblock A novel uncertainty sampling algorithm for cost-sensitive multiclass
-  active learning.
-\newblock In \emph{2016 IEEE 16th International Conference on Data Mining
-  (ICDM)}, pages 925--930. IEEE, 2016.
+\newblock A novel uncertainty sampling algorithm for cost-sensitive multiclass active learning.
+\newblock In \emph{2016 IEEE 16th International Conference on Data Mining (ICDM)}, pages 925--930. IEEE, 2016.
 
-\bibitem[Kottke et~al.(2021)Kottke, Herde, Sandrock, Huseljic, Krempl, and
-  Sick]{kottke2021toward}
-Daniel Kottke, Marek Herde, Christoph Sandrock, Denis Huseljic, Georg Krempl,
-  and Bernhard Sick.
-\newblock Toward optimal probabilistic active learning using a bayesian
-  approach.
+\bibitem[Kottke et~al.(2021)Kottke, Herde, Sandrock, Huseljic, Krempl, and Sick]{kottke2021toward}
+Daniel Kottke, Marek Herde, Christoph Sandrock, Denis Huseljic, Georg Krempl, and Bernhard Sick.
+\newblock Toward optimal probabilistic active learning using a bayesian approach.
 \newblock \emph{Machine Learning}, 110\penalty0 (6):\penalty0 1199--1231, 2021.
 
 \bibitem[Krempl et~al.(2014)Krempl, Kottke, and Spiliopoulou]{kottke2014pal}
 Georg Krempl, Daniel Kottke, and Myra Spiliopoulou.
 \newblock Probabilistic active learning: A short proposition.
-\newblock In Torsten Schaub, Gerhard Friedrich, and Barry O'Sullivan, editors,
-  \emph{Proceedings of the 21st European Conference on Artificial Intelligence
-  (ECAI2014)}, volume 263 of \emph{Frontiers in Artificial Intelligence and
-  Applications}, pages 1049--1050, Prague, Czech Republic, August 2014. IOS
-  Press.
+\newblock In Torsten Schaub, Gerhard Friedrich, and Barry O'Sullivan, editors, \emph{Proceedings of the 21st European Conference on Artificial Intelligence (ECAI2014)}, volume 263 of \emph{Frontiers in Artificial Intelligence and Applications}, pages 1049--1050, Prague, Czech Republic, August 2014. IOS Press.
 \newblock Short Paper.
 
 \bibitem[Lewis and Gale(1994)]{lewis1994uncertainty}
@@ -51,20 +41,14 @@ Robert Munro.
 \newblock \emph{Human-in-the-loop machine learning}.
 \newblock Manning Publications, New York, NY, July 2021.
 
-\bibitem[Pedregosa et~al.(2011)Pedregosa, Varoquaux, Gramfort, Michel, Thirion,
-  Grisel, Blondel, Prettenhofer, Weiss, Dubourg, Vanderplas, Passos,
-  Cournapeau, Brucher, Perrot, and Duchesnay]{sklearn62feature}
-F.~Pedregosa, G.~Varoquaux, A.~Gramfort, V.~Michel, B.~Thirion, O.~Grisel,
-  M.~Blondel, P.~Prettenhofer, R.~Weiss, V.~Dubourg, J.~Vanderplas, A.~Passos,
-  D.~Cournapeau, M.~Brucher, M.~Perrot, and E.~Duchesnay.
+\bibitem[Pedregosa et~al.(2011)Pedregosa, Varoquaux, Gramfort, Michel, Thirion, Grisel, Blondel, Prettenhofer, Weiss, Dubourg, Vanderplas, Passos, Cournapeau, Brucher, Perrot, and Duchesnay]{sklearn62feature}
+F.~Pedregosa, G.~Varoquaux, A.~Gramfort, V.~Michel, B.~Thirion, O.~Grisel, M.~Blondel, P.~Prettenhofer, R.~Weiss, V.~Dubourg, J.~Vanderplas, A.~Passos, D.~Cournapeau, M.~Brucher, M.~Perrot, and E.~Duchesnay.
 \newblock Scikit-learn: Machine learning in {P}ython.
-\newblock \emph{Journal of Machine Learning Research}, 12:\penalty0 2825--2830,
-  2011.
+\newblock \emph{Journal of Machine Learning Research}, 12:\penalty0 2825--2830, 2011.
 
 \bibitem[Roy and McCallum(2001)]{roy2001eer}
 Nicholas Roy and Andrew McCallum.
-\newblock Toward optimal active learning through monte carlo estimation of
-  error reduction.
+\newblock Toward optimal active learning through monte carlo estimation of error reduction.
 \newblock \emph{ICML, Williamstown}, 2:\penalty0 441--448, 2001.
 
 \bibitem[Russell and Norvig(2009)]{russell2009artificial}
@@ -76,13 +60,11 @@ Stuart Russell and Peter Norvig.
 \bibitem[Sahid et~al.(2019)Sahid, Mahendra, and Budi]{sahid2019ecommerce}
 Galuh~Tunggadewi Sahid, Rahmad Mahendra, and Indra Budi.
 \newblock E-commerce merchant classification using website information.
-\newblock In \emph{Proceedings of the 9th International Conference on Web
-  Intelligence, Mining and Semantics}, pages 1--10, 2019.
+\newblock In \emph{Proceedings of the 9th International Conference on Web Intelligence, Mining and Semantics}, pages 1--10, 2019.
 
 \bibitem[Seung et~al.(1992)Seung, Opper, and Sompolinsky]{seung1992qbc}
 H~Sebastian Seung, Manfred Opper, and Haim Sompolinsky.
 \newblock Query by committee.
-\newblock In \emph{Proceedings of the fifth annual workshop on Computational
-  learning theory}, pages 287--294, 1992.
+\newblock In \emph{Proceedings of the fifth annual workshop on Computational learning theory}, pages 287--294, 1992.
 
 \end{thebibliography}
