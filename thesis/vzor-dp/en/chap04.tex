@@ -182,7 +182,7 @@ We then combined the original and additional data and used the different active 
 \begin{figure}[ht]
   \centering
   \includegraphics[width=\scale\textwidth]{../img/plot_all_data_new_vectorizer_test_results.pdf}
-  \caption{Active learning results with using all data, 'xpal-original' curve from previous experiments is added for reference.}
+  \caption{Active learning results with using all data, 'xpal-original' data curve from previous experiments is added for reference.}
   \label{fig:active_learning_new_data_new_vect}
 \end{figure}
 
@@ -201,7 +201,7 @@ The filtered data set has 554 data points and 'Drugstore' is the only category t
 \begin{figure}[ht]
     \centering
     \includegraphics[width=\scale\textwidth]{../img/plot_data_length_grid_search.pdf}
-    \caption{Performance results for best LinearSVC with varying text length parameters using all available data.}
+    \caption{Test error results for best LinearSVC with varying text length parameters using all available data.}
     \label{fig:grid_search_text_length}
   \end{figure}
 
@@ -209,7 +209,16 @@ We we're able to reduce the test error by approximately 7.6\% using the LinearSV
 
 \subsection{Active Learning Revisited}
 
-With the new filtered data set we also wanted to see how the PWC classifier with active learning would perform. We used the same text length constraints as before and ran the PWC classifier with the Cosine kernel. The results for these experiments are shown in Figure...
+With the new filtered data set we also wanted to see how the PWC classifier with active learning would perform. We used the same text length constraints as mentioned in the previous section and evaluated the data with the PWC classifier with the Cosine kernel. 
 
+We chose to test with the QBC selection strategy in addition to xPAL because QBC appeared to perform well in previous tests and it is much faster to calculate in comparison to PAL. Additionally, we plotted the random selection strategy to use as a baseline and 'xpal-original' for comparison. The results show that the PWC was able to make some small improvements in the test error overall but also that the new data allowed the xPAL selection strategy to decrease the test error even more rapidly than before when we used the original data, and it took less data. The results for this experiment are shown in Figure \ref{fig:probal_filtered_data}.
 
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=\scale\textwidth]{../img/plot_filtered_test_results.pdf}
+    \caption{Test error results using optimal filtered with PWC and Cosine kernel.}
+    \label{fig:probal_filtered_data}
+  \end{figure}
+
+We can see that for the 414 data points results from the filtered data in the train split converge as we expect to a single point because the PWC has access to all of the labeled train data. 
 

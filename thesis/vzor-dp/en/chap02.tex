@@ -1,18 +1,23 @@
 \chapter{Understanding xPAL}
 
-We have introduced many different active learning models in the previous section, and we will test some of these models on our data. However, we will mainly focus on using the xPAL sampling strategy and a pool based query function. The xPAL sampling strategy is a decision-theoretic approach to measure the usefulness of a labeling candidate in terms of its expected performance gain (\cite{kottke2021toward}). We can estimate the data distribution but we are uncertain about the true class posterior probabilities. The class posterior probabilities are modeled as a random variable based on the current observations. Therefore a Bayesian approach is used by incorporating a conjugate prior to the observations. In general, the idea is to estimate the expected performance gain for the classifier, using the unlabeled data, and then select the best data point and request its label. Variable descriptions used in the following equations and explanations are listed in Table \ref{tab:var_defs}
+We have introduced many different active learning sampling strategies in the previous section, and we will use them to test which strategy performs best with our data. However, we will mainly focus on using the xPAL sampling strategy and a pool based query function. The xPAL sampling strategy is a decision-theoretic approach to measure the usefulness of a labeling candidate in terms of its expected performance gain (\cite{kottke2021toward}). We can estimate the data distribution but we are uncertain about the true class posterior probabilities. The class posterior probabilities are modeled as a random variable based on the current observations. Therefore a Bayesian approach is used by incorporating a conjugate prior to the observations. In general, the idea is to estimate the expected performance gain for the classifier, using the unlabeled data, and then select the best data point and request or reveal its label. Descriptions of the variables used throughout the paper are listed in Table \ref{tab:var_defs}.
 
 \begin{table}[ht]
 \centering
+\renewcommand{\arraystretch}{1.2}
 \begin{tabular}{|l|l|}
 \hline
 {} & \textbf{Descriptions} \\
 \hline
 $C$                         & Number of classes \\
 \hline
-$x$                         & Input $x \in \mathbb{R}^n$\\
+$x$                         & Input $x \in \mathbb{R}^D$ (D-dimensional vector space)\\
 \hline
-$y$                         & Output $y \in \{ l_1,...,l_C \}$ \\
+$y$                         & Class label $y \in \mathcal{Y}$ \\
+\hline
+$\mathcal{Y}$               & Set of all labels $\mathcal{Y} = \{ 1,...,C \}$ \\
+\hline
+$f^{\mathcal{L}}$           & Classifier that maps input $x$ to output $y$ \\
 \hline
 $\textit{L}$                & Loss\\
 \hline
@@ -24,20 +29,16 @@ $\mathcal{L}$               & Set of labeled data $\{(x_1,y_1),...,(x_n,y_n)\}$ 
 \hline
 $\mathcal{U}$               & Set of unlabeled data $\{x_1,...,x_n\}$ \\
 \hline
-$\mathcal{E}$               & Set of labeled and unlabeled features $\{\textbf{\textit{x}}\}$ \\
-\hline
-$p(x,y)$                    & Joint distribution of random variables $x$ and $y$ \\
-\hline
-$f^{\mathcal{L}}$           & Classifier that maps input $x$ to output $y$ \\
+$\mathcal{E}$               & Set of available labeled and unlabeled data $\{x : (x,y) \in \mathcal{L}\} \cup \mathcal{U}$ \\
 \hline
 \end{tabular}
-\caption{Variable names and definitions.}
+\caption{Variable names and descriptions.}
 \label{tab:var_defs}
 \end{table}
 
 \section{Kernel}
 
-A kernel based classifier is used in xPAL which determines the similarity of two data points. The kernel function $\textbf{\textit{K}}(x,x')$ is a function that maps two data points to a real number. The kernel frequency estimate $\textbf{\textit{k}}^{\mathcal{L}}_x$ of an instance $\textbf{\textit{x}}$ is calculated using the labeled instances $\mathcal{L}$. The y-th element of that C-dimensional vector describes the similarity-weighted number of labels of class y.
+A kernel based classifier is used in xPAL which determines the similarity of two data points. The kernel function $\textbf{\textit{K}}(x,x')$ is a function that maps two data points to a real number, which is then used to estimate the probability density of the data. The kernel frequency estimate $\textbf{\textit{k}}^{\mathcal{L}}_x$ of an instance $x$ is calculated using the labeled instances $\mathcal{L}$. The y-th element of that C-dimensional vector describes the similarity-weighted number of labels of class y.
 
 \begin{equation}
 \textbf{\textit{k}}^{\mathcal{L}}_x,y = \sum_{(x',y') \in \mathcal{L}} \mathbb{1}_{y=y'} \textbf{\textit{K}}(x,x')
@@ -50,7 +51,7 @@ The Parzen Window Classifier uses the labeled data for training and predicts the
 f^{\mathcal{L}}(x) = \underset{y \in \mathcal{Y}}{\arg \max} \left( \textbf{\textit{k}}^{\mathcal{L}}_{x,y} \right) \hbox{.}
 \end{equation}
 
-We will mainly use the PWC classifier in our experiments but we will also evaluate other classifiers and compare their performance.
+We will use the PWC classifier for our experiments because that is what is implemented with the active learning strategies, but we will also evaluate other classifiers and compare their performance less active learning.
 
 \section{Risk}
 
@@ -62,7 +63,7 @@ For xPAL, Kottke et al. use the classifications error as the performance measure
 \textbf{\textit{L}}(y,f^{\mathcal{L}}(x)) &= \mathbb{1}_{f^{\mathcal{L}}(x)\neq y} 
 \end{flalign}
 
-Because it is not known how the data is generated Kottke et al. use a Monte-Carlo integration with all the data $\mathcal{E}$ to represent the generator. The empirical risk $\textit{R}_{\mathcal{E}}$ is the average of the loss over all the data points in the dataset. It refers to the average value of a given loss function over a finite set of observed data points. The empirical risk is a computable quantity that can be used as an estimate of the risk. However, it is only an approximation and is subject to sampling error.
+Because it is not known how the data is generated Kottke et al. use a Monte-Carlo integration with all available data $\mathcal{E}$ to represent the generator. The empirical risk $\textit{R}_{\mathcal{E}}$ is the average of the loss over all the data points in the dataset. It refers to the average value of a given loss function over a finite set of observed data points. The empirical risk is a computable quantity that can be used as an estimate of the risk. However, it is only an approximation and is subject to sampling error.
 
 \begin{flalign}
     \textit{R}_{\mathcal{E}}(f^{\mathcal{L}}) &= \frac{1}{|\mathcal{E}|} \sum_{x \in \mathcal{E}} \underset{p(y|x)}{\mathbb{E}} \left[ \textbf{\textit{L}}(y,f^{\mathcal{L}}(x)) \right] \\
@@ -73,7 +74,7 @@ Because it is not known how the data is generated Kottke et al. use a Monte-Carl
 
 \section{Conjugate Prior}
 
-The conditional class probability $p(y|x)$ depends on the ground truth which is unkown. As a result the conditional class probability is exactly the y-th element of the unknown ground truth vector $\textit{\textbf{p}}$. The nearby labels from $\mathcal{L}$ can be used to estimate the ground truth $\textit{\textbf{p}}$ becuase the oracle provides the labels according to $\textit{p}$. If we assume a smooth distribution then the estimate is relatively close to the ground truth if we have enough labeled instances. 
+The conditional class probability $p(y|x)$ depends on the ground truth which is unknown. As a result the conditional class probability is exactly the y-th element of the unknown ground truth vector $\textit{\textbf{p}}$. The nearby labels from $\mathcal{L}$ can be used to estimate the ground truth $\textit{\textbf{p}}$ because the oracle provides the labels according to $\textit{\textbf{p}}$. If we assume a smooth distribution then the estimate is relatively close to the ground truth if we have enough labeled instances. 
 
 \begin{equation}
 p(y|x) = p(y|t(x)) = p(y|\textit{\textbf{p}}) = \text{Cat} (y|\textbf{p}) = p_y

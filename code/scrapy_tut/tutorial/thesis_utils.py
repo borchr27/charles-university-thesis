@@ -316,8 +316,8 @@ def data_prep(data:Dataset, origin_filter:str = 'additional', min_str_len:int=0,
     data_df = data_df[data_df['english_text'].str.len() > min_str_len]
     data_df = data_df[data_df['english_text'].str.len() < max_str_len] # max 1000
     # print the category counts
-    category_counts = data_df['category'].value_counts()
-    print(category_counts)
+    # category_counts = data_df['category'].value_counts()
+    # print(category_counts)
     
     y = data_df['category'].to_numpy()
     assert len(np.unique(y)) == 23, "All 23 categories are not represented in the data."
@@ -640,7 +640,7 @@ def plot_original_en_histograms(data:Dataset, filename:str) -> None:
     # df1_c shows counts for the plot sum is 275
 
 
-def plot_all_results_individual() -> None:
+def plot_all_results_individual(folder_name:str = 'kernel_rbf') -> None:
     """
     Plots all data results from the probal results folder into thier own individual plots.
     
@@ -664,12 +664,12 @@ def plot_all_results_individual() -> None:
             save_plot_image(plt, name)
             plt.close()
 
-def plot_all_results_from_probal() -> None:
+def plot_all_results_from_probal(folder_name:str = 'kernel_rbf') -> None:
     """
     Plots all TEST and TRAIN data from the probal results folder into one figure based on the KERNEL.
-    
+
     """
-    file_path = '/Users/mitchellborchers/Documents/git/probal/results/'
+    file_path = f'/Users/mitchellborchers/Documents/git/probal/results/{folder_name}'
     file_names = os.listdir(file_path)
     file_names = [s for s in file_names if not s.startswith('.')]
     count = 2
@@ -765,6 +765,8 @@ def plot_test_results_averaged(folder:str = 'kernel_cos_averaged') -> None:
         pattern = r"data_all_(.*?)_0" # for 'kernel_cos_averaged' folder
     if folder == 'all_data_new_vectorizer':
         pattern = r"(data_|additional_)(.*?)_0"  # for 'all_data_new_vectorizer' folder
+    if folder == 'filtered':
+        pattern = r"(tfidf_data_|filtered_)(.*?)_0"
     assert pattern, 'Pattern for plot averaged test results is not defined'
 
     # group files together and open in groups and aggregate test data

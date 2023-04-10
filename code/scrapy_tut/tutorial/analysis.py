@@ -168,7 +168,7 @@ if __name__ == "__main__":
     if args.plot == "test_results":
         tu.plot_test_results()
     if args.plot == "test_results_averaged":
-        folder_name = "all_data_new_vectorizer"
+        folder_name = "filtered"
         print(f'Make sure the correct folder has been selected. [{folder_name}] folder selected.')
         tu.plot_test_results_averaged(folder=folder_name)
     if args.plot == "explore_classifiers":
