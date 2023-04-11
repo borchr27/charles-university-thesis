@@ -38,7 +38,7 @@ Car         & Charging Station      &                    &              & Eco   
 \label{tab:tags}
 \end{table}
 
-The tags are important because they allow us to separate the data even further and group or sort the data differently. However, in our work we didn't opt to use the tags at this time.
+The tags are important because they allow us to separate the data even further and group or sort the data differently. However, in our work we didn't opt to include the tags in the classification or selection strategy process at this time.
 
 \section{Collection}
 
@@ -46,7 +46,7 @@ Similarly to the annotator our goal is to automate the navigation, collection/ s
 
 The initial 1000 data points we received were labels with a pointer (a url) to where the text data is located (the website). The labels needed the text from the websites that the annotator viewed to begin the classifying process. To gather the text data from the websites we used the Scrapy framework to extract text data from a single top level page of a website. We chose only to scrape the top level (main or home) page text because of the results published in another study where it was observed that adding more pages to the data set does not necessarily mean obtaining better results (\cite{sahid2019ecommerce}). 
 
-Out of these initial data points 179 contained links that could not be accessed or links that provided no text data that could be scraped. Out of the remaining 821 data points 274 of them were in English. Out of the remaining 274 English data points the data was distributed into the categories as shown in Figure \ref{fig:original_english_counts}.
+Out of these initial data points 179 contained links that could not be accessed or links that provided no text data that could be scraped. Two websites were particularly problematic. Facebook and Instagram both are used by business as main information webpages. However, neither site allows for simple text scraping and a more advanced approach was needed to extract data from business with information on these platforms. Out of the remaining 821 data points 274 of them were in English. Out of the remaining 274 English data points the data was distributed into the categories as shown in Figure \ref{fig:original_english_counts}.
 
 \section{Processing}
 
