@@ -1,8 +1,8 @@
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {3.1}{\ignorespaces The histograms for the original usable english data.}}{16}{figure.3.1}%
-\contentsline {figure}{\numberline {3.2}{\ignorespaces The histograms for the original and additional data for all languages.}}{17}{figure.3.2}%
+\contentsline {figure}{\numberline {3.1}{\ignorespaces The histograms for the original usable english data.}}{17}{figure.3.1}%
+\contentsline {figure}{\numberline {3.2}{\ignorespaces The histograms for the original and additional data for all languages.}}{18}{figure.3.2}%
 \addvspace {10\p@ }
 \contentsline {figure}{\numberline {4.1}{\ignorespaces Train and test error using different query strategies and RBF kernel for the PWC classifier.}}{19}{figure.4.1}%
 \contentsline {figure}{\numberline {4.2}{\ignorespaces Train and test error using different query strategies and Cosine kernel for the PWC classifier.}}{20}{figure.4.2}%

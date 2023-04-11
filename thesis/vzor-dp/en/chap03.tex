@@ -17,9 +17,11 @@ State Hospital & http://hospital.com/ & Health   & '\{"Clinic"\}' \\ \hline
 \end{table}
 
 
-The current process consists of giving the merchant url to an annotator and the annotator then views the website and either can instantly  provide a label and tags for the website or in some cases may need to browse further into the website (by viewing sibling pages such as the 'About Us' sections or product pages) to get an idea of how the website should be classified. 
+The current process consists of giving the merchant url to an annotator. The annotator then views the website and either can instantly (after viewing the homepage) provide a label and tags for the website. However, in some cases the annotator may need to browse further (by viewing sibling pages such as the 'About Us' section or individual product pages) to get an idea of how the website should be classified. 
 
-The merchant tags are ordered by specificity, with the first tag in the list being the most general and the final being the most specific. An example of the tag hierarchy is show in Table. \ref{tab:tags} where we can see that this sample consists of data from various categories all contained within the 'Eco' side tag grouping.
+The annotator simply needs to view then mentally process the text and images from the website and make some reasonable decisions on how the site should be classified. However, the annotator does not record what the content on the site said or what drove them to make their decision.As a result we are missing a key portion of data for the classification process. 
+
+Tags are also when labeling the data to provide further granularity. The merchant tags are ordered by specificity, with the first tag in the list being the most general and the final being the most specific. An example of the tag hierarchy is show in Table. \ref{tab:tags} where we can see that this sample consists of data from various categories all contained within the 'Eco' side tag grouping.
 
 
 \begin{table}[h]
@@ -36,13 +38,13 @@ Car         & Charging Station      &                    &              & Eco   
 \label{tab:tags}
 \end{table}
 
-The tags are important because they allow us to separate the data even further and group/ sort the data differently. However, in our work we didn't opt to use the tags at this time.
+The tags are important because they allow us to separate the data even further and group or sort the data differently. However, in our work we didn't opt to use the tags at this time.
 
 \section{Collection}
 
-Similarly to the annotator our goal is to automate the navigation, collection/ storing process, and classification of the website. This pipeline speeds up the browsing process and can allow the annotator to spend much less time annotating and require the annotator to only annotate data expected to drastically improve the classifier.
+Similarly to the annotator our goal is to automate the navigation, collection/ storing process, and classification of the website. This process speeds up the browsing process by navigating to websites that have already been labeled and scraping the text data and storing it into a database.
 
-The initial 1000 data points we received were labels with a pointer (a url) to where the text data is located. The labels needed the text from the websites that the annotator viewed to begin the classifying process. To gather the text data from the websites we used the Scrapy framework to extract text data from a single top level page of a website. We chose only to scrape the top level (main or home) page text because of the results published in another study where it was observed that adding more pages to the data set does not necessarily mean obtaining better results (\cite{sahid2019ecommerce}). 
+The initial 1000 data points we received were labels with a pointer (a url) to where the text data is located (the website). The labels needed the text from the websites that the annotator viewed to begin the classifying process. To gather the text data from the websites we used the Scrapy framework to extract text data from a single top level page of a website. We chose only to scrape the top level (main or home) page text because of the results published in another study where it was observed that adding more pages to the data set does not necessarily mean obtaining better results (\cite{sahid2019ecommerce}). 
 
 Out of these initial data points 179 contained links that could not be accessed or links that provided no text data that could be scraped. Out of the remaining 821 data points 274 of them were in English. Out of the remaining 274 English data points the data was distributed into the categories as shown in Figure \ref{fig:original_english_counts}.
 
