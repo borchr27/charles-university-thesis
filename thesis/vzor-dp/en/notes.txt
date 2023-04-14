@@ -1,0 +1,7 @@
+overfitting is possible bc the new data set performed worse 
+check fit on train data for vectorizer
+dont include test data from x-pal original 
+does xpal make sense with this data
+DONE modify accuracy score to include sample weight
+need to commit probal changes
+need to do experiments using less categories

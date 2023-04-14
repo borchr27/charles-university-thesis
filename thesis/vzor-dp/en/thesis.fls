@@ -1107,10 +1107,6 @@ INPUT ../img/plot_explore_classifiers.pdf
 INPUT ../img/plot_explore_classifiers.pdf
 INPUT ../img/plot_explore_classifiers.pdf
 INPUT ../img/plot_explore_classifiers.pdf
-INPUT ../img/table_cosine_decay_weights.tex
-INPUT ../img/table_cosine_decay_weights.tex
-INPUT ../img/table_cosine_decay_weights.tex
-INPUT ../img/table_cosine_decay_weights.tex
 INPUT ../img/table_lsvc_errors.tex
 INPUT ../img/table_lsvc_errors.tex
 INPUT ../img/table_lsvc_errors.tex
@@ -1143,11 +1139,6 @@ INPUT ../img/plot_data_length_grid_search.pdf
 INPUT ../img/plot_data_length_grid_search.pdf
 INPUT ../img/plot_data_length_grid_search.pdf
 INPUT ../img/plot_data_length_grid_search.pdf
-INPUT ../img/plot_filtered_test_results.pdf
-INPUT ../img/plot_filtered_test_results.pdf
-INPUT ../img/plot_filtered_test_results.pdf
-INPUT ../img/plot_filtered_test_results.pdf
-INPUT ../img/plot_filtered_test_results.pdf
 INPUT ./epilog.tex
 INPUT ./epilog.tex
 INPUT ./epilog.tex
@@ -1196,6 +1187,10 @@ INPUT ../img/table_explore.tex
 INPUT ../img/table_explore.tex
 INPUT ../img/table_explore.tex
 INPUT ../img/table_explore.tex
+INPUT ../img/table_cosine_decay_weights.tex
+INPUT ../img/table_cosine_decay_weights.tex
+INPUT ../img/table_cosine_decay_weights.tex
+INPUT ../img/table_cosine_decay_weights.tex
 INPUT thesis.aux
 INPUT ./title.aux
 INPUT title.aux

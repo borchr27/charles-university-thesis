@@ -47,26 +47,20 @@ parser.add_argument("--clf", default=None, type=str, help="Choose a classifier f
 # (not additional) translated_data.
 
 
-def test_model(args, X:np.ndarray, y:np.ndarray, vectorizer:TfidfVectorizer, unigrams:bool=False, cm:bool=False, clf_name:str=None) -> float:
+def test_model(args, X:np.ndarray, y:np.ndarray, data_name:str, cm:bool=False, clf_name:str=None) -> float:
     assert clf_name in ["LinearSVC", "KNN", "GBDT"], "Please choose a valid classifier (LinearSVC, KNN, GBDT)"
-    data_name = "original"
 
     # lable encoder
     y_labels = np.unique(y)
     le = LabelEncoder()
     y = le.fit_transform(y)
-    weights = tu.get_weights(y)
-
-    if unigrams:
-        # make a dictionary with y labels as keys and their index as values
-        category_to_id = dict(zip(y_labels, range(len(y_labels))))
-        tu.table_correlated_unigrams(X, y, vectorizer, category_to_id, f"table_correlated_unigrams_{data_name}")
+    # weights = tu.get_weights(y)
 
     train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.25, random_state=args.seed, stratify=y)
-
+    print(np.unique(train_y, return_counts=True))
     if clf_name == "LinearSVC":
         pipe = Pipeline([
-            (f"{clf_name}", LinearSVC(random_state=args.seed, max_iter=10000, class_weight=weights))
+            (f"{clf_name}", LinearSVC(random_state=args.seed, max_iter=10000, )) #class_weight=weights))
         ])
     elif clf_name == "KNN":
         pipe = Pipeline([
@@ -94,7 +88,11 @@ def test_model(args, X:np.ndarray, y:np.ndarray, vectorizer:TfidfVectorizer, uni
 
     pred = model.predict(test_X)
     clf = model.named_steps[clf_name]
-    error = 1 - metrics.accuracy_score(test_y, pred, normalize=True)
+    if clf_name == "LinearSVC":
+        # weight_array = np.array([weights[i] for i in test_y])
+        error = 1 - metrics.accuracy_score(test_y, pred,)# sample_weight=weight_array)
+    else:
+        error = 1 - metrics.accuracy_score(test_y, pred,)
     print(f"{clf_name} Error:", error)
     if cm:
         tu.plot_confusion_matrix(y_labels, pred, test_y, clf_name)
@@ -103,12 +101,12 @@ def test_model(args, X:np.ndarray, y:np.ndarray, vectorizer:TfidfVectorizer, uni
 
     return error
 
-def table_compare_top_three_models(args, X, y, vectorizer) -> None:
+def table_compare_top_three_models(args, X, y) -> None:
     nn_error = tu.build_tensor_flow_NN(args, X, y)
-    knn_error = test_model(args, X, y, vectorizer, clf_name="KNN")
-    lsvc_error = test_model(args, X, y, vectorizer, clf_name="LinearSVC")
+    knn_error = test_model(args, X, y, clf_name="KNN")
+    lsvc_error = test_model(args, X, y, clf_name="LinearSVC")
 
-    errors = pd.DataFrame({"Model": ["Neural Network", "KNN", "LinearSVC"], "Error": [nn_error, knn_error, lsvc_error]})
+    errors = pd.DataFrame({"Model": ["Tensor Flow Neural Network", "K Neighbors Classifier", "LinearSVC"], "Error": [nn_error, knn_error, lsvc_error]})
     errors = errors.sort_values(by="Error", ascending=True)
     errors.to_latex(f"{tu.IMG_FILE_PATH}table_best_errors.tex", index=False, float_format="%.3f")
 
@@ -116,7 +114,6 @@ def optimize_classifier(args, X, y):
     y_labels = np.unique(y)
     le = LabelEncoder()
     y = le.fit_transform(y)
-    weights = tu.get_weights(y)
     train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.25, random_state=args.seed, stratify=y)
     
     base_classifier = LinearSVC()
@@ -127,11 +124,11 @@ def optimize_classifier(args, X, y):
         'base_estimator__intercept_scaling': np.linspace(0.1, 1, 20),
         'base_estimator__loss': ['hinge', 'squared_hinge'],
         'base_estimator__penalty': ['l1', 'l2'],
-        'base_estimator__class_weight': [None, weights],
         'base_estimator__C': np.linspace(0.1, 1000, 50),
         'base_estimator__multi_class': ['ovr', 'crammer_singer']
         }
-    grid_search = GridSearchCV(estimator=bagging_classifier, param_grid=params, cv=5, verbose=2, scoring='accuracy')
+    # cv val was 5 but changed to 2 because low data
+    grid_search = GridSearchCV(estimator=bagging_classifier, param_grid=params, cv=2, verbose=2, scoring='accuracy')
     grid_search.fit(train_X, train_y)
     
     # Print the best parameters found by GridSearchCV
@@ -142,22 +139,26 @@ def optimize_classifier(args, X, y):
 
     best_estimator = grid_search.best_estimator_
     pred = best_estimator.predict(test_X)
-    error = 1 - metrics.accuracy_score(test_y, pred, normalize=True)
+    error = 1 - metrics.accuracy_score(test_y, pred)
     print(f"Error: {error}")
-
-
 
 if __name__ == "__main__":
     args = parser.parse_args([] if "__file__" not in globals() else None)
     data, X, y, vectorizer = None, None, None, None
     data = tu.Dataset()
-    X, y, vectorizer = tu.data_prep(data, origin_filter=None, min_str_len=155) # min_str_len=155 best results all data
-    # test_model(args, X, y, vectorizer, cm=True, clf_name=args.clf)
+    # X, y, vectorizer = tu.data_prep(data, origin_filter='original')
+    X, y = tu.fixed_data_prep(data, origin_filter='original')
+    # tu.export_text_data_to_csv(X, y, None)
+
+    # tu.plot_LSCV_varying_min_category(args, X, y)
+    # tu.plot_pr_curve(args, X, y, data_name="data_filtered_155")
+    # test_model(args, X, y, vectorizer, data_name='original', clf_name="LinearSVC")
     # tu.build_LSVC_models(args, X, y)
     # table_compare_top_three_models(args, X, y, vectorizer)
     # optimize_classifier(args, X, y)
     # tu.build_tensor_flow_LSTM(args, X, y)
     # tu.plot_test_results_averaged(folder='all_data_experiments')
+    # tu.plot_data_length_grid_search(args, data)
 
     if args.plot == "all_histograms":
         tu.plot_all_histograms(data, "plot_all_hist")
@@ -168,7 +169,7 @@ if __name__ == "__main__":
     if args.plot == "test_results":
         tu.plot_test_results()
     if args.plot == "test_results_averaged":
-        folder_name = "filtered"
+        folder_name = "text_data_all_proper_vectorizer"
         print(f'Make sure the correct folder has been selected. [{folder_name}] folder selected.')
         tu.plot_test_results_averaged(folder=folder_name)
     if args.plot == "explore_classifiers":
@@ -179,7 +180,8 @@ if __name__ == "__main__":
         tu.plot_data_length_grid_search(args, data)
     
     if args.table == "correlated_unigrams":
-        tu.table_correlated_unigrams(X, y, vectorizer, "table_correlated_unigrams")
+        data_name = "original"
+        tu.table_correlated_unigrams(X, y, vectorizer, f"table_correlated_unigrams_{data_name}")
     if args.table == "data_category_counts":
         tu.table_category_counts(data, "table_category_counts")
     if args.table == "variable_importance":

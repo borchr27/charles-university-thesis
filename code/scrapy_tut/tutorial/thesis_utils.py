@@ -31,6 +31,8 @@ from sklearn.metrics.pairwise import pairwise_kernels, cosine_distances
 from sklearn.preprocessing import LabelEncoder, label_binarize
 from sklearn.metrics import precision_recall_curve, average_precision_score
 from sklearn.multiclass import OneVsRestClassifier
+from matplotlib.colors import LogNorm
+
 
 # Settings to create pdf plots for thesis
 import matplotlib
@@ -234,9 +236,10 @@ def site_data_filter(train_data:np.ndarray, languages:np.ndarray = None, debuggi
 
 def tfidf_vectorizer() -> TfidfVectorizer:
     """Function to return a TF-IDF vectorizer."""
-    return TfidfVectorizer(analyzer="word", strip_accents="unicode", max_features=5000, stop_words="english")
+    # change to 9000 ...11/4/2023
+    return TfidfVectorizer(analyzer="word", strip_accents="unicode", max_features=9000, stop_words="english")
 
-def tfidf_to_csv(text_data:np.ndarray, y:np.ndarray, file_name:str = "tfidf_data.csv") -> None:
+def export_tfidf_to_csv(text_data:np.ndarray, y:np.ndarray, file_name:str = "tfidf_data.csv") -> None:
     """Converts TF-IDF data to a CSV file to be used in the xPAL and other algorithms."""
     # get the tfidf vectorizer
     # vectorizer = tfidf_vectorizer()
@@ -262,6 +265,18 @@ def tfidf_to_csv(text_data:np.ndarray, y:np.ndarray, file_name:str = "tfidf_data
     # Export the DataFrame to a CSV file
     tfidf_df.to_csv(file_path, index=False)
 
+def export_text_data_to_csv(X, y, file_name="TESTER.csv"):
+    """
+    Converts text data to a CSV file to be used in with Pobal repo.
+    
+    """
+    file_path = '/Users/mitchellborchers/Documents/git/probal/data/' + file_name
+
+    # create dataframe with x and y data
+    data = {'x': X, 'y': y}
+    df = pd.DataFrame(data)
+    df.to_csv(file_path, index=False)
+    # print(df.head())
 
 def azure_translate(text:str, source_language:str = None, target_language:str ='en') -> str:
     """Use free Azure Cognitive Services to translate text to English.
@@ -307,6 +322,48 @@ def azure_translate(text:str, source_language:str = None, target_language:str ='
     
     return _translate(text, source_language, target_language, key, region, endpoint)
 
+def fixed_data_prep(data:Dataset, origin_filter:str = None) -> tuple[np.ndarray, np.ndarray]:
+    """
+    Improved data_prep method. Dont vectorize the data here. Lesson learned 11/4. Returns strings.
+
+    Parameters
+    ----------
+    data : Dataset
+        Dataset object
+    origin_filter : str, optional
+        Filter the data by origin, by default None
+
+    Returns
+    -------
+    tuple[np.ndarray, np.ndarray]
+        X, y
+    """
+    sd_df = data.site_data
+    td_df = data.translated_data
+    data_df = pd.merge(td_df[['site_data_id', 'english_text']], \
+                       sd_df[['id', 'category', 'origin']], left_on='site_data_id', right_on='id')
+    
+
+    if origin_filter != None:
+        filtered_df = data_df[data_df['origin'] == origin_filter]
+        data_df = data_df['english_text'].to_numpy()
+    else:
+        filtered_df = data_df
+        data_df = data_df['english_text'].to_numpy()
+    
+    # filter by the min number of items in a category
+    # fdf = filtered_df.groupby('category').filter(lambda x: x['category'].value_counts() > 50)
+    # print(filtered_df['category'].value_counts())
+
+    X = filtered_df['english_text'].to_numpy()
+    y = filtered_df['category'].to_numpy()
+    if len(np.unique(y)) != 23:
+        print("All 23 categories are not represented in the data.")
+
+    # for each row in train data replace it with this regex (separates camel case words like howAreYou to how Are You)
+    X = np.array([re.sub(r'([a-z])([A-Z])', r'\1 \2', row) for row in X])
+    return X, y
+
 def data_prep(data:Dataset, origin_filter:str = 'additional', min_str_len:int=0, max_str_len:int=1000) -> tuple[np.ndarray, np.ndarray, TfidfVectorizer]:
     sd_df = data.site_data
     td_df = data.translated_data
@@ -319,11 +376,7 @@ def data_prep(data:Dataset, origin_filter:str = 'additional', min_str_len:int=0,
     # category_counts = data_df['category'].value_counts()
     # print(category_counts)
     
-    y = data_df['category'].to_numpy()
-    assert len(np.unique(y)) == 23, "All 23 categories are not represented in the data."
-
-    le = LabelEncoder()
-    le.fit(y)
+    # y = data_df['category'].to_numpy()
 
     if origin_filter != None:
         filtered_df = data_df[data_df['origin'] == origin_filter]
@@ -332,14 +385,19 @@ def data_prep(data:Dataset, origin_filter:str = 'additional', min_str_len:int=0,
         filtered_df = data_df
         data_df = data_df['english_text'].to_numpy()
     
+    y = filtered_df['category'].to_numpy()
+    assert len(np.unique(y)) == 23, "All 23 categories are not represented in the data."
+    le = LabelEncoder()
+    le.fit(y)
+    
     # print(filtered_df.value_counts('category'))
     train_data = filtered_df['english_text'].to_numpy()
     # for each row in train data replace it with this regex (separates camel case words like howAreYou to how Are You)
     train_data = np.array([re.sub(r'([a-z])([A-Z])', r'\1 \2', row) for row in train_data])
     vectorizer = tfidf_vectorizer()
-    vectorizer.fit(data_df)
+    vectorizer.fit(train_data)
     X = vectorizer.transform(train_data)
-    y = le.transform(filtered_df['category'].to_numpy()) # may need to comment this out when making plots to have labels be correct
+    # y = le.transform(filtered_df['category'].to_numpy()) # may need to comment this out when making plots to have labels be correct
     return X, y, vectorizer
 
 def build_csv(args, X:np.ndarray, y:np.ndarray, name:str=None) -> None:
@@ -350,7 +408,7 @@ def build_csv(args, X:np.ndarray, y:np.ndarray, name:str=None) -> None:
     # y_labels = np.unique(y)
     # le = LabelEncoder()
     # y = le.fit_transform(y)
-    tfidf_to_csv(X.toarray(), y, f"{name}.csv")
+    export_tfidf_to_csv(X.toarray(), y, f"{name}.csv")
 
 def build_LSVC_models(args, X:np.ndarray, y:np.ndarray) -> None:
     """
@@ -368,16 +426,17 @@ def build_LSVC_models(args, X:np.ndarray, y:np.ndarray) -> None:
 
     train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.25, random_state=args.seed, stratify=y)
 
-    model1 = LinearSVC(random_state=args.seed, max_iter=10000, class_weight='balanced').fit(train_X, train_y)
+    model1 = LinearSVC(random_state=args.seed, max_iter=10000, multi_class='crammer_singer').fit(train_X, train_y)
     model2 = LinearSVC(random_state=args.seed, max_iter=10000).fit(train_X, train_y)
     model3 = LinearSVC(random_state=args.seed, max_iter=10000, class_weight=weights).fit(train_X, train_y)
 
-    error1 = 1 - metrics.accuracy_score(test_y, model1.predict(test_X), normalize=True)
-    error2 = 1 - metrics.accuracy_score(test_y, model2.predict(test_X), normalize=True)
-    error3 = 1 - metrics.accuracy_score(test_y, model3.predict(test_X), normalize=True)
+    weight_array = np.array([weights[i] for i in test_y])
+    error1 = 1 - metrics.accuracy_score(test_y, model1.predict(test_X),)
+    error2 = 1 - metrics.accuracy_score(test_y, model2.predict(test_X),)
+    error3 = 1 - metrics.accuracy_score(test_y, model3.predict(test_X), sample_weight=weight_array)
 
     #create df for errors   
-    errors = pd.DataFrame({'Model': [ 'Balanced Weights', 'Boilerplate', 'Cosine Decay Weights'], 'Error': [error1, error2, error3]})
+    errors = pd.DataFrame({'Model': ['Crammer Singer', 'Boilerplate One-vs-rest ', 'Cosine Decay Weights One-vs-rest'], 'Error': [error1, error2, error3]})
     errors = errors.sort_values(by='Error', ascending=True)
     # save as latex table
     errors.to_latex(f'{IMG_FILE_PATH}table_lsvc_errors.tex', index=False, float_format="%.3f")
@@ -506,7 +565,8 @@ def save_plot_image(plot:plt, file_name:str) -> None:
 
 
 def plot_confusion_matrix(y_labels, pred, test_target, name:str) -> None:
-    """Plots a confusion matrix for the given classifier.
+    """
+    Plots a confusion matrix for the given classifier.
     
     clf: classifier
     y_labels: labels for the y axis
@@ -514,12 +574,13 @@ def plot_confusion_matrix(y_labels, pred, test_target, name:str) -> None:
     test_target: test target
     train_target: train target   
     """
-    cm = metrics.confusion_matrix(test_target, pred)
+
     category_bins = [i for i in range(len(y_labels))]
+    cm = metrics.confusion_matrix(test_target, pred, labels=category_bins)
     # category_labels = [i[:8] for i in unique_categories]
     disp = metrics.ConfusionMatrixDisplay(confusion_matrix=cm)
-    disp.plot()
-    # make x axis labels smaller
+    disp.plot(cmap=plt.cm.Blues)
+    disp.im_.set_norm(LogNorm(vmin=1, vmax=cm.max()))
     plt.xticks(category_bins, y_labels, rotation='vertical', fontsize=8)
     plt.yticks(category_bins, y_labels, fontsize=8)
     plt.tight_layout()
@@ -761,17 +822,22 @@ def plot_test_results_averaged(folder:str = 'kernel_cos_averaged') -> None:
     file_names = [s for s in file_names if not s.startswith('.')]
     # remove names with string sample
     file_names = [s for s in file_names if not 'sample' in s]
+    group = 1 # group for regex
     if folder == 'kernel_cos_averaged':
         pattern = r"data_all_(.*?)_0" # for 'kernel_cos_averaged' folder
     if folder == 'all_data_new_vectorizer':
         pattern = r"(data_|additional_)(.*?)_0"  # for 'all_data_new_vectorizer' folder
+        group = 2
     if folder == 'filtered':
-        pattern = r"(tfidf_data_|filtered_)(.*?)_0"
+        pattern = r"(filtered_)(.*?)_0"
+        group = 2
+    if folder == 'text_data_all_proper_vectorizer':
+        pattern = r"performances_text_data_all_(.*?)_0"
     assert pattern, 'Pattern for plot averaged test results is not defined'
 
     # group files together and open in groups and aggregate test data
 
-    groups = ['alce', 'pal', 'xpal', 'log-loss', 'random', 'qbc', 'entropy', 'xpal-original', 'xpal-0.006']
+    groups = ['alce', 'pal', 'xpal', 'log-loss', 'random', 'qbc', 'entropy']
     groups = sorted(groups)
     fig, ax = plt.subplots()
     for g in groups:
@@ -781,9 +847,10 @@ def plot_test_results_averaged(folder:str = 'kernel_cos_averaged') -> None:
             name = file_name[:-4]
             match = re.search(pattern, name) 
             if match:
-                captured_text = match.group(2) # 2 was 1 originally
+                captured_text = match.group(group) # 2 was 1 originally
                 name = captured_text
                 if g == name:
+                    print(file_name)
                     loc = os.path.join(file_path, file_name)
                     with open(loc, 'r') as f:
                         data = pd.read_csv(f)
@@ -802,7 +869,7 @@ def plot_test_results_averaged(folder:str = 'kernel_cos_averaged') -> None:
     save_plot_image(plt, f'plot_{folder}_test_results')
     plt.close()
 
-def plot_pr_curve(args, X:np.ndarray, y:np.ndarray) -> None:
+def plot_pr_curve(args, X:np.ndarray, y:np.ndarray, data_name=None) -> None:
     """
     Plots and saves the precision recall curve for the given data with LSVC as a pdf.
     
@@ -814,6 +881,11 @@ def plot_pr_curve(args, X:np.ndarray, y:np.ndarray) -> None:
         The labels for the data
     
     """
+    if data_name != None: 
+        data_name = '_' + data_name
+    if data_name == "original":
+        data_name = None
+
     y_labels = np.unique(y)
     n_classes = len(y_labels)
     y_binarized = label_binarize(y, classes=y_labels)
@@ -821,7 +893,7 @@ def plot_pr_curve(args, X:np.ndarray, y:np.ndarray) -> None:
 
 
     classifier = OneVsRestClassifier(
-        make_pipeline(LinearSVC(random_state=args.seed, max_iter=100000, C=1, intercept_scaling=0.5))
+        make_pipeline(LinearSVC(random_state=args.seed, max_iter=100000))
     )
     classifier.fit(train_X, train_y)
     y_score = classifier.decision_function(test_X)
@@ -880,7 +952,63 @@ def plot_pr_curve(args, X:np.ndarray, y:np.ndarray) -> None:
     ax.legend(handles=handles, labels=labels, loc='center left', bbox_to_anchor=(1, 0.5))
     # ax.set_title("Multi-Class Precision-Recall Curve")
     plt.tight_layout()
-    save_plot_image(plt, "plot_pr_curve_filtered_data")
+    save_plot_image(plt, f"plot_pr_curve{data_name}")
+    plt.close()
+
+def plot_LSCV_varying_min_category(args, X, y) -> None:
+    """
+    Split the data into train and test sets, filter the data on the number of occurances in the train set. Build the vectorizer for the train set and then transform the test set each iteration. Plot the test error vs the min number of occurances in the train set and color the points by the number of categories in the test set.
+
+    Parameters
+    ----------
+    args : argparse.Namespace
+        The arguments passed in from the command line
+    X : list
+        The text data
+    y : list
+        The labels    
+    """
+
+    le = LabelEncoder()
+    y = le.fit_transform(y)
+    train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.25, random_state=args.seed, stratify=y)
+    vectorizer = tfidf_vectorizer()
+
+    error_list = []
+    num_categories = []
+    min_occurances_in_train_data = np.arange(0, 30, 3)
+    for c in min_occurances_in_train_data:
+        train_df = pd.DataFrame({'text': train_X, 'category': train_y})
+        train_df = train_df.groupby('category').filter(lambda x: x['category'].value_counts() > c)
+        remaining_categories = train_df['category'].unique()
+        test_df = pd.DataFrame({'text': test_X, 'category': test_y})
+        test_df = test_df[test_df['category'].isin(remaining_categories)]
+        # split the test data into x and y
+        te_X = test_df['text']
+        te_y = test_df['category']
+        tr_X = train_df['text']
+        tr_y = train_df['category']
+        tr_X_v = vectorizer.fit_transform(tr_X)
+        te_X_v = vectorizer.transform(te_X)
+        # use label encode to change the numbers to the actual category
+        # train_df['category'] = le.inverse_transform(train_df['category'])
+        # print(train_df['category'].value_counts())
+        # split back into x and y
+        model = LinearSVC(random_state=args.seed, max_iter=10000)
+        model.fit(tr_X_v, tr_y)
+        pred = model.predict(te_X_v)
+        error = 1 - metrics.accuracy_score(te_y, pred)
+        error_list.append(error)
+        num_categories.append(len(np.unique(te_y)))
+
+    scatter = plt.scatter(min_occurances_in_train_data, error_list, c=num_categories, cmap='viridis_r')
+    plt.legend(*scatter.legend_elements(), loc='upper right', title='Categories')
+    plt.xlabel("Min Data Points in Category")
+    plt.ylabel("Test Error")
+    plt.ylim(0, 1)
+    plt.xticks(min_occurances_in_train_data)
+    plt.grid()
+    plt.savefig(f"{IMG_FILE_PATH}plot_LSVC_varying_min_category.pdf")
     plt.close()
 
 def plot_data_length_grid_search(args, data:Dataset) -> None:
@@ -895,7 +1023,7 @@ def plot_data_length_grid_search(args, data:Dataset) -> None:
     y_bottom_up_error = []
     x_bottom_up_error = []
     # for i in range(0,20,5):
-    for i in range(0,200,5):
+    for i in range(0,200,1):
         X, y, vectorizer = data_prep(data, origin_filter=None, min_str_len=i)
         y_bottom_up_error.append(test_model(args, X, y, vectorizer, clf_name='LinearSVC'))
         x_bottom_up_error.append(i)
@@ -903,7 +1031,7 @@ def plot_data_length_grid_search(args, data:Dataset) -> None:
     y_top_down_error = []
     x_top_down_error = []
     # for i in range(999, 900, -10):
-    for i in range(999, 200, -10): # for min str len = 0
+    for i in range(999, 200, -8): # for min str len = 0
         X, y, vectorizer = data_prep(data, origin_filter=None, max_str_len=i)
         y_top_down_error.append(test_model(args, X, y, vectorizer, clf_name='LinearSVC'))
         x_top_down_error.append(i)
@@ -912,11 +1040,11 @@ def plot_data_length_grid_search(args, data:Dataset) -> None:
 
     min_index_top = np.argmin(y_top_down_error)
     min_index_bottom = np.argmin(y_bottom_up_error)
-    ax.plot(x_top_down_error, y_top_down_error)
-    ax.plot(x_bottom_up_error, y_bottom_up_error)
+    ax.plot(x_top_down_error, y_top_down_error, linewidth=1)
+    ax.plot(x_bottom_up_error, y_bottom_up_error, linewidth=1)
     
-    ax.plot(x_top_down_error[min_index_top], y_top_down_error[min_index_top], 'o', color='red')
-    ax.plot(x_bottom_up_error[min_index_bottom], y_bottom_up_error[min_index_bottom], 'o', color='red')
+    # ax.plot(x_top_down_error[min_index_top], y_top_down_error[min_index_top], 'o', color='red', linewidth=1)
+    # ax.plot(x_bottom_up_error[min_index_bottom], y_bottom_up_error[min_index_bottom], 'o', color='red', linewidth=1)
 
     ax.set_xlabel("String Length")
     ax.set_ylabel("Error")
@@ -924,12 +1052,12 @@ def plot_data_length_grid_search(args, data:Dataset) -> None:
     ax.set_xlim(0, 1000)
     ax.grid(True)
 
-    ax.annotate(f'({y_top_down_error[min_index_top]:.2f}, {x_top_down_error[min_index_top]})', xy=(x_top_down_error[min_index_top], y_top_down_error[min_index_top]), 
-                xytext=(x_top_down_error[min_index_top]+1, y_top_down_error[min_index_top]-.05),
-                )
-    ax.annotate(f'({y_bottom_up_error[min_index_bottom]:.2f}, {x_bottom_up_error[min_index_bottom]})', xy=(x_bottom_up_error[min_index_bottom], y_bottom_up_error[min_index_bottom]),
-                xytext=(x_bottom_up_error[min_index_bottom]+1, y_bottom_up_error[min_index_bottom]-.05),
-                )
+    # ax.annotate(f'({y_top_down_error[min_index_top]:.2f}, {x_top_down_error[min_index_top]})', xy=(x_top_down_error[min_index_top], y_top_down_error[min_index_top]), 
+    #             xytext=(x_top_down_error[min_index_top]+1, y_top_down_error[min_index_top]-.05),
+    #             )
+    # ax.annotate(f'({y_bottom_up_error[min_index_bottom]:.2f}, {x_bottom_up_error[min_index_bottom]})', xy=(x_bottom_up_error[min_index_bottom], y_bottom_up_error[min_index_bottom]),
+    #             xytext=(x_bottom_up_error[min_index_bottom]+1, y_bottom_up_error[min_index_bottom]-.05),
+    #             )
     ax.legend(['Max string size', 'Min string size'], loc='lower right')
     save_plot_image(plt, "plot_data_length_grid_search")
     plt.close()
@@ -985,14 +1113,14 @@ def plot_explore_classifiers(args, X, y):
     weights = get_weights(y)
 
     models = [
-        LinearSVC(random_state=args.seed, class_weight=weights, max_iter=10000),
+        LinearSVC(random_state=args.seed, max_iter=10000),
         KNeighborsClassifier(n_neighbors=8, metric='cosine'),
         MLPClassifier(random_state=args.seed, max_iter=100, hidden_layer_sizes=500),
         SVC(),
         # GradientBoostingClassifier(n_estimators=100, learning_rate=.09, max_depth=3, random_state=args.seed),
         GaussianNB(),
         LogisticRegression(random_state=args.seed, max_iter=1000),
-        RandomForestClassifier(random_state=args.seed, n_estimators=200, class_weight=weights),
+        RandomForestClassifier(random_state=args.seed, n_estimators=200),
     ]
 
     CV = 5
@@ -1026,8 +1154,8 @@ def plot_explore_classifiers(args, X, y):
     with pd.option_context("max_colwidth", 1000):
         for model in models:
             params = model.get_params()
-            if 'class_weight' in params.keys():
-                params['class_weight'] = 'precomputed'
+            # if 'class_weight' in params.keys():
+            #     params['class_weight'] = 'precomputed'
             df = df.append({'Classifier': model.__class__.__name__,
                             'Parameters': params}, ignore_index=True)
         # save df as a latex table
@@ -1050,7 +1178,7 @@ def table_cosine_decay_weights(args, y) -> None:
     # save table as latex
     table.to_latex(f"{IMG_FILE_PATH}table_cosine_decay_weights.tex", index=True, float_format="%.3f")
 
-def table_correlated_unigrams(X:np.ndarray, y:np.ndarray, v:TfidfVectorizer, category_to_id:dict, file_name:str) -> None:
+def table_correlated_unigrams(X:np.ndarray, y:np.ndarray, v:TfidfVectorizer, file_name:str) -> None:
     """
     Creates latex .tex table file with of features with the highest chi-squared statistics per target class.
 
@@ -1059,6 +1187,11 @@ def table_correlated_unigrams(X:np.ndarray, y:np.ndarray, v:TfidfVectorizer, cat
     v: vectorizer
     category_to_id: dictionary with category names mapped to their numeric id
     """
+    y_labels = np.unique(y)
+    le = LabelEncoder()
+    y = le.fit_transform(y)
+    category_to_id = dict(zip(y_labels, range(len(y_labels))))
+
     N=3 # number of features to print
     uni_dict = {}
     for label, id in sorted(category_to_id.items()):
@@ -1093,7 +1226,7 @@ def table_classification_report(test, pred, labels, clf_name_and_info:str) -> No
     -------
     None
     """
-    report = metrics.classification_report(test, pred, target_names=labels, output_dict=True, zero_division=0)
+    report = metrics.classification_report(test, pred, labels=range(23), target_names=labels, output_dict=True, zero_division=0)
     df = pd.DataFrame(report).transpose()
     df.to_latex(f"{IMG_FILE_PATH}table_classification_report_{clf_name_and_info}.tex", float_format="%.2f")
 
