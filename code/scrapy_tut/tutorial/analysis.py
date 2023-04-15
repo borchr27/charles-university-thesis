@@ -147,7 +147,7 @@ if __name__ == "__main__":
     data, X, y, vectorizer = None, None, None, None
     data = tu.Dataset()
     # X, y, vectorizer = tu.data_prep(data, origin_filter='original')
-    X, y = tu.fixed_data_prep(data, origin_filter='original')
+    # X, y = tu.fixed_data_prep(data, origin_filter=None)
     # tu.export_text_data_to_csv(X, y, None)
 
     # tu.plot_LSCV_varying_min_category(args, X, y)
@@ -160,6 +160,7 @@ if __name__ == "__main__":
     # tu.plot_test_results_averaged(folder='all_data_experiments')
     # tu.plot_data_length_grid_search(args, data)
 
+    
     if args.plot == "all_histograms":
         tu.plot_all_histograms(data, "plot_all_hist")
     if args.plot == "original_en_hist":
@@ -167,18 +168,24 @@ if __name__ == "__main__":
     if args.plot == "all_results_from_probal":
         tu.plot_all_results_from_probal()
     if args.plot == "test_results":
-        tu.plot_test_results()
+        tu.plot_probal_test_results()
     if args.plot == "test_results_averaged":
-        folder_name = "text_data_all_proper_vectorizer"
+        folder_name = "text_data_original_proper_vectorizer"
         print(f'Make sure the correct folder has been selected. [{folder_name}] folder selected.')
-        tu.plot_test_results_averaged(folder=folder_name)
+        tu.plot_probal_test_results_averaged(folder=folder_name)
     if args.plot == "explore_classifiers":
         tu.plot_explore_classifiers(args, X, y)
     if args.plot == "pr_curve":
         tu.plot_pr_curve(args, X, y)
     if args.plot == "data_length_grid_search":
         tu.plot_data_length_grid_search(args, data)
-    
+    if args.plot == "data_text_analysis":
+        # make sure to use fixed_data_prep method
+        tu.plot_data_text_analysis(args, X, y)
+    if args.plot == "probal_selection_dist":    
+        tu.plot_probal_selection_dist("text_data_all_proper_vectorizer")
+
+
     if args.table == "correlated_unigrams":
         data_name = "original"
         tu.table_correlated_unigrams(X, y, vectorizer, f"table_correlated_unigrams_{data_name}")

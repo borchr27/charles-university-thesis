@@ -48,6 +48,7 @@ CONFIG = configparser.ConfigParser()
 CONFIG.read('/Users/mitchellborchers/.config/azure/my_config_file.ini')
 # IMG_FILE_PATH = "/Users/mitchellborchers/Documents/git/charles-university-thesis/thesis/vzor-dp/img/"
 IMG_FILE_PATH = CONFIG['cognitive_services']['img_file_path']
+RESULTS_FILE_PATH = CONFIG['cognitive_services']['results_file_path']
 
 logging.basicConfig(filename='thesis.log', level=logging.DEBUG, format='%(asctime)s:%(levelname)s:%(message)s')
 
@@ -778,12 +779,12 @@ def plot_all_results_from_probal(folder_name:str = 'kernel_rbf') -> None:
         save_plot_image(plt, f'plot_all_results_{n}')
         plt.close()
 
-def plot_test_results(folder:str = 'kernel_cos') -> None:
+def plot_probal_test_results(folder_name:str = 'kernel_cos') -> None:
     """
     Plots all TEST data from the probal results folder into one figure (this is plotting just the single runs).
     
     """
-    file_path = f'/Users/mitchellborchers/Documents/git/probal/results/{folder}'
+    file_path = f'/Users/mitchellborchers/Documents/git/probal/results/{folder_name}'
     file_names = os.listdir(file_path)
     file_names = [s for s in file_names if not s.startswith('.')]
     file_names = sorted(file_names)
@@ -809,10 +810,10 @@ def plot_test_results(folder:str = 'kernel_cos') -> None:
     ax.grid(which='both', linewidth=0.3)
     ax.set_ylim([0, 1.1])
     fig.tight_layout()
-    save_plot_image(plt, f'plot_{folder}_test_results')
+    save_plot_image(plt, f'plot_{folder_name}_test_results')
     plt.close()
 
-def plot_test_results_averaged(folder:str = 'kernel_cos_averaged') -> None:
+def plot_probal_test_results_averaged(folder:str = 'kernel_cos_averaged') -> None:
     """
     Plots all TEST data AVERAGED from the probal results folder into one figure.
     
@@ -831,8 +832,9 @@ def plot_test_results_averaged(folder:str = 'kernel_cos_averaged') -> None:
     if folder == 'filtered':
         pattern = r"(filtered_)(.*?)_0"
         group = 2
-    if folder == 'text_data_all_proper_vectorizer':
-        pattern = r"performances_text_data_all_(.*?)_0"
+    if folder == 'text_data_all_proper_vectorizer' or folder == 'text_data_original_proper_vectorizer':
+        pattern = r"performances_text_data_(all|original)_(.*?)_0"
+        group = 2
     assert pattern, 'Pattern for plot averaged test results is not defined'
 
     # group files together and open in groups and aggregate test data
@@ -850,7 +852,6 @@ def plot_test_results_averaged(folder:str = 'kernel_cos_averaged') -> None:
                 captured_text = match.group(group) # 2 was 1 originally
                 name = captured_text
                 if g == name:
-                    print(file_name)
                     loc = os.path.join(file_path, file_name)
                     with open(loc, 'r') as f:
                         data = pd.read_csv(f)
@@ -1066,6 +1067,61 @@ def plot_data_length_grid_search(args, data:Dataset) -> None:
     # X, y, vectorizer = data_prep(data, origin_filter=None, min_str_len=155)
     # test_model(args, X, y, vectorizer, clf_name='LinearSVC')
 
+def plot_data_text_analysis(args, X, y) -> None:
+    """
+    Explore the length of the strings in the data.
+    """
+    # print the category counts
+    category_counts = pd.Series(y).value_counts()
+    # print(category_counts)
+
+    # print the length of the strings in the data
+    lengths = [len(x) for x in X]
+    # create a latex table with the statistical data
+    df = pd.DataFrame({'Lengths': lengths})
+    print(df.describe().to_latex())
+
+    # print(f"Min length: {min(lengths)}")
+    # print(f"Max length: {max(lengths)}")
+    # print(f"Mean length: {np.mean(lengths)}")
+    # print(f"Median length: {np.median(lengths)}")
+    # print(f"Std length: {np.std(lengths)}")
+    # print(f"Variance length: {np.var(lengths)}")
+
+    # plot the length of the strings in the data
+    plt.hist(lengths, bins=100)
+    plt.xlabel("Length")
+    plt.ylabel("Frequency")
+    plt.tight_layout()
+    save_plot_image(plt, "plot_string_length_dist_all_data")
+
+def plot_probal_selection_dist(folder_name:str) -> None:
+    """
+    Plots the index that a sample from a certain category was selected into a swarmplot using results data.
+    """
+
+    labels = ['Atm', 'Beauty', 'Bills And Household', 'Car' ,'Children' ,'Consumer Goods',
+                'Culture', 'Digital Services' ,'Drugstore', 'Electronics', 'Fashion',
+                'Financial Services', 'Food And Drink' ,'Freetime', 'Groceries', 'Health',
+                'House And Garden', 'Investments', 'Pets' ,'Professional Services',
+                'Shopping Online', 'Sport', 'Travel']
+    xpal_df = pd.read_csv(f'{RESULTS_FILE_PATH}{folder_name}/samples_text_data_all_xpal_0.25_cosine_mean_300_7.csv')
+    xpal_original_df = pd.read_csv(f'{RESULTS_FILE_PATH}text_data_original_proper_vectorizer/samples_text_data_original_xpal_0.25_cosine_mean_300_655007.csv')
+
+    # add a column to the xpal filtered data frame with the label 'xPAL'
+    xpal_df['type'] = 'All Data'
+    # add a column to the xpal original data frame with the label 'random'
+    xpal_original_df['type'] = 'Original Data'
+    # combine and plot the xpal data frames
+    df = pd.concat([xpal_df, xpal_original_df])
+    sns.swarmplot(x='labels', y='index', data=df, size=2.5, hue='type')
+    plt.legend(bbox_to_anchor=(0.35, 1.23), loc=2, borderaxespad=0., ncol=1)
+    plt.grid(axis='y')
+    plt.xticks(range(0, 23), labels, fontsize=8, rotation=90)
+    plt.xlabel('Categories')
+    plt.ylabel('Budget Index')
+    plt.tight_layout()
+    save_plot_image(plt, 'plot_xpal_selection_dist')
 
 def get_weights(y:np.ndarray, method:str='cosine') -> dict:
     """
@@ -1233,7 +1289,7 @@ def table_classification_report(test, pred, labels, clf_name_and_info:str) -> No
 
 def table_category_counts(data:Dataset, file_name:str) -> None:
     """
-    Creates latex .tex table file with 'original' or 'additional' data counts.
+    Creates latex .tex table file with original and additional and total data counts.
 
     Parameters
     ----------
@@ -1241,10 +1297,6 @@ def table_category_counts(data:Dataset, file_name:str) -> None:
         Dataset object
     group : List[str], optional
         List of strings with 'original' or 'additional' data, by default ['original', 'additional']
-    
-    Returns
-    -------
-    None
     """
     td_df = data.translated_data
     sd_df = data.site_data
@@ -1255,14 +1307,17 @@ def table_category_counts(data:Dataset, file_name:str) -> None:
     additional = merged_data[merged_data['origin'] == 'additional']
     
     # Group the filtered DataFrame by the 'category' column and count the number of rows in each group
-    group_original = sd_df.groupby('category').size().reset_index(name='Original')
-    group_og_english = original[original['original_language'] == 'en'].groupby('category').size().reset_index(name='Original English')
-    group_additional = additional.groupby('category').size().reset_index(name='Additonal')
+    group_original = sd_df.groupby('category').size().reset_index(name='Orig.')
+    group_og_english = original[original['original_language'] == 'en'].groupby('category').size().reset_index(name='Orig. English')
+    group_additional = additional.groupby('category').size().reset_index(name='Add.')
     group_translated = merged_data[merged_data['origin'] == 'original'].groupby('category').size().reset_index(name='Translated')
+    group_total = merged_data.groupby('category').size().reset_index(name='Total')
     # export to latex without indices
     re_merged = pd.merge(group_original, group_og_english, how='outer', left_on='category', right_on='category' )
     re_merged = pd.merge(re_merged, group_translated, how='outer', left_on='category', right_on='category')
     re_merged = pd.merge(re_merged, group_additional, how='outer', left_on='category', right_on='category')
+    re_merged = pd.merge(re_merged, group_total, how='outer', left_on='category', right_on='category')
+
     re_merged = re_merged.fillna(0)
     re_merged.rename(columns={'category': 'Category'}, inplace=True)
     re_merged.to_latex(f"{IMG_FILE_PATH}{file_name}.tex", index=False, float_format="%.0f")
