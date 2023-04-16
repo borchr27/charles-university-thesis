@@ -115,16 +115,21 @@ def optimize_classifier(args, X, y):
     le = LabelEncoder()
     y = le.fit_transform(y)
     train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.25, random_state=args.seed, stratify=y)
+
+    # vectrorize the data
+    vectorizer = tu.tfidf_vectorizer()
+    train_X = vectorizer.fit_transform(train_X)
+    test_X = vectorizer.transform(test_X)
     
     base_classifier = LinearSVC()
-    bagging_classifier = BaggingClassifier(base_estimator=base_classifier, n_estimators=20, random_state=args.seed)
+    bagging_classifier = BaggingClassifier(base_estimator=base_classifier, n_estimators=3, random_state=args.seed)
     params = {
         'base_estimator__random_state': [args.seed],
         'base_estimator__max_iter': [10000],
-        'base_estimator__intercept_scaling': np.linspace(0.1, 1, 20),
+        'base_estimator__intercept_scaling': np.linspace(0.1, 1, 10),
         'base_estimator__loss': ['hinge', 'squared_hinge'],
-        'base_estimator__penalty': ['l1', 'l2'],
-        'base_estimator__C': np.linspace(0.1, 1000, 50),
+        'base_estimator__penalty': ['l2'],
+        'base_estimator__C': np.linspace(0.1, 1000, 10),
         'base_estimator__multi_class': ['ovr', 'crammer_singer']
         }
     # cv val was 5 but changed to 2 because low data
@@ -147,7 +152,7 @@ if __name__ == "__main__":
     data, X, y, vectorizer = None, None, None, None
     data = tu.Dataset()
     # X, y, vectorizer = tu.data_prep(data, origin_filter='original')
-    # X, y = tu.fixed_data_prep(data, origin_filter=None)
+    # X, y = tu.data_prep_fixed(data, origin_filter=None)
     # tu.export_text_data_to_csv(X, y, None)
 
     # tu.plot_LSCV_varying_min_category(args, X, y)
@@ -192,7 +197,8 @@ if __name__ == "__main__":
     if args.table == "data_category_counts":
         tu.table_category_counts(data, "table_category_counts")
     if args.table == "variable_importance":
-        tu.table_variable_importance(args, X, y, "table_variable_importance")
+        # use with fixed data prep
+        tu.table_variable_importance(args, X, y)
     if args.table == 'cosine_decay_weights':
         tu.table_cosine_decay_weights(args, y)
 

@@ -42,15 +42,17 @@ The tags are important because they allow us to separate the data even further a
 
 \section{Collection}
 
-Similarly to the annotator our goal is to automate the navigation, collection/ storing process, and classification of the website. This process speeds up the browsing process by navigating to websites that have already been labeled and scraping the text data and storing it into a database.
+Similarly to the annotator our goal is to automate the navigation, collection/ storing process, and classification of the website. This speeds up the browsing process by navigating to websites that have already been labeled and scraping the text data and storing it into a database. We also make the obvious checks to see if the website has already been scraped and stored in the database to ensure we are not wasting time and resources.
 
-The initial 1000 data points we received were labels with a pointer (a url) to where the text data is located (the website). The labels needed the text from the websites that the annotator viewed to begin the classifying process. To gather the text data from the websites we used the Scrapy framework to extract text data from a single top level page of a website. We chose only to scrape the top level (main or home) page text because of the results published in another study where it was observed that adding more pages to the data set does not necessarily mean obtaining better results (\cite{sahid2019ecommerce}). 
+The initial 1000 data points we received were labels with a pointer (a url) to where the text data is located (the website). The labels needed to be augmented with the text from the websites. For the human annotator, this text data is stored is simply stored in their short term memory while they view the website. Once they have a category for the website they can mostly forget about the text data and move on to assigning a category to the next website.
 
-Out of these initial data points 179 contained links that could not be accessed or links that provided no text data that could be scraped. Two websites were particularly problematic. Facebook and Instagram both are used by business as main information webpages. However, neither site allows for simple text scraping and a more advanced approach was needed to extract data from business with information on these platforms. Out of the remaining 821 data points 274 of them were in English. Out of the remaining 274 English data points the data was distributed into the categories as shown in Figure \ref{fig:original_english_counts}.
+To gather the text data from the websites we used the Scrapy framework to extract text data from a single top level page of a website. We chose only to scrape the top level (main or home) page text because of the results published in another study where it was observed that adding more pages to the data set does not necessarily mean obtaining better results (\cite{sahid2019ecommerce}). 
+
+Out of these initial data points 179 contained links that could not be accessed or links that provided no text data that could be scraped. Two websites were particularly problematic. Facebook and Instagram both are used by business as main information webpages. However, neither site allows for simple text scraping and a more advanced approach was needed to extract data from business with information on these platforms. Out of the remaining 821 data points 275 of them were in English. Out of the remaining 275 English data points the data was distributed into the categories as shown in Figure \ref{fig:original_english_counts}.
 
 \section{Processing}
 
-It is important for us to have the data in English as it allows us to exploit stop words when using the Scikit-Learn TF-IDF vectorizer to construct our data set. Stop words are words like “and”, “the”, “him”, which are presumed to be uninformative in representing the content of a text, and which may be removed to avoid them being construed as signal for prediction (\cite{sklearn62feature}). This holds true for our data set as well.
+It is important for us to have the data in English as it allows us to exploit stop words when using the Scikit-Learn TF-IDF vectorizer to construct our data set. Stop words are words like “and”, “the”, “him”, which are presumed to be uninformative in representing the content of a text, and which may be removed to avoid them being construed as signal for prediction (\cite{sklearn62feature}). This holds true for our data set as well because we are not analyzing the text for sentiment or other linguistic features. We are simply looking for the most common words in each category.
 
 At this stage, it was clear that our data set wasn't representing all categories equally. The 'Food and Drink' category has many more data points then the 'Culture' and 'Investments' categories which each had a single data point, see Figure \ref{fig:original_english_counts}. The 'Children' and 'Financial Services' categories weren't represented at all. Obviously this was problematic because we would like to have, minimum, three data points in each category to build train and test sets.
 
@@ -61,7 +63,7 @@ At this stage, it was clear that our data set wasn't representing all categories
   \label{fig:original_english_counts}
 \end{figure}
 
-At this point we had a significant amount of data that wasn't being used (the untranslated data). We decided to find a way to translate the existing data. We tried various libraries available on GitHub but weren't getting good results. We found that Azure had a service available and a free option of up to 2 million characters translated per month. This was a viable option and we were able to use this API to translate the remaining data. We limited the number of characters to 1000 per data point from the scraped text to avoid maxing out the API.
+We started out with 1000 website links and labels. After scraping that number was brought down to 963 data points which we call the original data. After separating out the original English data we initially only had 275 usable data points. Even we had a significant amount of data that wasn't being used (the untranslated data). We decided to find a way to translate the existing data. We tried various libraries available on GitHub but weren't getting good results. We found that Azure had a service available and a free option of up to 2 million characters translated per month. This was a viable option and we were able to use this API to translate the remaining data. We limited the number of characters to 1000 per non English data point from the scraped text to avoid maxing out the API.
 
 An example of the first 100 characters of raw scraped text data from a website is shown in Table \ref{tab:text_examples}. The scraped text data is a single string of text that is a concatenation of all the text data pulled from the website url. 
 
@@ -76,10 +78,9 @@ Translated & DentalVision Professional private dental clinic in the center of Hr
 \label{tab:text_examples}
 \end{table}
 
-We can see that the symbols were removed and the majority of the words were translated. There are still some issues with words being concatenated, but we attempt to break these words apart before passing the text to the TF-IDF vectorizer.
+We can see that html and other symbols are removed and the majority of the words were translated. There are still some issues with words being concatenated such as 'IntroductionServices' however we do try to separate these words after translation using a regex pattern, but we attempt to break these words apart before passing the text to the TF-IDF vectorizer.
 
-In addition to the original data we also manually collected and labeled 141 additional data points. All the original data and additional data counts are shown in Figure \ref{fig:all_hist} and discretely in Appendix Table \ref{tab:data_counts}.
-
+To complement the original data we manually collected and labeled 141 additional data points for the categories that had low representation. The additional data are almost all from English language websites, this made it easier for us to label the sites. These data group splits will be referenced in the following experiments and a table of the exact counts for each group can be found in Appendix Table \ref{tab:data_counts}. In Figure \ref{fig:all_hist}. we show a bar chart of the counts of the original data and the additional data for each category and for each language, with the two letter language codes used to represent the languages.
 
 \begin{figure}[!ht]
   \centering
@@ -89,9 +90,9 @@ In addition to the original data we also manually collected and labeled 141 addi
 \end{figure}
 
 
-After translating the data we used the TF-IDF vectorizer from Scikit-Learn. We were able to find highly correlated words for each category using Chi Squared analysis with only the original data, shown below in Table \ref{tab:correlated_unigrams_original}. Some categories such as 'Culture', 'Digital Services', 'Shopping Online' that have few data points have words such as 'kihnu', 'td', 'patria', respectively, which have no relative meaning to the category in English. 
+After translating the data we used the TF-IDF vectorizer from Scikit-Learn. We were able to find highly correlated words for each category using Chi Squared analysis with only the original data, shown below in Table \ref{tab:correlated_unigrams_original}. Some categories such as 'Culture', 'Digital Services', 'Shopping Online' that have few data points have words such as 'kihnu', 'synnex', 'joom', respectively, which have no relative meaning to the category in English but also show the limitations of our website scraping and translation capabilities. We also have the problem where some words are actually important but weren't translated correctly such as 'maso' in the 'Groceries' category, which means 'meat' in Czech but wasn't translated properly.
 
-From what we discussed in the previous section, we can see that the 'Culture' category has only one data point and the 'Digital Services' category has only two data points. This is problematic because if the single data point we have is doesn't represent the category well then we will continue to have difficulty classifying until we have more robust data.
+From what we discussed in the previous section, we can see that the 'Culture' category has only one data point and the 'Digital Services' category has only two data points. This is problematic because if the single data point we have doesn't represent the category well then we will continue to have difficulty classifying until we have more robust data.
 
 
 \begin{table}[!ht]
@@ -101,7 +102,7 @@ From what we discussed in the previous section, we can see that the 'Culture' ca
 \label{tab:correlated_unigrams_original}
 \end{table}
 
-We also calculated the variable importance using the RandomForestRegressor from Scikit-Learn and provided a list of the top 20 most important words from the TF-IDF vectorizer. This helps orient ourselves within the data and check if there may be any anomalies. This list can be found in Appendix Table \ref{tab:top_20_words}.
+We also calculated the variable importance using the RandomForestRegressor from Scikit-Learn and provided a list of the top 20 most important words from the TF-IDF vectorizer. This helps orient ourselves within the data and check if there may be any major anomalies. This list can be found in Appendix Table \ref{tab:top_20_words}.
 
 
 

@@ -5,13 +5,13 @@
 \contentsline {table}{\numberline {3.1}{\ignorespaces This is an example of a single data point from the original data set.}}{15}{table.3.1}%
 \contentsline {table}{\numberline {3.2}{\ignorespaces This is an example of how the tags use different levels.}}{15}{table.3.2}%
 \contentsline {table}{\numberline {3.3}{\ignorespaces Raw text collected by scraper and the translated text.}}{17}{table.3.3}%
-\contentsline {table}{\numberline {3.4}{\ignorespaces Keywords from TF-IDF with Chi Squared using the original data.}}{18}{table.3.4}%
+\contentsline {table}{\numberline {3.4}{\ignorespaces Keywords from TF-IDF with Chi Squared using the original data.}}{19}{table.3.4}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {4.1}{\ignorespaces Error for three differing LinearSVC models.}}{23}{table.4.1}%
-\contentsline {table}{\numberline {4.2}{\ignorespaces Testing errors for best performing classifiers.}}{24}{table.4.2}%
+\contentsline {table}{\numberline {4.1}{\ignorespaces Error for three differing LinearSVC models.}}{24}{table.4.1}%
+\contentsline {table}{\numberline {4.2}{\ignorespaces Testing errors for best performing classifiers.}}{25}{table.4.2}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {A.1}{\ignorespaces Category counts of usable given data sorted by originally given, originally given data that is English, originally given translated to English (+ English data), supplementary data, and total (all) usable data.}}{36}{table.A.1}%
-\contentsline {table}{\numberline {A.2}{\ignorespaces Variable importance, top 20 words from the vectorizer.}}{37}{table.A.2}%
-\contentsline {table}{\numberline {A.3}{\ignorespaces Best LinearSVC model classification report.}}{38}{table.A.3}%
-\contentsline {table}{\numberline {A.4}{\ignorespaces Set of parameters used to test all other Scikit-Learn classifier shown in Figure \ref {fig:explore_classifiers}.}}{39}{table.A.4}%
-\contentsline {table}{\numberline {A.5}{\ignorespaces Cosine decay weights for each category.}}{40}{table.A.5}%
+\contentsline {table}{\numberline {A.1}{\ignorespaces Category counts of usable given data sorted by originally given that had usable text, originally given data that is English, originally given data translated to English (+ original English data), additional data, and all usable data (translated + add.).}}{37}{table.A.1}%
+\contentsline {table}{\numberline {A.2}{\ignorespaces Variable importance, top 20 words from the vectorizer and all useable data.}}{38}{table.A.2}%
+\contentsline {table}{\numberline {A.3}{\ignorespaces Best LinearSVC model classification report using original English and translated data.}}{39}{table.A.3}%
+\contentsline {table}{\numberline {A.4}{\ignorespaces Set of parameters used to test all other Scikit-Learn classifier shown in Figure \ref {fig:explore_classifiers}.}}{40}{table.A.4}%
+\contentsline {table}{\numberline {A.5}{\ignorespaces Cosine decay weights for each category.}}{41}{table.A.5}%

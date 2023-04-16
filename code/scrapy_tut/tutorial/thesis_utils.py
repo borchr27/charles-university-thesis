@@ -46,7 +46,6 @@ matplotlib.rcParams.update({
 
 CONFIG = configparser.ConfigParser()
 CONFIG.read('/Users/mitchellborchers/.config/azure/my_config_file.ini')
-# IMG_FILE_PATH = "/Users/mitchellborchers/Documents/git/charles-university-thesis/thesis/vzor-dp/img/"
 IMG_FILE_PATH = CONFIG['cognitive_services']['img_file_path']
 RESULTS_FILE_PATH = CONFIG['cognitive_services']['results_file_path']
 
@@ -323,7 +322,7 @@ def azure_translate(text:str, source_language:str = None, target_language:str ='
     
     return _translate(text, source_language, target_language, key, region, endpoint)
 
-def fixed_data_prep(data:Dataset, origin_filter:str = None) -> tuple[np.ndarray, np.ndarray]:
+def data_prep_fixed(data:Dataset, origin_filter:str = None) -> tuple[np.ndarray, np.ndarray]:
     """
     Improved data_prep method. Dont vectorize the data here. Lesson learned 11/4. Returns strings.
 
@@ -344,7 +343,6 @@ def fixed_data_prep(data:Dataset, origin_filter:str = None) -> tuple[np.ndarray,
     data_df = pd.merge(td_df[['site_data_id', 'english_text']], \
                        sd_df[['id', 'category', 'origin']], left_on='site_data_id', right_on='id')
     
-
     if origin_filter != None:
         filtered_df = data_df[data_df['origin'] == origin_filter]
         data_df = data_df['english_text'].to_numpy()
@@ -362,6 +360,8 @@ def fixed_data_prep(data:Dataset, origin_filter:str = None) -> tuple[np.ndarray,
         print("All 23 categories are not represented in the data.")
 
     # for each row in train data replace it with this regex (separates camel case words like howAreYou to how Are You)
+    # >>> X = ['howAreYou', 'howareyou', 'HOWaREyou', 'howAreyou']
+    # >>> ['how Are You', 'howareyou', 'HOWa REyou', 'how Areyou']
     X = np.array([re.sub(r'([a-z])([A-Z])', r'\1 \2', row) for row in X])
     return X, y
 
@@ -1307,22 +1307,25 @@ def table_category_counts(data:Dataset, file_name:str) -> None:
     additional = merged_data[merged_data['origin'] == 'additional']
     
     # Group the filtered DataFrame by the 'category' column and count the number of rows in each group
-    group_original = sd_df.groupby('category').size().reset_index(name='Orig.')
+    group_original = original.groupby('category').size().reset_index(name='Orig.')
     group_og_english = original[original['original_language'] == 'en'].groupby('category').size().reset_index(name='Orig. English')
     group_additional = additional.groupby('category').size().reset_index(name='Add.')
-    group_translated = merged_data[merged_data['origin'] == 'original'].groupby('category').size().reset_index(name='Translated')
-    group_total = merged_data.groupby('category').size().reset_index(name='Total')
+    group_translated = merged_data[(merged_data['origin'] == 'original') & (merged_data['original_language'] != 'en')].groupby('category').size().reset_index(name='Translated')
+    group_total = merged_data.groupby('category').size().reset_index(name='All Useable')
     # export to latex without indices
     re_merged = pd.merge(group_original, group_og_english, how='outer', left_on='category', right_on='category' )
     re_merged = pd.merge(re_merged, group_translated, how='outer', left_on='category', right_on='category')
     re_merged = pd.merge(re_merged, group_additional, how='outer', left_on='category', right_on='category')
     re_merged = pd.merge(re_merged, group_total, how='outer', left_on='category', right_on='category')
-
     re_merged = re_merged.fillna(0)
     re_merged.rename(columns={'category': 'Category'}, inplace=True)
+    if re_merged.select_dtypes(include=np.number).shape[1] > 0:
+        df_sum = re_merged.select_dtypes(include=np.number).sum()
+        re_merged = re_merged.append(df_sum, ignore_index=True)
+    re_merged = re_merged.fillna('TOTALS')
     re_merged.to_latex(f"{IMG_FILE_PATH}{file_name}.tex", index=False, float_format="%.0f")
 
-def table_variable_importance(X:np.ndarray, y:np.ndarray, vectorizer:TfidfVectorizer) -> None:
+def table_variable_importance(args, X:np.ndarray, y:np.ndarray) -> None:
     """
     This function is used to find the most important features in the dataset using a random forest regressor.
     
@@ -1337,7 +1340,10 @@ def table_variable_importance(X:np.ndarray, y:np.ndarray, vectorizer:TfidfVector
     le = LabelEncoder()
     y = le.fit_transform(y)
 
-    rf_model = RandomForestRegressor(n_estimators=100, random_state=42)
+    vectorizer = tfidf_vectorizer()
+    X = vectorizer.fit_transform(X)
+
+    rf_model = RandomForestRegressor(n_estimators=100, random_state=args.seed)
     rf_model.fit(X.toarray(), y)
     X = pd.DataFrame(X.toarray())
     importances = pd.Series(data=rf_model.feature_importances_, index=X.columns)

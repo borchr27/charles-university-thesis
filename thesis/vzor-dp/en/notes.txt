@@ -1,7 +1,12 @@
 overfitting is possible bc the new data set performed worse 
-check fit on train data for vectorizer
-dont include test data from x-pal original 
+UGHDONE check fit on train data for vectorizer
+DONE dont include test data from x-pal_original in plots
 does xpal make sense with this data
 DONE modify accuracy score to include sample weight
 DONE need to commit probal changes
-need to do experiments using less categories with PWC
+need to do experiments using less categories with PWC (on data with over 40 data points)
+revisit using LSCV with bagging
+
+RERUN original and all_data experiments
+FIX sampling strategy plots and distribution plot
+CONCLUSION

@@ -1111,10 +1111,7 @@ INPUT ../img/table_lsvc_errors.tex
 INPUT ../img/table_lsvc_errors.tex
 INPUT ../img/table_lsvc_errors.tex
 INPUT ../img/table_lsvc_errors.tex
-INPUT /usr/local/texlive/2023/texmf-dist/tex/latex/listings/lstlang1.sty
-INPUT /usr/local/texlive/2023/texmf-dist/tex/latex/listings/lstlang1.sty
-INPUT /usr/local/texlive/2023/texmf-dist/tex/latex/listings/lstlang1.sty
-INPUT /usr/local/texlive/2023/texmf-dist/tex/latex/listings/lstlang1.sty
+INPUT /usr/local/texlive/2023/texmf-dist/fonts/tfm/public/cm/cmtt12.tfm
 INPUT ../img/table_best_errors.tex
 INPUT ../img/table_best_errors.tex
 INPUT ../img/table_best_errors.tex
@@ -1251,4 +1248,5 @@ INPUT /usr/local/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.p
 INPUT /usr/local/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb
 INPUT /usr/local/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb
 INPUT /usr/local/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb
+INPUT /usr/local/texlive/2023/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb
 INPUT /usr/local/texlive/2023/texmf-dist/fonts/type1/public/cm-super/sfrm1200.pfb
