@@ -48,7 +48,9 @@ The initial 1000 data points we received were labels with a pointer (a url) to w
 
 To gather the text data from the websites we used the Scrapy framework to extract text data from a single top level page of a website. We chose only to scrape the top level (main or home) page text because of the results published in another study where it was observed that adding more pages to the data set does not necessarily mean obtaining better results (\cite{sahid2019ecommerce}). 
 
-Out of these initial data points 179 contained links that could not be accessed or links that provided no text data that could be scraped. Two websites were particularly problematic. Facebook and Instagram both are used by business as main information webpages. However, neither site allows for simple text scraping and a more advanced approach was needed to extract data from business with information on these platforms. Out of the remaining 821 data points 275 of them were in English. Out of the remaining 275 English data points the data was distributed into the categories as shown in Figure \ref{fig:original_english_counts}.
+Out of these initial data points 184 contained links that could not be accessed or links that provided no text data that could be scraped. Two websites were particularly problematic. Facebook and Instagram both are used by business as main information webpages. However, neither site allows for simple text scraping and a more advanced approach was needed to extract data from business with information on these platforms. In an effort to reduce the complexity of our scraper we decided to not create an additional scraper or integrate an API to handle these websites. Out of the remaining 816 data points 275 of them were in English. Out of the remaining 275 English data points the data was distributed into the categories as shown in Figure \ref{fig:original_english_counts}.
+
+Our goal was to see how well the classifier and active learning sampling strategies would perform with limited data, but 275 samples with 23 categories was a bit to small and we still had a significant amount of data that wasn't being used (i.e. the untranslated data) so we decided we needed to find a way to translate the existing data. We tried various libraries available on GitHub but weren't getting good consistent results and we were hitting API request limits. After some time, we found that Azure had a service available and a free option of up to 2 million characters translated per month. This was a viable option and we were able to use this API to translate the remaining data. We limited the number of characters to 1000 per non English data point from the scraped text to avoid maxing out the API.
 
 \section{Processing}
 
@@ -62,8 +64,6 @@ At this stage, it was clear that our data set wasn't representing all categories
   \caption{The histograms for the original usable english data.}
   \label{fig:original_english_counts}
 \end{figure}
-
-We started out with 1000 website links and labels. After scraping that number was brought down to 963 data points which we call the original data. After separating out the original English data we initially only had 275 usable data points. Even we had a significant amount of data that wasn't being used (the untranslated data). We decided to find a way to translate the existing data. We tried various libraries available on GitHub but weren't getting good results. We found that Azure had a service available and a free option of up to 2 million characters translated per month. This was a viable option and we were able to use this API to translate the remaining data. We limited the number of characters to 1000 per non English data point from the scraped text to avoid maxing out the API.
 
 An example of the first 100 characters of raw scraped text data from a website is shown in Table \ref{tab:text_examples}. The scraped text data is a single string of text that is a concatenation of all the text data pulled from the website url. 
 
@@ -80,7 +80,7 @@ Translated & DentalVision Professional private dental clinic in the center of Hr
 
 We can see that html and other symbols are removed and the majority of the words were translated. There are still some issues with words being concatenated such as 'IntroductionServices' however we do try to separate these words after translation using a regex pattern, but we attempt to break these words apart before passing the text to the TF-IDF vectorizer.
 
-To complement the original data we manually collected and labeled 141 additional data points for the categories that had low representation. The additional data are almost all from English language websites, this made it easier for us to label the sites. These data group splits will be referenced in the following experiments and a table of the exact counts for each group can be found in Appendix Table \ref{tab:data_counts}. In Figure \ref{fig:all_hist}. we show a bar chart of the counts of the original data and the additional data for each category and for each language, with the two letter language codes used to represent the languages.
+To complement the original data we manually collected and labeled 141 additional data points for the categories that had low representation. This consisted of searching the internet for lists of websites similar to the ones in each category. Next we would browse the site to see if it was relevant and then add it to our list of additional websites and provide it a label. This was necessary because some categories only had 2 or 3 samples, however it was quite time consuming. The additional data are almost all from English language websites, this made it easier for us to explore and provide accurate labels for the sites. These data group splits will be referenced in the following experiments and a table of the exact counts for each group can be found in Appendix Table \ref{tab:data_counts}. In Figure \ref{fig:all_hist}. we show a bar chart of the counts of the original data and the additional data for each category and for each language, with the two letter language codes used to represent the languages.
 
 \begin{figure}[!ht]
   \centering
@@ -90,14 +90,50 @@ To complement the original data we manually collected and labeled 141 additional
 \end{figure}
 
 
-After translating the data we used the TF-IDF vectorizer from Scikit-Learn. We were able to find highly correlated words for each category using Chi Squared analysis with only the original data, shown below in Table \ref{tab:correlated_unigrams_original}. Some categories such as 'Culture', 'Digital Services', 'Shopping Online' that have few data points have words such as 'kihnu', 'synnex', 'joom', respectively, which have no relative meaning to the category in English but also show the limitations of our website scraping and translation capabilities. We also have the problem where some words are actually important but weren't translated correctly such as 'maso' in the 'Groceries' category, which means 'meat' in Czech but wasn't translated properly.
+After translating the data we used the TF-IDF vectorizer from Scikit-Learn. TF-IDF is an important tool commonly used in natural language processing and data science. The first part, TF, stands for term frequency and is a measure of how often a term appears in a document, while IDF (inverse document frequency) is a measure of how important a term is in a set of documents. The idea behind IDF is that a term that appears in many documents is less important than a term that appears in only a few documents, as the former is likely to be more common and less discriminative. The formula for calculating TF-IDF is as follows:
+
+\begin{equation}
+    \text{TF-IDF} = TF \times IDF
+    \label{eq:tfidf}
+\end{equation}
+
+where:
+
+\begin{flalign*}
+    \text{TF} &= \frac{\text{number of occurrences of term $t$ in document}}{\text{total number of terms in document}} \\
+    \text{IDF} &= \log_{e}(\frac{\text{total number of documents}}{\text{number of documents with term $t$ in it}})
+\end{flalign*}
+
+To calculate the TF-IDF score for a given term in a document, we would first calculate the term frequency (TF) by counting the number of times the term appears in the document and dividing it by the total number of terms in the document. Then, we would calculate the inverse document frequency (IDF) by taking the logarithm of the total number of documents in the set divided by the number of documents that contain the term. Finally, we would multiply TF by IDF to get the TF-IDF score for the term in the document as shown in Equation \ref{eq:tfidf}.
+
+This process is repeated for each term in each document in the corpus, resulting in a TF-IDF matrix that can be used for various natural language processing tasks such as text classification, information retrieval, and clustering. It is important to understand TF-IDF because it is the basis for the feature selection we use throughout our experiments.
+
+We were also able to find highly correlated words for each category using chi-squared analysis with all useable data, shown below in Table \ref{tab:correlated_unigrams_original}. Chi-squared analysis is a statistical method used to determine the association between two categorical variables. It is used to test whether two categorical variables are independent of each other or not. In other words, it helps to determine if there is a significant relationship between two variables.
+
+The chi-squared test involves comparing the observed frequencies of each category in a contingency table to the expected frequencies. A contingency table is a two-dimensional table that shows the frequency distribution of two categorical variables. The expected frequencies are the frequencies that would be expected if the two variables were independent. The difference between the observed and expected frequencies is then squared, divided by the expected frequency, and summed over all categories to give the chi-squared statistic. The formula for calculating the chi-squared statistic is as follows:
+
+\begin{equation}
+    \chi^2 = \sum \frac{(O_i - E_i)^2}{E_i}
+\end{equation}
+
+where:
+
+\begin{flalign*}
+    \chi^2 &= \text{the chi-squared statistic} \\
+    O_i &= \text{the observed frequency of category i} \\
+    E_i &= \text{the expected frequency of category i}
+\end{flalign*}
+
+The degrees of freedom for the chi-squared test are calculated as (number of rows - 1) x (number of columns - 1). The chi-squared statistic is then compared to a critical value from a chi-squared distribution table with the degrees of freedom and a specified level of significance. If the calculated chi-squared statistic is greater than the critical value, then we reject the null hypothesis that the two variables are independent.
+
+Some categories such as 'Culture', 'Digital Services', 'Shopping Online' that have few data points have words such as 'kihnu', 'synnex', 'joom', respectively, which have no relative meaning to the category in English but also show the limitations of our website scraping and translation capabilities. We also have the problem where some words are actually important but weren't translated correctly such as 'maso' in the 'Groceries' category, which means 'meat' in Czech but wasn't translated properly.
 
 From what we discussed in the previous section, we can see that the 'Culture' category has only one data point and the 'Digital Services' category has only two data points. This is problematic because if the single data point we have doesn't represent the category well then we will continue to have difficulty classifying until we have more robust data.
 
 
 \begin{table}[!ht]
 \centering
-\caption{Keywords from TF-IDF with Chi Squared using the original data.}
+\caption{Keywords from TF-IDF with chi-squared using the original data.}
 \input{../img/table_correlated_unigrams_original.tex}
 \label{tab:correlated_unigrams_original}
 \end{table}

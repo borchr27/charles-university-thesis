@@ -26,18 +26,18 @@
 \contentsline {section}{\numberline {3.1}Overview}{15}{section.3.1}%
 \contentsline {section}{\numberline {3.2}Collection}{16}{section.3.2}%
 \contentsline {section}{\numberline {3.3}Processing}{16}{section.3.3}%
-\contentsline {chapter}{\numberline {4}Testing}{20}{chapter.4}%
-\contentsline {section}{\numberline {4.1}Original Data}{20}{section.4.1}%
-\contentsline {subsection}{\numberline {4.1.1}Active Learning with PWC and RBF Kernel}{20}{subsection.4.1.1}%
-\contentsline {subsection}{\numberline {4.1.2}Active Learning with PWC and Cosine Kernel}{21}{subsection.4.1.2}%
-\contentsline {subsection}{\numberline {4.1.3}Classifier Evaluation}{22}{subsection.4.1.3}%
-\contentsline {section}{\numberline {4.2}All Useable Data}{27}{section.4.2}%
-\contentsline {subsection}{\numberline {4.2.1}Active Learning using All Data}{27}{subsection.4.2.1}%
-\contentsline {subsection}{\numberline {4.2.2}LinearSVC with Text Length Filtering}{29}{subsection.4.2.2}%
-\contentsline {subsection}{\numberline {4.2.3}Active Learning using Fewer Categories}{30}{subsection.4.2.3}%
-\contentsline {chapter}{Conclusion}{32}{chapter*.4}%
-\contentsline {chapter}{Bibliography}{33}{chapter*.6}%
-\contentsline {chapter}{List of Figures}{34}{chapter*.7}%
-\contentsline {chapter}{List of Tables}{35}{chapter*.8}%
-\contentsline {chapter}{List of Abbreviations}{36}{chapter*.9}%
-\contentsline {chapter}{\numberline {A}Attachments}{37}{appendix.A}%
+\contentsline {chapter}{\numberline {4}Testing}{21}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Original Data}{21}{section.4.1}%
+\contentsline {subsection}{\numberline {4.1.1}Active Learning with PWC and RBF Kernel}{21}{subsection.4.1.1}%
+\contentsline {subsection}{\numberline {4.1.2}Active Learning with PWC and Cosine Kernel}{22}{subsection.4.1.2}%
+\contentsline {subsection}{\numberline {4.1.3}Classifier Evaluation}{24}{subsection.4.1.3}%
+\contentsline {section}{\numberline {4.2}All Useable Data}{28}{section.4.2}%
+\contentsline {subsection}{\numberline {4.2.1}Active Learning using All Data}{29}{subsection.4.2.1}%
+\contentsline {subsection}{\numberline {4.2.2}LinearSVC with Text Length Filtering}{31}{subsection.4.2.2}%
+\contentsline {subsection}{\numberline {4.2.3}Testing with Fewer Categories}{32}{subsection.4.2.3}%
+\contentsline {chapter}{Conclusion}{34}{chapter*.25}%
+\contentsline {chapter}{Bibliography}{36}{chapter*.27}%
+\contentsline {chapter}{List of Figures}{37}{chapter*.28}%
+\contentsline {chapter}{List of Tables}{38}{chapter*.29}%
+\contentsline {chapter}{List of Abbreviations}{39}{chapter*.30}%
+\contentsline {chapter}{\numberline {A}Attachments}{40}{appendix.A}%

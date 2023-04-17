@@ -813,6 +813,64 @@ def plot_probal_test_results(folder_name:str = 'kernel_cos') -> None:
     save_plot_image(plt, f'plot_{folder_name}_test_results')
     plt.close()
 
+def table_category_reduction_lscv(args, X, y):
+    error = []
+    categories = []
+    cat_list = range(0, 60, 10)
+    for i in cat_list:
+        df = pd.DataFrame(X)
+        df['y'] = y
+        # filter out the categories by number of samples
+        df = df.groupby('y').filter(lambda x: len(x) > i)
+        X_temp = df.iloc[:, :-1]
+        y_temp = df.iloc[:, -1]
+        le = LabelEncoder()
+        y_temp = le.fit_transform(y_temp)
+        X_train, X_test, y_train, y_test = train_test_split(X_temp, y_temp, test_size=0.2, random_state=42, stratify=y_temp)
+        model = LinearSVC(random_state=args.seed, max_iter=10000, )
+        vect = tfidf_vectorizer()
+        X_train = X_train[0].to_numpy()
+        X_test = X_test[0].to_numpy()
+        X_train = vect.fit_transform(X_train)
+        X_test = vect.transform(X_test)
+        model.fit(X_train, y_train)
+        y_pred = model.predict(X_test)
+        error.append(1-metrics.accuracy_score(y_test, y_pred))
+        categories.append(le.inverse_transform(list(set(y_train))))
+    
+    # create a table with the error and the cat_list values
+    results = pd.DataFrame({'Category Minimum': cat_list, 'Error': error, 'Categories': categories})
+    # output a latex table for results
+    results.to_latex(f"{IMG_FILE_PATH}table_category_reduction_lscv.tex", index=False, column_format='p{2cm}|p{2cm}|p{9cm}')
+
+
+def plot_category_reduction_probal(args, folder_name:str = 'text_data_all_category_reduction_test_results'):
+    file_path = f'/Users/mitchellborchers/Documents/git/probal/results/{folder_name}'
+    file_names = os.listdir(file_path)
+    file_names = sorted(file_names)
+
+    pattern = r"data_all_xpal_0.25_cosine_mean_\d+_\d+_cat_fltr_(.*).csv"
+    
+    fig, ax = plt.subplots()
+    for file_name in file_names:
+        if not file_name.endswith('.csv'): continue
+        match = re.search(pattern, file_name) 
+        if match:
+            captured_text = match.group(1)
+            loc = os.path.join(file_path, file_name)
+            with open(loc, 'r') as f:
+                data = pd.read_csv(f)
+        ax.plot(data['test-error'], label=captured_text, linewidth=0.4)
+
+    ax.set_xlabel('Budget')
+    ax.set_ylabel('Error')
+    ax.legend(title='Items Required per Category')
+    ax.grid(which='both', linewidth=0.3)
+    ax.set_ylim([0, 1.1])
+    fig.tight_layout()
+    save_plot_image(plt, f'plot_{folder_name}_test_results')
+    plt.close()
+
 def plot_probal_test_results_averaged(folder:str = 'kernel_cos_averaged') -> None:
     """
     Plots all TEST data AVERAGED from the probal results folder into one figure.
@@ -832,7 +890,7 @@ def plot_probal_test_results_averaged(folder:str = 'kernel_cos_averaged') -> Non
     if folder == 'filtered':
         pattern = r"(filtered_)(.*?)_0"
         group = 2
-    if folder == 'text_data_all_proper_vectorizer' or folder == 'text_data_original_proper_vectorizer':
+    if folder in ['text_data_all_proper_vectorizer', 'text_data_original_proper_vectorizer', 'text_data_all_proper_vectorizer_50_st_filter'] :
         pattern = r"performances_text_data_(all|original)_(.*?)_0"
         group = 2
     assert pattern, 'Pattern for plot averaged test results is not defined'
@@ -1106,7 +1164,7 @@ def plot_probal_selection_dist(folder_name:str) -> None:
                 'House And Garden', 'Investments', 'Pets' ,'Professional Services',
                 'Shopping Online', 'Sport', 'Travel']
     xpal_df = pd.read_csv(f'{RESULTS_FILE_PATH}{folder_name}/samples_text_data_all_xpal_0.25_cosine_mean_300_7.csv')
-    xpal_original_df = pd.read_csv(f'{RESULTS_FILE_PATH}text_data_original_proper_vectorizer/samples_text_data_original_xpal_0.25_cosine_mean_300_655007.csv')
+    xpal_original_df = pd.read_csv(f'{RESULTS_FILE_PATH}text_data_original_proper_vectorizer_50_st_filter/samples_text_data_original_xpal_0.25_cosine_mean_300_655007.csv')
 
     # add a column to the xpal filtered data frame with the label 'xPAL'
     xpal_df['type'] = 'All Data'
@@ -1115,10 +1173,11 @@ def plot_probal_selection_dist(folder_name:str) -> None:
     # combine and plot the xpal data frames
     df = pd.concat([xpal_df, xpal_original_df])
     sns.swarmplot(x='labels', y='index', data=df, size=2.5, hue='type')
-    plt.legend(bbox_to_anchor=(0.35, 1.23), loc=2, borderaxespad=0., ncol=1)
+    plt.legend(ncol=2)
+    plt.ylim(0, 350)
     plt.grid(axis='y')
     plt.xticks(range(0, 23), labels, fontsize=8, rotation=90)
-    plt.xlabel('Categories')
+    plt.xlabel('Category')
     plt.ylabel('Budget Index')
     plt.tight_layout()
     save_plot_image(plt, 'plot_xpal_selection_dist')

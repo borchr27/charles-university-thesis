@@ -81,7 +81,6 @@ Initially we made a minor error while evaluating the classifiers that used the p
 
 The results for the different classifiers are shown in Figure \ref{fig:explore_classifiers}. In the box-plot, the whiskers extend from the box to the furthest data points that are within 1.5 times the inter-quartile range (IQR) of the box. Any data points that are beyond the whiskers are considered outliers and are plotted as individual points or symbols (diamonds) as seen in the figure.
 
-
 \begin{figure}[ht]
   \centering
   \includegraphics[width=\scale\textwidth]{../img/plot_explore_classifiers.pdf}
@@ -89,7 +88,35 @@ The results for the different classifiers are shown in Figure \ref{fig:explore_c
   \label{fig:explore_classifiers}
 \end{figure} 
 
-The base LinearSVC classifier model performed best compared to other classifiers and it is a fast running algorithm even with data that has many features. We decided to look further into LinearSVC because it performed so well. We also wanted to conduct more testing with KNeighborsClassifier and Neural Networks. 
+The base LinearSVC classifier model performed best compared to other classifiers and it is a fast running algorithm even with data that has many features. We decided to look further into LinearSVC because it performed so well. 
+
+The LinearSVC is a type of machine learning algorithm that can be used for binary or multiclass classification problems. It's designed to predict one of two possible outcomes based on a set of input features. 
+
+The basic idea behind the LinearSVC is to find the best line (or hyperplane) that can separate the two classes in the feature space. To do this, the algorithm looks for the line that maximizes the margin between the two classes. The margin is the distance between the decision boundary (i.e., the separating line) and the closest data points from each class. By maximizing the margin, the LinearSVC can achieve good generalization performance on new data.
+
+In the case of multiclass classification, the LinearSVC works by dividing the data into multiple binary classification problems, one for each possible combination of classes. It then trains a separate binary classifier for each of these problems, which can then be used to classify new data points.
+
+For example, if we have three classes A, B, C, then we have three classifiers, one for A versus B and C, one for B versus A and C, and another for C versus A and B. Once we have trained a separate LinearSVC for each binary classification problem, we can use them to classify new data points. To classify a new data point, we simply apply each binary classifier to the data point and see which classes it is predicted to belong to. If a data point is predicted to belong to more than one class, we can use a tie-breaking rule or simply choose the class with the highest predicted probability.
+
+The LinearSVC algorithm seeks to find the hyperplane that maximally separates the classes in feature space, and weights are sometimes used that correspond to the coefficients of the hyperplane equation.
+
+Consider a binary classification problem where we have two classes labeled as -1 and +1. Given a set of training examples, the goal of the LinearSVC algorithm is to learn a hyperplane that separates the examples of the two classes in feature space. The hyperplane is defined by the equation:
+
+\begin{equation}
+w^T x + b = 0
+\end{equation}
+
+where w is a weight vector of the same dimension as the feature vectors x, and b is a bias term that shifts the hyperplane in the direction of the negative class.
+
+During training, the LinearSVC algorithm tries to find the values of w and b that minimize the classification error while also maximizing the margin between the hyperplane and the closest examples of each class. This is achieved by solving a constrained optimization problem that involves minimizing the norm of the weight vector subject to the constraint that all training examples are correctly classified with a margin of at least 1.
+
+Once the weights are learned, they can be used to make predictions on new examples by evaluating the sign of the decision function:
+
+\begin{equation}
+f(x) = w^T x + b
+\end{equation}
+
+If $f(x)$ is positive, the example is classified as the positive class, and if it is negative, the example is classified as the negative class. We also wanted to conduct more testing with KNeighborsClassifier and Neural Networks. 
 
 We created three models for LinearSVC, the first was a boilerplate LinearSVC with no argument modifications, the second model used the class weights parameter set to 'balanced'. The 'balanced' mode uses the values of y to automatically adjust weights inversely proportional to class frequencies in the input data as $n\_samples / (n\_classes * np.bincount(y))$. 
 
@@ -111,7 +138,7 @@ The results for the LinearSVC classifier experiments are shown in Table \ref{tab
 \label{tab:lsvc_errors}
 \end{table}
 
-Using K-Neighbors Classifier (KNN) and a Neural Network from TensorFlow we conducted additional experiments. For the KNN we found that using 8 neighbors and the cosine distance metric provided the lowest error. 
+Using K-Neighbors Classifier (KNN) and a Neural Network from TensorFlow we conducted additional experiments. For the KNN we found that using 8 neighbors and the cosine distance metric yielded the lowest error. 
 
 For the Neural Network we used a dense hidden-layer with 1000 neurons with Sigmoid activation and 23 output neurons with Softmax activation. For the NN optimizer we used Adamax with Cosine decay with an initial learning rate of 0.1, alpha value of 0.1 and 915 decay steps ($X\_data\_size // batch\_size * num_epochs$). The results are shown in Table \ref{tab:best_errors}. We can see that the K-Nearest Neighbors classifier and the Neural Network classifier performed slightly worse compared to LinearSVC.
 
@@ -174,11 +201,27 @@ In this section we will take what we have learned from the experiments in the pr
 
 In these experiments we tested all the active learning methods with the corrected TF-IDF vectorizer transformation. Instead of incorrectly vectorizing the data then importing the matrix to be used with \cite{kottke2021toward} probablistic active learning code, we exported the raw text data and then split the text data, fit and transformed the vectorizer to the train data, then transformed the test data and conducted our experiments with the modified code. In Figure \ref{fig:probal_original_proper_vect} we re-ran a previous experiment using just the original data so we could have a more accurate comparison with the results for all the data shown in Figure \ref{fig:probal_all_proper_vect}.
 
+% \begin{figure}[h]
+%     \centering
+%     \includegraphics[width=\scale\textwidth]{../img/plot_text_data_original_proper_vectorizer_test_results.pdf}
+%     \caption{Active learning results using original data with text length data $>50$ and proper vectorization.}
+%     \label{fig:probal_original_proper_vect}
+% \end{figure}
+
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\scale\textwidth]{../img/plot_text_data_original_proper_vectorizer_test_results.pdf}
-    \caption{Active learning results using all data.}
-    \label{fig:probal_original_proper_vect}
+    \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../img/plot_text_data_original_proper_vectorizer_test_results.pdf}
+        \caption{UPDATE ME No text length filter and proper vectorization.}
+        \label{fig:probal_original_proper_vect}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../img/plot_text_data_original_proper_vectorizer_test_results.pdf}
+        \caption{Text length data $>50$ and proper vectorization.}
+        \label{fig:probal_original_proper_vect_50_st_filter}
+    \end{subfigure}
+    \caption{Active learning results using the original data.}
 \end{figure}
 
 We again used the different active learning methods and PWC with the Cosine kernel to run our experiments. We ran 10 test runs for each method and then averaged the test error of all the runs resulting in a single curve for each sampling strategy, exactly as we did previously. We only used the first 300 data points instead of using all available data. As a result, the test error doesn't converge in these plots because we are only using a subset of the available original data. With the original data we can see that the xPAL sampling strategy finds the best data early (20-30 budget range) in the sampling process and exploits this to improve the classifier the most. Eventually we see that PAL and QBC have similar performance to xPAL but, ultimately, after 300 samples xPAL is the best performing sampling strategy.
@@ -186,10 +229,19 @@ We again used the different active learning methods and PWC with the Cosine kern
 Using all the data, we repeated this same experiment and found that the selection strategies testing error results seemed to have a bit more separation. The results are shown in Figure \ref{fig:probal_all_proper_vect}. In both experiments in this section it appeared that the test error for xPAL was converging to around roughly 50\%. But for the second experiment using all the data xPAL was finding and exploiting the best data points earlier and for longer in the sampling process. We can see the dominance of xPAL throughout the plot except around the 200 budget range where entropy sampling starts to momentarily perform well.
 
 \begin{figure}[h]
-  \centering
-  \includegraphics[width=\scale\textwidth]{../img/plot_text_data_all_proper_vectorizer_test_results.pdf}
-  \caption{Active learning results using all data and proper vectorization.}
-  \label{fig:probal_all_proper_vect}
+    \centering
+    \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../img/plot_text_data_all_proper_vectorizer_test_results.pdf}
+        \caption{No text length filter and proper vectorization.}
+        \label{fig:probal_all_proper_vect}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../img/plot_text_data_all_proper_vectorizer_50_st_filter_test_results.pdf}
+        \caption{Text length data $>50$ and proper vectorization.}
+        \label{fig:probal_all_proper_vect_50_st_filter}
+    \end{subfigure}
+    \caption{Active learning results using all data.}
 \end{figure}
 
 In both the re-run original data and all data experiments, xPAL appears to perform well over an average of 10 different runs in comparison to the other selection strategies, it even seemed to perform markedly well with more data available. We were curious what xPAL was doing when more data was available, so while running the experiments we recorded when a data point was selected (its index in the selection budget) and for which category it was selected from. This data is shown here in Figure \ref{fig:xpal_data_selection}.
@@ -240,4 +292,6 @@ We also tested with a minimum text length and a maximum text length constraint i
 
 We can see that for the 414 data points results from the filtered data in the train split converge as we expect to a single point because the PWC has access to all of the labeled train data. 
 
-\subsection{Active Learning using Fewer Categories}
+\subsection{Testing with Fewer Categories}
+
+In this section well look at the performance using less categories. We will use all available data and remove the category from the data set if it has less than the minimum number of samples. We will take a look both at the performance of LinearSVC and xPAL.

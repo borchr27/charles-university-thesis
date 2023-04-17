@@ -15,11 +15,11 @@ To reduce the amount of data required to train the classifier we consider a comb
 
 A website is required as input, then we use the Scrapy framework to navigate to the webpage, and collect then store the scraped data into the database. Next we access the data, translate the text, and add the translated data back into the database. During this process we also remove some html tags and other unnecessary data.
 
-Once the the data is close to just pure text we use TF-IDF to transform the it into a vectorized representation. This data is used by the active learning sampling strategy and the model is trained iteratively. We also explore different classifiers to determine if there is some optimal classifier other than the one implemented within the sampling strategy framework.
+Once the the data is close to just pure text we use TF-IDF to transform it into a vectorized representation. This data is used by the active learning sampling strategy and the model is trained iteratively. We also explore different classifiers to determine if there is some optimal classifier other than the one implemented within the sampling strategy framework.
 
 In the first section we introduce active learning and the different components of active learning. In the second section we look more into the details of xPAL and how it works. In the third section we discuss the data and the steps we took to collect and process the data. In the fourth section we conduct a variety of experiments to explore the performance of the sampling strategies and alternative classifiers. 
 
-Our goal is to understand the data (plus the collection process), and the performance of the selection strategies and classifiers so that we can help our partner make an informed decision on how to proceed with the labeling process.
+Our goal is to understand the entire process including the web scraping, translation, storing, and performance of the selection strategies and classifiers. This analysis will allow our partner to learn from our tests and experiments. It will also allow them to make an informed decision on which models and selection strategies may be best suited for their needs moving forward.
 
 \section*{Notable Definitions}
 
@@ -66,3 +66,7 @@ Posterior probability is a type of conditional probability that results from upd
 Omniscient oracle is a hypothetical entity that has complete knowledge of the true labels of all data points in a given dataset. An omniscient oracle knows the ground truth labels of all data points.
 \end{defn}
 
+\begin{defn}[TF-IDF]
+\label{def:tf_idf}
+TF-IDF is a numerical statistic that is intended to reflect how important a word is to a document in a collection or corpus. It is often used as a weighting factor in information retrieval and text mining. The TF-IDF value increases proportionally to the number of times a word appears in the document and is offset by the frequency of the word in the corpus (large structured set or collection of speech or text data).
+\end{defn}

@@ -194,11 +194,15 @@ def test_tensor_flow_LSTM():
     print("Test accuracy:", score[1])
 
 def re_tests():
-    string = "blue_bike_jump"
-    match = re.search(r"(blue|red)_(.*?)_jump", string)
+    string = "performances_text_data_all_xpal_0.25_cosine_mean_300_1_cat_fltr_20"
+    # string = "performances_text_data_all_xpal_0.25_cosine_mean_300_4001_cat_fltr_60"
+    match = re.search(r"data_all_(.*?)_0.25_cosine_mean_\d+_\d+_cat_fltr_(.*)", string)
+
+    # match = re.search(r"(blue|red)_(.*?)_jump", string)
     if match:
-        word_between = match.group(2)
-        print(word_between)
+        word_between = match.group(1)
+        num = match.group(2)
+        print(word_between, num)
 
 if __name__ == "__main__":
     # language_prediction_test()

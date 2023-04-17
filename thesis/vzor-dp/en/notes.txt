@@ -10,3 +10,7 @@ revisit using LSCV with bagging
 RERUN original and all_data experiments
 FIX sampling strategy plots and distribution plot
 CONCLUSION
+
+Still working on trying to get LSVC to work in probabl repo (try with KNN)
+Try with LN-LTSM with word embedding
+ADD more to conclusion (talk about preprocessing and labeling data manually)
