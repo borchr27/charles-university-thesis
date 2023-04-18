@@ -5,15 +5,16 @@
 \contentsline {figure}{\numberline {3.2}{\ignorespaces The histograms for the original and additional data for all languages.\relax }}{18}{figure.caption.9}%
 \addvspace {10\p@ }
 \contentsline {figure}{\numberline {4.1}{\ignorespaces Train and test error using different query strategies and RBF kernel for the PWC classifier.\relax }}{21}{figure.caption.11}%
-\contentsline {figure}{\numberline {4.2}{\ignorespaces Train and test error using different query strategies and Cosine kernel for the PWC classifier.\relax }}{22}{figure.caption.12}%
-\contentsline {figure}{\numberline {4.3}{\ignorespaces Comparing test error with one data split using different query strategies and Cosine kernel for the PWC classifier.\relax }}{23}{figure.caption.13}%
-\contentsline {figure}{\numberline {4.4}{\ignorespaces Comparing test error using different query strategies and Cosine kernel for the PWC classifier with results averaged over ten different data splits.\relax }}{24}{figure.caption.14}%
-\contentsline {figure}{\numberline {4.5}{\ignorespaces Performance of classifiers without GridSearchCV optimization.\relax }}{25}{figure.caption.15}%
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Train and test error using different query strategies and Cosine kernel for the PWC classifier.\relax }}{23}{figure.caption.12}%
+\contentsline {figure}{\numberline {4.3}{\ignorespaces Comparing test error with one data split using different query strategies and Cosine kernel for the PWC classifier.\relax }}{24}{figure.caption.13}%
+\contentsline {figure}{\numberline {4.4}{\ignorespaces Comparing test error using different query strategies and Cosine kernel for the PWC classifier with results averaged over ten different data splits.\relax }}{25}{figure.caption.14}%
+\contentsline {figure}{\numberline {4.5}{\ignorespaces Performance of base classifiers.\relax }}{26}{figure.caption.15}%
 \contentsline {figure}{\numberline {4.6}{\ignorespaces Precision-recall curve for the best performing LinearSVC classifier.\relax }}{28}{figure.caption.18}%
 \contentsline {figure}{\numberline {4.7}{\ignorespaces Confusion matrix for the best performing LinearSVC classifier using the original data.\relax }}{29}{figure.caption.19}%
-\contentsline {figure}{\numberline {4.8}{\ignorespaces Active learning results using the original data.\relax }}{30}{figure.caption.20}%
-\contentsline {figure}{\numberline {4.9}{\ignorespaces Active learning results using all data.\relax }}{30}{figure.caption.21}%
-\contentsline {figure}{\numberline {4.10}{\ignorespaces Data point selection swarmplot using xPAL.\relax }}{31}{figure.caption.22}%
-\contentsline {figure}{\numberline {4.11}{\ignorespaces Distribution of text length for all data in 100 bins.\relax }}{32}{figure.caption.23}%
-\contentsline {figure}{\numberline {4.12}{\ignorespaces Test error results for best LinearSVC with varying text length parameters.\relax }}{33}{figure.caption.24}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {5.1}{\ignorespaces Active learning results using the original data.\relax }}{31}{figure.caption.21}%
+\contentsline {figure}{\numberline {5.2}{\ignorespaces Active learning results using all data.\relax }}{32}{figure.caption.22}%
+\contentsline {figure}{\numberline {5.3}{\ignorespaces Data point selection swarm plot using xPAL.\relax }}{33}{figure.caption.23}%
+\contentsline {figure}{\numberline {5.4}{\ignorespaces Text length experiments data and results.\relax }}{34}{figure.caption.24}%
+\contentsline {figure}{\numberline {5.5}{\ignorespaces PWC with xPAL with category reduction on all data.\relax }}{34}{figure.caption.25}%
 \addvspace {10\p@ }

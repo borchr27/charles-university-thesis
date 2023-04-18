@@ -1,16 +1,22 @@
-overfitting is possible bc the new data set performed worse 
-UGHDONE check fit on train data for vectorizer
+DONE noted overfitting bc the new data set performed worse
+DONE check fit on train data for vectorizer
 DONE dont include test data from x-pal_original in plots
-does xpal make sense with this data
+DONE does xpal make sense with this data
 DONE modify accuracy score to include sample weight
 DONE need to commit probal changes
-need to do experiments using less categories with PWC (on data with over 40 data points)
-revisit using LSCV with bagging
+DONE need to do experiments using less cats with PWC (on data with over 40 data points)
+DONE revisit using LSCV with bagging
+DONE original and all_data experiments
+DONE fix sampling strategy plots and distribution plot
+DONE NO Try with LN-LTSM with word embedding
 
-RERUN original and all_data experiments
-FIX sampling strategy plots and distribution plot
-CONCLUSION
+TODO try to get LSVC to work in probabl repo
+TODO add more to conclusion
+TODO print and read thru thesis
+TODO update the abstract
+TODO check the plagirism score
+TODO add links to repos into thesis
 
-Still working on trying to get LSVC to work in probabl repo (try with KNN)
-Try with LN-LTSM with word embedding
-ADD more to conclusion (talk about preprocessing and labeling data manually)
+
+-----
+Check out mcnemars test instead of chi squared (doesnt need more than 5 samples)

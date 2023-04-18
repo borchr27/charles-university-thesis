@@ -57,7 +57,12 @@ def test_model(args, X:np.ndarray, y:np.ndarray, data_name:str, cm:bool=False, c
     # weights = tu.get_weights(y)
 
     train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.25, random_state=args.seed, stratify=y)
-    print(np.unique(train_y, return_counts=True))
+    # print(np.unique(train_y, return_counts=True))
+    # vectorize
+    vect = tu.tfidf_vectorizer()
+    train_X = vect.fit_transform(train_X)
+    test_X = vect.transform(test_X)
+
     if clf_name == "LinearSVC":
         pipe = Pipeline([
             (f"{clf_name}", LinearSVC(random_state=args.seed, max_iter=10000, )) #class_weight=weights))
@@ -95,45 +100,44 @@ def test_model(args, X:np.ndarray, y:np.ndarray, data_name:str, cm:bool=False, c
         error = 1 - metrics.accuracy_score(test_y, pred,)
     print(f"{clf_name} Error:", error)
     if cm:
-        tu.plot_confusion_matrix(y_labels, pred, test_y, clf_name)
+        tu.plot_confusion_matrix(y_labels, pred, test_y, clf_name+'_'+data_name)
     if args.table == "classification_report":
         tu.table_classification_report(test_y, pred, y_labels, clf_name)
 
     return error
 
-def table_compare_top_three_models(args, X, y) -> None:
+def table_compare_top_three_models(args, X, y, data_name:str) -> None:
     nn_error = tu.build_tensor_flow_NN(args, X, y)
-    knn_error = test_model(args, X, y, clf_name="KNN")
-    lsvc_error = test_model(args, X, y, clf_name="LinearSVC")
+    knn_error = test_model(args, X, y, clf_name="KNN", data_name=data_name)
+    lsvc_error = test_model(args, X, y, clf_name="LinearSVC", data_name=data_name)
 
     errors = pd.DataFrame({"Model": ["Tensor Flow Neural Network", "K Neighbors Classifier", "LinearSVC"], "Error": [nn_error, knn_error, lsvc_error]})
     errors = errors.sort_values(by="Error", ascending=True)
-    errors.to_latex(f"{tu.IMG_FILE_PATH}table_best_errors.tex", index=False, float_format="%.3f")
+    errors.to_latex(f"{tu.IMG_FILE_PATH}table_{data_name}_data_best_errors.tex", index=False, float_format="%.3f")
 
-def optimize_classifier(args, X, y):
+def optimize_classifier(args, X, y, data_name:str):
     y_labels = np.unique(y)
     le = LabelEncoder()
     y = le.fit_transform(y)
     train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.25, random_state=args.seed, stratify=y)
-
     # vectrorize the data
     vectorizer = tu.tfidf_vectorizer()
     train_X = vectorizer.fit_transform(train_X)
     test_X = vectorizer.transform(test_X)
-    
-    base_classifier = LinearSVC()
-    bagging_classifier = BaggingClassifier(base_estimator=base_classifier, n_estimators=3, random_state=args.seed)
+
+    intercepts = np.linspace(0.1, 1, 20)
+    c_vals = np.linspace(0.1, 1000, 20)
+    base_classifier = LinearSVC(random_state=args.seed, max_iter=10000)
+    bagging_classifier = BaggingClassifier(base_estimator=base_classifier, n_estimators=10, random_state=args.seed)
     params = {
         'base_estimator__random_state': [args.seed],
-        'base_estimator__max_iter': [10000],
-        'base_estimator__intercept_scaling': np.linspace(0.1, 1, 10),
+        'base_estimator__intercept_scaling': np.concatenate((intercepts, [1])),
         'base_estimator__loss': ['hinge', 'squared_hinge'],
         'base_estimator__penalty': ['l2'],
-        'base_estimator__C': np.linspace(0.1, 1000, 10),
+        'base_estimator__C': np.concatenate((c_vals, [1])),
         'base_estimator__multi_class': ['ovr', 'crammer_singer']
         }
-    # cv val was 5 but changed to 2 because low data
-    grid_search = GridSearchCV(estimator=bagging_classifier, param_grid=params, cv=2, verbose=2, scoring='accuracy')
+    grid_search = GridSearchCV(estimator=bagging_classifier, param_grid=params, cv=5, verbose=2, scoring='accuracy', n_jobs=6)
     grid_search.fit(train_X, train_y)
     
     # Print the best parameters found by GridSearchCV
@@ -141,26 +145,38 @@ def optimize_classifier(args, X, y):
     print(f"best score: {grid_search.best_score_}")
     print(f"best estimator: {grid_search.best_estimator_}")
     print(f"best index: {grid_search.best_index_}")
+    # save best estimator data params to text file
 
     best_estimator = grid_search.best_estimator_
-    pred = best_estimator.predict(test_X)
+    pred = best_estimator.predict(test_X)    
     error = 1 - metrics.accuracy_score(test_y, pred)
     print(f"Error: {error}")
+    results_df = pd.DataFrame.from_dict(grid_search.best_params_, orient='index', columns=['Value'])
+    # append error to dataframe
+    results_df = results_df.append(pd.DataFrame({'Value': [error]}, index=['test_error']))
+    # results_df.to_csv(f"{tu.IMG_FILE_PATH}table_{data_name}_data_grid_search_results.csv", header=True, index_label='Parameter')
+    results_df.to_latex(f"{tu.IMG_FILE_PATH}table_{data_name}_data_grid_search_results.tex", index=True)
 
 if __name__ == "__main__":
     args = parser.parse_args([] if "__file__" not in globals() else None)
-    data, X, y, vectorizer = None, None, None, None
+    data, X, y, vect = None, None, None, None
     data = tu.Dataset()
-    # X, y, vectorizer = tu.data_prep(data, origin_filter='original')
+    # X, y, vect = tu.data_prep(data, origin_filter='original')
     X, y = tu.data_prep_fixed(data, origin_filter=None)
-    # tu.export_text_data_to_csv(X, y, None)
+    # optimize_classifier(args, X, y, 'all')
+    # tu.plot_category_reduction_lscv(args, X, y, 'all')
 
+    # table_compare_top_three_models(args, X, y, data_name='original')
+    # test_model(args, X, y, data_name='all', clf_name="LinearSVC", cm=True)
+    # tu.plot_probal_selection_dist("text_data_original_proper_vectorizer")
+
+    # tu.build_tensor_flow_NN_upgraded(args, X, y)
+    # tu.build_tensor_flow_LSTM(args, X, y)
+    # tu.export_text_data_to_csv(X, y, None)
     # tu.plot_LSCV_varying_min_category(args, X, y)
     # tu.plot_pr_curve(args, X, y, data_name="data_filtered_155")
     # test_model(args, X, y, vectorizer, data_name='original', clf_name="LinearSVC")
     # tu.build_LSVC_models(args, X, y)
-    # table_compare_top_three_models(args, X, y, vectorizer)
-    # optimize_classifier(args, X, y)
     # tu.build_tensor_flow_LSTM(args, X, y)
     # tu.plot_test_results_averaged(folder='all_data_experiments')
     # tu.plot_data_length_grid_search(args, data)
@@ -175,7 +191,7 @@ if __name__ == "__main__":
     if args.plot == "test_results":
         tu.plot_probal_test_results()
     if args.plot == "test_results_averaged":
-        folder_name = "text_data_all_proper_vectorizer_50_st_filter"
+        folder_name = "text_data_original_proper_vectorizer_50_st_filter"
         print(f'Make sure the correct folder has been selected. [{folder_name}] folder selected.')
         tu.plot_probal_test_results_averaged(folder=folder_name)
     if args.plot == "explore_classifiers":
@@ -197,7 +213,7 @@ if __name__ == "__main__":
         tu.table_category_reduction_lscv(args, X, y)
     if args.table == "correlated_unigrams":
         data_name = "original"
-        tu.table_correlated_unigrams(X, y, vectorizer, f"table_correlated_unigrams_{data_name}")
+        tu.table_correlated_unigrams(X, y, vect, f"table_correlated_unigrams_{data_name}")
     if args.table == "data_category_counts":
         tu.table_category_counts(data, "table_category_counts")
     if args.table == "variable_importance":

@@ -1,10 +1,8 @@
-\chapter{Testing}
+\chapter{Testing with Original Data}
 
-\section{Original Data}
+Here we will explore the results of different classifiers and active learning strategies on the original data. The original data consisted of data shown previously in Figure \ref{fig:original_english_counts} and discretely in Table \ref{tab:data_counts} in Appendix \ref{app:attachments}. The original data was comprised of the original and translated data but not the additionally collected data. 
 
-Here we will explore the results of different classifiers and active learning strategies on the original data. The original data consisted of data shown previously in Figure \ref{fig:original_english_counts} and discretely in Table \ref{tab:data_counts} in Appendix \ref{app:attachments}. 
-
-\subsection{Active Learning with PWC and RBF Kernel}
+\section{Active Learning with PWC and RBF Kernel}
 
 In Figure \ref{fig:plot_all_results_rbf} we have the train and test errors for four different active learning sampling strategies. XPAL appears to perform slightly better than PAL but not significantly better. With our data we found that PAL runs slower than xPAL, which was unexpected based on the mean computation time results published by \cite{kottke2021toward}. We expect this drop in calculation time is a result of the high dimensional data.
 
@@ -28,7 +26,7 @@ where $\sigma$ is a parameter that controls the smoothness of the kernel and $x_
 
 Starting with the data in Figure \ref{fig:plot_all_results_rbf} we made an error while constructing the $x$ dataset. While preparing the data, the TF-IDF vectorizer was fitted using all the data instead of just the training data. This resulted in the TF-IDF matrix having more information about the test data than it should have so our testing error results are likely lower than they should be. This error persists throughout the rest of the experiments in this chapter up until the experiments in Section \ref{sec:proper_vectorization}.
 
-\subsection{Active Learning with PWC and Cosine Kernel}
+\section{Active Learning with PWC and Cosine Kernel}
 
 In Figure \ref{fig:plot_all_results_cosine} we have the train and test errors for the same four different active learning sampling strategies tested on the same data. The only change was that we used Cosine kernel instead of the RBF kernel.The Cosine kernel is another important kernel function that is used in many machine learning algorithms. It is defined as:
 
@@ -61,7 +59,7 @@ We can see that the sampling strategies test performance converges over time (as
 
 Figure \ref{fig:cos_test_results} shows that xPAL seems to be performing the best with our data but we wanted to see if we ran more tests with different train-test splits how the results would average out and which sampling strategy would perform the best on average. We ran 10 different data splits with each of the 7 sampling strategies and then took the average to get a smoother curve compared to the single run results shown in Figure \ref*{fig:cos_test_results}. The results for this experiment are shown in Figure \ref{fig:cos_avg_test_results}. 
 
-It is clear in Figure \ref{fig:cos_avg_test_results} that xPAL is performing the best early on (budget from 0-100) in the sample selection process. XPAL selects the data that minimizes the test error and builds the strongest classifier quickly while it takes the other sampling strategies more data points to get to the same level of performance. Around the 100 budget mark we can see that the other selection strategies catch up to xPAL performance wise.
+It is clear in Figure \ref{fig:cos_avg_test_results} that xPAL is performing the best early on (budget from 0-100) in the sample selection process. XPAL selects the data that minimizes the test error and builds the strongest classifier quickly while it takes the other sampling strategies more data points to get to the same level of performance. Around the 100 budget mark we can see that the other selection strategies catch up to xPAL performance wise. We want to note that for each plot where we averaged query strategies (10 runs/ splits per query strategy) that it took 24 hours on average to run the experiment on a CPU cluster with PAL taking the longest of any of the sampling strategies.
 
 \begin{figure}[ht]
     \centering
@@ -71,7 +69,7 @@ It is clear in Figure \ref{fig:cos_avg_test_results} that xPAL is performing the
 \end{figure}
 
 
-\subsection{Classifier Evaluation}
+\section{Classifier Evaluation}
 
 We also decided to test out some classifiers from the Scikit-Learn library to compare performances. Again we used the original data with the same TF-IDF vectorizer as used with the previous active learning models to stay consistent. It should be noted that cross validation was used here for evaluation but it was not used in the previous sections.
 
@@ -84,7 +82,7 @@ The results for the different classifiers are shown in Figure \ref{fig:explore_c
 \begin{figure}[ht]
   \centering
   \includegraphics[width=\scale\textwidth]{../img/plot_explore_classifiers.pdf}
-  \caption{Performance of classifiers without GridSearchCV optimization.}
+  \caption{Performance of base classifiers.}
   \label{fig:explore_classifiers}
 \end{figure} 
 
@@ -145,37 +143,46 @@ For the Neural Network we used a dense hidden-layer with 1000 neurons with Sigmo
 The LinearSVC outperformed the other classifiers and we decided to experiment with it further. We attempted to boost performance of the LinearSVC classifier using multiple cross validation grid searches with the bagging. Bagging (bootstrap aggregating) is a type of ensemble learning, where multiple models are trained on different subsets of the training data and their predictions are combined to make the final prediction. In Scikit-Learn we used the BaggingClassifier to implement bagging. An example of our setup and parameters are shown in the code snippet. 
 
 \begin{verbatim}
-    base_classifier = LinearSVC()
+    intercepts = np.linspace(0.1, 1, 20)
+    c_vals = np.linspace(0.1, 1000, 20)
+    base_classifier = LinearSVC(
+        random_state=args.seed, 
+        max_iter=10000)
     bagging_classifier = BaggingClassifier(
         base_estimator=base_classifier, 
-        n_estimators=3, 
+        n_estimators=10, 
         random_state=args.seed)
     params = {
         'base_estimator__random_state': [args.seed],
-        'base_estimator__max_iter': [10000],
         'base_estimator__intercept_scaling': 
-            np.linspace(0.1, 1, 10),
+            np.concatenate((intercepts, [1])),
         'base_estimator__loss': ['hinge', 'squared_hinge'],
         'base_estimator__penalty': ['l2'],
         'base_estimator__C': 
-            np.linspace(0.1, 1000, 10),
+            np.concatenate((c_vals, [1])),
         'base_estimator__multi_class': 
             ['ovr', 'crammer_singer']
         }
+    grid_search = GridSearchCV(
+        estimator=bagging_classifier, 
+        param_grid=params, 
+        cv=5,
+        scoring='accuracy',
+        n_jobs=6)
 \end{verbatim}
 
 Performance was not improved from what we had already seen. Using bagging may not be the best approach at this stage because there are some categories that have very few samples so bagging may be unable to create a good model. We will revisit bagging in future chapters when we have more data at our disposal. We also didn't use the balanced class weights parameter because we had already seen that it was the worst performing class weight parameter in previous tests. The BaggingClassifier and GridSearchCV combination didn't improve the performance of the LinearSVC classifier beyond what we had already achieved.
 
-\begin{table}[h]
+\begin{table}[ht]
 \centering
-\caption{Testing errors for best performing classifiers.}
-\input{../img/table_best_errors.tex}
+\caption{Testing errors for best performing classifiers using original data.}
+\input{../img/table_original_data_best_errors.tex}
 \label{tab:best_errors}
 \end{table}
 
 The precision-recall curve for the best performing classifier (LinearSVC) is shown in Figure \ref{fig:pr_curve} and the confusion matrix is shown in Figure \ref{fig:confusion_matrix} for the best performing LinearSVC classifier.The precision-recall curve gives us an idea at how well our classifier can correctly categorize the data. It also gives us a visualization of how unbalanced our categories are. We can see this imbalance clearly in Figure \ref{fig:pr_curve} where we have straight lines and large steps for some categories. This is a result of having a small number of data in a class. However, we can also see that for some classes the precision is relatively high even though we have few data points. Here we are namely concerned with the 'Culture' and 'Beauty' categories which have 10 and 31 data points respectively. It may be that the keywords in the 'Culture' and 'Beauty' categories are drastically different from the other categories so the performance is better. 
 
-\begin{figure}[h]
+\begin{figure}[ht]
   \centering
   \includegraphics[width=\scale\textwidth]{../img/plot_pr_curve.pdf}
   \caption{Precision-recall curve for the best performing LinearSVC classifier.}
@@ -184,114 +191,11 @@ The precision-recall curve for the best performing classifier (LinearSVC) is sho
 
 The confusion matrix shown in Figure \ref{fig:confusion_matrix} may be a better metric for visualizing this data. In addition, the classification report for the LinearSVC classifier is shown in Appendix Table \ref{tab:classification_report_LinearSVC} with F1, accuracy, precision, recall, and support scores.
 
-\begin{figure}[h]
+\begin{figure}[ht]
   \centering
-  \includegraphics[width=\scale\textwidth]{../img/plot_cm_LinearSVC.pdf}
+  \includegraphics[width=\scale\textwidth]{../img/plot_cm_LinearSVC_original.pdf}
   \caption{Confusion matrix for the best performing LinearSVC classifier using the original data.}
   \label{fig:confusion_matrix}
 \end{figure}
 
 
-\section{All Useable Data}
-\label{sec:proper_vectorization}
-
-In this section we will take what we have learned from the experiments in the previous sections and apply that knowledge to the original data set augmented with the additional data that we collected. The total category count tallies can be located in the Appendix in Table \ref{tab:data_counts}. These experiments will provide us with a better understanding of how the data is interacting with the active learning sampling strategies and the PWC classifier. We will also try removing some data from the set if the text length is below some threshold, evaluate the performance with a reduced number of categories, and explore the performance of xPAL using all available data.
-
-\subsection{Active Learning using All Data}
-
-In these experiments we tested all the active learning methods with the corrected TF-IDF vectorizer transformation. Instead of incorrectly vectorizing the data then importing the matrix to be used with \cite{kottke2021toward} probablistic active learning code, we exported the raw text data and then split the text data, fit and transformed the vectorizer to the train data, then transformed the test data and conducted our experiments with the modified code. In Figure \ref{fig:probal_original_proper_vect} we re-ran a previous experiment using just the original data so we could have a more accurate comparison with the results for all the data shown in Figure \ref{fig:probal_all_proper_vect}.
-
-% \begin{figure}[h]
-%     \centering
-%     \includegraphics[width=\scale\textwidth]{../img/plot_text_data_original_proper_vectorizer_test_results.pdf}
-%     \caption{Active learning results using original data with text length data $>50$ and proper vectorization.}
-%     \label{fig:probal_original_proper_vect}
-% \end{figure}
-
-\begin{figure}[h]
-    \centering
-    \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../img/plot_text_data_original_proper_vectorizer_test_results.pdf}
-        \caption{UPDATE ME No text length filter and proper vectorization.}
-        \label{fig:probal_original_proper_vect}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../img/plot_text_data_original_proper_vectorizer_test_results.pdf}
-        \caption{Text length data $>50$ and proper vectorization.}
-        \label{fig:probal_original_proper_vect_50_st_filter}
-    \end{subfigure}
-    \caption{Active learning results using the original data.}
-\end{figure}
-
-We again used the different active learning methods and PWC with the Cosine kernel to run our experiments. We ran 10 test runs for each method and then averaged the test error of all the runs resulting in a single curve for each sampling strategy, exactly as we did previously. We only used the first 300 data points instead of using all available data. As a result, the test error doesn't converge in these plots because we are only using a subset of the available original data. With the original data we can see that the xPAL sampling strategy finds the best data early (20-30 budget range) in the sampling process and exploits this to improve the classifier the most. Eventually we see that PAL and QBC have similar performance to xPAL but, ultimately, after 300 samples xPAL is the best performing sampling strategy.
-
-Using all the data, we repeated this same experiment and found that the selection strategies testing error results seemed to have a bit more separation. The results are shown in Figure \ref{fig:probal_all_proper_vect}. In both experiments in this section it appeared that the test error for xPAL was converging to around roughly 50\%. But for the second experiment using all the data xPAL was finding and exploiting the best data points earlier and for longer in the sampling process. We can see the dominance of xPAL throughout the plot except around the 200 budget range where entropy sampling starts to momentarily perform well.
-
-\begin{figure}[h]
-    \centering
-    \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../img/plot_text_data_all_proper_vectorizer_test_results.pdf}
-        \caption{No text length filter and proper vectorization.}
-        \label{fig:probal_all_proper_vect}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../img/plot_text_data_all_proper_vectorizer_50_st_filter_test_results.pdf}
-        \caption{Text length data $>50$ and proper vectorization.}
-        \label{fig:probal_all_proper_vect_50_st_filter}
-    \end{subfigure}
-    \caption{Active learning results using all data.}
-\end{figure}
-
-In both the re-run original data and all data experiments, xPAL appears to perform well over an average of 10 different runs in comparison to the other selection strategies, it even seemed to perform markedly well with more data available. We were curious what xPAL was doing when more data was available, so while running the experiments we recorded when a data point was selected (its index in the selection budget) and for which category it was selected from. This data is shown here in Figure \ref{fig:xpal_data_selection}.
-
-\begin{figure}[h]
-  \centering
-  \includegraphics[width=\textwidth]{../img/plot_xpal_selection_dist.pdf}
-  \caption{Data point selection swarmplot using xPAL.}
-  \label{fig:xpal_data_selection}
-\end{figure}
-
-This data is not averaged and is from a sample run for each of the data sets. In this particular data split the 'Online Shopping' category went without any data points even though we had enough available. It is clear from Figure \ref{fig:xpal_data_selection} that when new data is available the xPAL selection strategy reevaluates what is important and selects data points that are more likely to be helpful. This is a good sign that xPAL is able to adapt to the data and find the most helpful data points.
-
-\subsection{LinearSVC with Text Length Filtering} 
-
-We have some data that may not have enough text to classify correctly and others that have more than 1000 characters of text that may be noisy. We also know that sometimes while scraping the text data from a website we collected a non empty string that actually provided no words that were related to the label, such as a simple error or warning message.
-
-However, using all available data, we now have the luxury of having more than the minimum of 2 data points in some categories and can afford to remove data from the set that may have unhelpful or confusing words in the text. We decided to explore if filtering the data based on text length could improve the performance of the classifier and use LinearSVC as it has performed well with this data previously and it is relatively fast to train.
-
-Before conducting the filtering data experiments we can view how the text length is distributed throughout our preprocessed and scrubbed text data as shown in Figure \ref{fig:string_length_dist}. This can help us visualize how much data we may be removing if we filter the data based on text length.
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=\scale\textwidth]{../img/plot_string_length_dist_all_data.pdf}
-    \caption{Distribution of text length for all data in 100 bins.}
-    \label{fig:string_length_dist}
-\end{figure}
-
-The distribution of the text show a steady decrease in length and frequency until around the 850 length mark where we have an increase of data with large amounts of text. The spike here is a results from when we capped the non English data text to 1000 characters so that we could translate all of our data using the Azure translation services.
-
-We imported the data and either selected a minimum number of characters or we altered the maximum number of characters allowed and created a new dataset. For each run we selected the data based on this criteria and then built the TF-IDF array. For the minimum string size tests we incremented the string size by 1 character. While for the max string size tests we decremented the string size by 10. We again used a train test split of 25\% which has been our standard for testing throughout our experiments. We found that around the 200 character mark we would filter out too much data and would not have a minimum representation (2 data points) for all the categories. The results for this experiment are shown in Figure \ref{fig:grid_search_text_length}.
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=\scale\textwidth]{../img/plot_data_length_grid_search.pdf}
-    \caption{Test error results for best LinearSVC with varying text length parameters.}
-    \label{fig:grid_search_text_length}
-  \end{figure}
-
-We also tested with a minimum text length and a maximum text length constraint implemented together but this combination did not yield any obvious gains. This naive approach to filtering the data did not yield any obvious improvements in the test error. At best it may have filtered out some bad data and provided a small improvement in the test error. However, when implementing xPAL we hope to have it filter out the bad data in a more calculated manner.
-
-% \begin{figure}[ht]
-%     \centering
-%     \includegraphics[width=\scale\textwidth]{../img/plot_filtered_test_results.pdf}
-%     \caption{Test error results using filtered data with minimum 155 character length with PWC and Cosine kernel.}
-%     \label{fig:probal_filtered_data}
-%   \end{figure}
-
-We can see that for the 414 data points results from the filtered data in the train split converge as we expect to a single point because the PWC has access to all of the labeled train data. 
-
-\subsection{Testing with Fewer Categories}
-
-In this section well look at the performance using less categories. We will use all available data and remove the category from the data set if it has less than the minimum number of samples. We will take a look both at the performance of LinearSVC and xPAL.

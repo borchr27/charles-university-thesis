@@ -15,6 +15,8 @@ import configparser
 import requests
 from sqlalchemy import create_engine
 from analysis import test_model
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
 
 from sklearn import metrics
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -33,6 +35,8 @@ from sklearn.metrics import precision_recall_curve, average_precision_score
 from sklearn.multiclass import OneVsRestClassifier
 from matplotlib.colors import LogNorm
 
+from tensorflow.keras.preprocessing.text import Tokenizer
+from tensorflow.keras.preprocessing.sequence import pad_sequences
 
 # Settings to create pdf plots for thesis
 import matplotlib
@@ -371,8 +375,8 @@ def data_prep(data:Dataset, origin_filter:str = 'additional', min_str_len:int=0,
     data_df = pd.merge(td_df[['site_data_id', 'english_text']], \
                        sd_df[['id', 'category', 'origin']], left_on='site_data_id', right_on='id')
     
-    data_df = data_df[data_df['english_text'].str.len() > min_str_len]
-    data_df = data_df[data_df['english_text'].str.len() < max_str_len] # max 1000
+    # data_df = data_df[data_df['english_text'].str.len() > min_str_len]
+    # data_df = data_df[data_df['english_text'].str.len() < max_str_len] # max 1000
     # print the category counts
     # category_counts = data_df['category'].value_counts()
     # print(category_counts)
@@ -443,63 +447,72 @@ def build_LSVC_models(args, X:np.ndarray, y:np.ndarray) -> None:
     errors.to_latex(f'{IMG_FILE_PATH}table_lsvc_errors.tex', index=False, float_format="%.3f")
 
 def build_tensor_flow_LSTM(args, X:np.ndarray, y:np.ndarray) -> None:
-    from nltk.corpus import stopwords
-    from tensorflow.keras.preprocessing.text import Tokenizer
-    from tensorflow.keras.preprocessing.sequence import pad_sequences
+    """
+    Builds a LSTM model using Tensor Flow.
 
-    Z = tf.strings.regex_replace(X, r'\b(' + r'|'.join(stopwords.words('english')) + r')\b\s*',"").numpy()
-    Z = [z.decode('utf-8') for z in Z]
+    Parameters
+    ----------
+    args : argparse.Namespace
+        The arguments passed in from the command line.
+    X : np.ndarray
+        The raw text data.
+    y : np.ndarray
+        The labels for the data. 
+    """
 
-    max_features = 5000
-    max_len = 100
-    batch_size = 32
+    train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.25, random_state=42, stratify=y)
+    # Define the set of stopwords to be removed
+    stop_words = set(stopwords.words('english'))
+    tokenizer = Tokenizer()
+    train_X = [word_tokenize(text.lower()) for text in train_X]
+    test_X = [word_tokenize(text.lower()) for text in test_X]
+    # Remove the stopwords from the tokenized texts
+    test_X = [[word for word in tokens if not word in stop_words] for tokens in test_X]
+    train_X = [[word for word in tokens if not word in stop_words] for tokens in train_X]
+    # Convert the filtered texts back to string format
+    # filtered_texts = [' '.join(tokens) for tokens in filtered_texts]
 
-    # Create a tokenizer object
-    tokenizer = Tokenizer(num_words=5000)
-    # Fit the tokenizer on your text data
-    tokenizer.fit_on_texts(Z)
-    # Convert the text data to sequences of integers
-    sequences = tokenizer.texts_to_sequences(Z)
-    # pad sequences
-    padded_sequences = pad_sequences(sequences, maxlen=max_len)
+    tokenizer.fit_on_texts(train_X)
+    word_index = tokenizer.word_index
 
-    vocab_size = len(tokenizer.word_index) + 1
-    one_hot_padded_sequences = np.zeros((len(padded_sequences), max_len, vocab_size), dtype=np.float32)
-    for i, seq in enumerate(padded_sequences):
-        one_hot_padded_sequences[i, np.arange(max_len), seq] = 1
+    sequences = tokenizer.texts_to_sequences(train_X)
+    max_length = max(len(sequence) for sequence in sequences)
+    padded_sequences = pad_sequences(sequences, maxlen=max_length, padding='post')
 
-    # Convert the padded sequences to word embeddings
-    embedding_dim = 100
-    embedding_matrix = np.random.rand(vocab_size, embedding_dim)
-    embedding_layer = tf.keras.layers.Embedding(input_dim=vocab_size, output_dim=embedding_dim, embeddings_initializer=tf.keras.initializers.Constant(embedding_matrix), trainable=False)
-    embedded_padded_sequences = embedding_layer(padded_sequences)
+    label_encoder = {}
+    y_labels = []
+    for i, label in enumerate(set(train_y)):
+        label_encoder[label] = i
+        y_labels.append(label)
+        
+    encoded_labels = np.array([label_encoder[label] for label in train_y])
+    num_classes = len(set(encoded_labels))
+    one_hot_labels = tf.keras.utils.to_categorical(encoded_labels, num_classes)
 
-    y_labels = np.unique(y)
-    le = LabelEncoder()
-    y = le.fit_transform(y)
-    # one hot encode the y text labels to be used in the model
-    y = tf.keras.utils.to_categorical(y)
-
-    # train_X, test_X, train_y, test_y = train_test_split(embedded_padded_sequences, y, test_size=0.25, random_state=args.seed, stratify=y)
-    # train_X = train_X.toarray()
-    # test_X = test_X.toarray()
-
-    model = tf.keras.models.Sequential([
-        embedding_layer,
-        tf.keras.layers.LSTM(128, dropout=0.2, recurrent_dropout=0.2),
-        tf.keras.layers.Dense(len(y_labels), activation='softmax')
+    model = tf.keras.Sequential([
+        tf.keras.layers.Embedding(len(word_index)+1, 32, input_length=max_length),
+        tf.keras.layers.LSTM(64),
+        tf.keras.layers.Dense(num_classes, activation='softmax')
     ])
 
     model.compile(
-        optimizer=tf.keras.optimizers.Adam(jit_compile=False),
-        loss=tf.keras.losses.categorical_crossentropy,
-        metrics=[tf.keras.metrics.SparseCategoricalAccuracy],)
-    model.fit(embedded_padded_sequences, y, batch_size=batch_size, epochs=2)
+                loss=tf.keras.losses.categorical_crossentropy, 
+                optimizer=tf.keras.optimizers.Adamax(jit_compile=False), 
+                metrics=['accuracy'])
+    model.fit(padded_sequences, one_hot_labels, epochs=10, verbose=1)
 
-    # score = model.evaluate(test_X, test_y, batch_size=batch_size)
-    # print("Test loss:", score[0])
-    # print("Test accuracy:", score[1])
+    new_sequences = tokenizer.texts_to_sequences(test_X)
+    new_padded_sequences = pad_sequences(new_sequences, maxlen=max_length, padding='post')
+    predictions = model.predict(new_padded_sequences)
+    accuracy = model.evaluate(new_padded_sequences, tf.keras.utils.to_categorical(np.array([label_encoder[label] for label in test_y]), num_classes))
+    
+    # change predictions from one hot to labels
+    predictions = np.argmax(predictions, axis=1)
+    # change test_y from labels to one hot
+    test_y = np.array([label_encoder[label] for label in test_y])
 
+    # plot confusion matrix
+    plot_confusion_matrix(y_labels, predictions, test_y, 'LSTM')
 
 
 def build_tensor_flow_NN(args, X:np.ndarray, y:np.ndarray) -> float:
@@ -508,41 +521,46 @@ def build_tensor_flow_NN(args, X:np.ndarray, y:np.ndarray) -> float:
     """
 
     y_labels = np.unique(y)
-    le = LabelEncoder()
+    le = LabelEncoder() 
     y = le.fit_transform(y)
 
     train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.25, random_state=args.seed, stratify=y)
+    
+    vect = tfidf_vectorizer()
+    train_X = vect.fit_transform(train_X)
+    test_X = vect.transform(test_X)
     train_X = train_X.toarray()
     test_X = test_X.toarray()
 
-    try:
-        # Try to load tf model
-        model = tf.keras.models.load_model(args.model)
-        print("Model loaded from disk")
-    except:
-        print("Model not found, building new model")
-        # Build the model
-        model = tf.keras.Sequential([
-            tf.keras.layers.Flatten(input_shape=[train_X.shape[1]]),
-            tf.keras.layers.Dense(args.hidden_layer, activation=tf.nn.sigmoid),
-            tf.keras.layers.Dense(len(y_labels), activation=tf.nn.softmax),
-        ])
+    # try:
+    #     # Try to load tf model
+    #     model = tf.keras.models.load_model(args.model)
+    #     print("Model loaded from disk")
+    # except:
+    #     print("Model not found, building new model")
+    #     # Build the model
+    model = tf.keras.Sequential([
+        tf.keras.layers.Flatten(input_shape=[train_X.shape[1]]),
+        tf.keras.layers.Dense(args.hidden_layer, activation=tf.nn.sigmoid),
+        tf.keras.layers.Dense(len(y_labels), activation=tf.nn.softmax),
+    ])
 
-        optimizer = tf.keras.optimizers.Adamax(jit_compile=False,)
-        optimizer.learning_rate = tf.keras.optimizers.schedules.CosineDecay(
-                initial_learning_rate=args.learning_rate,
-                decay_steps=train_X.shape[0] // args.batch_size * args.epochs,
-                alpha=args.learning_rate_final / args.learning_rate,
-            )
-
-        model.compile(
-            optimizer=optimizer,
-            loss=tf.keras.losses.sparse_categorical_crossentropy,
-            metrics=[tf.keras.metrics.sparse_categorical_accuracy],
+    optimizer = tf.keras.optimizers.Adamax(jit_compile=False,)
+    optimizer.learning_rate = tf.keras.optimizers.schedules.CosineDecay(
+            initial_learning_rate=args.learning_rate,
+            decay_steps=train_X.shape[0] // args.batch_size * args.epochs,
+            alpha=args.learning_rate_final / args.learning_rate,
         )
-        model.fit(train_X, train_y, batch_size=args.batch_size, epochs=args.epochs)
-        # # Save the model
-        model.save(args.model)
+
+    model.compile(
+        optimizer=optimizer,
+        loss=tf.keras.losses.sparse_categorical_crossentropy,
+        metrics=[tf.keras.metrics.sparse_categorical_accuracy],
+    )
+    model.fit(train_X, train_y, batch_size=args.batch_size, epochs=args.epochs)
+    # # Save the model
+    model.save(args.model)
+    ## end build model
 
     # Evaluate the model
     test_loss, test_acc = model.evaluate(test_X, test_y)
@@ -554,6 +572,91 @@ def build_tensor_flow_NN(args, X:np.ndarray, y:np.ndarray) -> float:
     error = 1-test_acc
     print(f"NN Error:", error)
     return error
+
+def build_tensor_flow_NN_upgraded(args, X:np.ndarray, y:np.ndarray) -> None:
+    # Load and preprocess data
+    data = X
+    labels = y
+
+    # Define the set of stopwords to be removed
+    stop_words = set(stopwords.words('english'))
+
+    # Tokenize and remove stopwords from the text data
+    tokenizer = Tokenizer()
+    tokenized_texts = [word_tokenize(text.lower()) for text in data]
+    filtered_texts = [[word for word in tokens if not word in stop_words] for tokens in tokenized_texts]
+
+    # Convert the filtered texts back to string format
+    filtered_texts = [' '.join(tokens) for tokens in filtered_texts]
+
+    # Split data into train and test sets
+    train_X, test_X, train_y, test_y = train_test_split(filtered_texts, labels, test_size=0.25, random_state=42, stratify=labels)
+
+    # Fit tokenizer on the training data and create sequences
+    tokenizer.fit_on_texts(train_X)
+    word_index = tokenizer.word_index
+    train_sequences = tokenizer.texts_to_sequences(train_X)
+    test_sequences = tokenizer.texts_to_sequences(test_X)
+
+    # Pad sequences to the same length
+    max_length = 100 # or any other maximum length you want to set
+    train_padded_sequences = pad_sequences(train_sequences, maxlen=max_length, padding='post')
+    test_padded_sequences = pad_sequences(test_sequences, maxlen=max_length, padding='post')
+
+    # Encode labels as one-hot vectors
+    label_encoder = {}
+    y_labels = []
+    for i, label in enumerate(set(train_y)):
+        label_encoder[label] = i
+        y_labels.append(label)
+    encoded_train_labels = np.array([label_encoder[label] for label in train_y])
+    encoded_test_labels = np.array([label_encoder[label] for label in test_y])
+    num_classes = len(set(encoded_train_labels))
+    one_hot_train_labels = tf.keras.utils.to_categorical(encoded_train_labels, num_classes)
+    one_hot_test_labels = tf.keras.utils.to_categorical(encoded_test_labels, num_classes)
+
+    # Build and train the model
+    # model = tf.keras.Sequential([
+    #     tf.keras.layers.Embedding(len(word_index)+1, 32, input_length=max_length),
+    #     tf.keras.layers.LSTM(64),
+    #     tf.keras.layers.Dense(num_classes, activation='softmax')
+    # ])
+    # model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+    # model.fit(train_padded_sequences, one_hot_train_labels, epochs=10, verbose=1)
+
+    model = tf.keras.Sequential([
+        tf.keras.layers.Flatten(input_shape=[train_padded_sequences.shape[1]]),
+        tf.keras.layers.Dense(args.hidden_layer, activation=tf.nn.sigmoid),
+        tf.keras.layers.Dense(len(y_labels), activation=tf.nn.softmax),
+    ])
+
+    optimizer = tf.keras.optimizers.Adamax(jit_compile=False,)
+    optimizer.learning_rate = tf.keras.optimizers.schedules.CosineDecay(
+            initial_learning_rate=args.learning_rate,
+            decay_steps=train_padded_sequences.shape[0] // args.batch_size * args.epochs,
+            alpha=args.learning_rate_final / args.learning_rate,
+        )
+
+    model.compile(
+        optimizer=optimizer,
+        loss=tf.keras.losses.sparse_categorical_crossentropy,
+        metrics=[tf.keras.metrics.sparse_categorical_accuracy],
+    )
+    model.fit(train_padded_sequences, one_hot_train_labels, batch_size=args.batch_size, epochs=args.epochs)
+    # Evaluate the model
+    test_loss, test_acc = model.evaluate(test_padded_sequences, one_hot_test_labels)
+
+    pred = model.predict(test_padded_sequences)
+    pred = np.argmax(pred, axis=1)
+    
+    plot_confusion_matrix(y_labels, pred, one_hot_test_labels, 'NN_upgraded')
+    error = 1-test_acc
+    print(f"NN Error:", error)
+
+    # Evaluate the model on the test set
+    loss, accuracy = model.evaluate(test_padded_sequences, one_hot_test_labels, verbose=1)
+    print('Test loss:', loss)
+    print('Test accuracy:', accuracy)
 
 
 def save_plot_image(plot:plt, file_name:str) -> None:
@@ -813,10 +916,10 @@ def plot_probal_test_results(folder_name:str = 'kernel_cos') -> None:
     save_plot_image(plt, f'plot_{folder_name}_test_results')
     plt.close()
 
-def table_category_reduction_lscv(args, X, y):
+def plot_category_reduction_lscv(args, X, y, data_name:str):
     error = []
     categories = []
-    cat_list = range(0, 60, 10)
+    cat_list = range(20, 60, 10)
     for i in cat_list:
         df = pd.DataFrame(X)
         df['y'] = y
@@ -841,7 +944,8 @@ def table_category_reduction_lscv(args, X, y):
     # create a table with the error and the cat_list values
     results = pd.DataFrame({'Category Minimum': cat_list, 'Error': error, 'Categories': categories})
     # output a latex table for results
-    results.to_latex(f"{IMG_FILE_PATH}table_category_reduction_lscv.tex", index=False, column_format='p{2cm}|p{2cm}|p{9cm}')
+    pd.options.display.max_colwidth = 1000
+    results.to_latex(f"{IMG_FILE_PATH}table_{data_name}_data_category_reduction_lscv.tex", index=False, column_format='p{2cm}|p{2cm}|p{9cm}')
 
 
 def plot_category_reduction_probal(args, folder_name:str = 'text_data_all_category_reduction_test_results'):
@@ -890,7 +994,7 @@ def plot_probal_test_results_averaged(folder:str = 'kernel_cos_averaged') -> Non
     if folder == 'filtered':
         pattern = r"(filtered_)(.*?)_0"
         group = 2
-    if folder in ['text_data_all_proper_vectorizer', 'text_data_original_proper_vectorizer', 'text_data_all_proper_vectorizer_50_st_filter'] :
+    if folder in ['text_data_all_proper_vectorizer', 'text_data_original_proper_vectorizer', 'text_data_all_proper_vectorizer_50_st_filter', 'text_data_original_proper_vectorizer_50_st_filter'] :
         pattern = r"performances_text_data_(all|original)_(.*?)_0"
         group = 2
     assert pattern, 'Pattern for plot averaged test results is not defined'
@@ -1163,8 +1267,12 @@ def plot_probal_selection_dist(folder_name:str) -> None:
                 'Financial Services', 'Food And Drink' ,'Freetime', 'Groceries', 'Health',
                 'House And Garden', 'Investments', 'Pets' ,'Professional Services',
                 'Shopping Online', 'Sport', 'Travel']
+    # filtered run with str len > 50
     xpal_df = pd.read_csv(f'{RESULTS_FILE_PATH}{folder_name}/samples_text_data_all_xpal_0.25_cosine_mean_300_7.csv')
     xpal_original_df = pd.read_csv(f'{RESULTS_FILE_PATH}text_data_original_proper_vectorizer_50_st_filter/samples_text_data_original_xpal_0.25_cosine_mean_300_655007.csv')
+    # xpal_df = pd.read_csv(f'{RESULTS_FILE_PATH}{folder_name}/samples_text_data_all_xpal_0.25_cosine_mean_300_2007.csv')
+    # xpal_original_df = pd.read_csv(f'{RESULTS_FILE_PATH}text_data_original_proper_vectorizer/samples_text_data_original_xpal_0.25_cosine_mean_300_183007.csv')
+
 
     # add a column to the xpal filtered data frame with the label 'xPAL'
     xpal_df['type'] = 'All Data'
@@ -1345,6 +1453,27 @@ def table_classification_report(test, pred, labels, clf_name_and_info:str) -> No
     df = pd.DataFrame(report).transpose()
     df.to_latex(f"{IMG_FILE_PATH}table_classification_report_{clf_name_and_info}.tex", float_format="%.2f")
 
+def table_category_counts_for_string_filter(args) -> None:
+    """
+    Print out or create a latex table that has the category counts for the string minimum of length 50 that we used when we accidently did a bunch of test runs.
+    """
+    data = Dataset()
+    td_df = data.translated_data
+    sd_df = data.site_data
+    data_df = merged_data = pd.merge(sd_df, td_df, how='inner', left_on='id', right_on='site_data_id')
+    #pd.merge(td_df[['site_data_id', 'english_text']], sd_df[['id', 'category', 'origin']], left_on='site_data_id', right_on='id')
+    # these two ^ merges are the same
+
+    # select the text data from the dataframe where the text is longer then 10 for sd_df and visualzie it
+    filtered_df = data_df[data_df['english_text'].str.len() > 50]
+    # create a table with the category counts of the categories
+    og_filtered = data_df[data_df['origin'] == 'original']['category'].value_counts() #- filtered_df[filtered_df['origin']=='original']['category'].value_counts()
+    all_filtered = data_df['category'].value_counts() #- filtered_df['category'].value_counts()
+    # create a table with the difference in the category counts
+    cat_counts = pd.DataFrame({'All w Str Filter': all_filtered, 'Original w StrFilter': og_filtered})
+    # save as a latex table
+    cat_counts.to_latex(f'{IMG_FILE_PATH}table_category_counts_with_50_st_filter.tex')
+    print(cat_counts)
 
 def table_category_counts(data:Dataset, file_name:str) -> None:
     """
