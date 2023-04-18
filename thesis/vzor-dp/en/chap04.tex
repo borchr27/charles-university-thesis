@@ -2,7 +2,7 @@
 
 Here we will explore the results of different classifiers and active learning strategies on the original data. The original data consisted of data shown previously in Figure \ref{fig:original_english_counts} and discretely in Table \ref{tab:data_counts} in Appendix \ref{app:attachments}. The original data was comprised of the original and translated data but not the additionally collected data. 
 
-\section{Active Learning with PWC and RBF Kernel}
+\section{PWC, RBF Kernel, and Active Learning}
 
 In Figure \ref{fig:plot_all_results_rbf} we have the train and test errors for four different active learning sampling strategies. XPAL appears to perform slightly better than PAL but not significantly better. With our data we found that PAL runs slower than xPAL, which was unexpected based on the mean computation time results published by \cite{kottke2021toward}. We expect this drop in calculation time is a result of the high dimensional data.
 
@@ -26,7 +26,7 @@ where $\sigma$ is a parameter that controls the smoothness of the kernel and $x_
 
 Starting with the data in Figure \ref{fig:plot_all_results_rbf} we made an error while constructing the $x$ dataset. While preparing the data, the TF-IDF vectorizer was fitted using all the data instead of just the training data. This resulted in the TF-IDF matrix having more information about the test data than it should have so our testing error results are likely lower than they should be. This error persists throughout the rest of the experiments in this chapter up until the experiments in Section \ref{sec:proper_vectorization}.
 
-\section{Active Learning with PWC and Cosine Kernel}
+\section{PWC, Cosine Kernel, and Active Learning}
 
 In Figure \ref{fig:plot_all_results_cosine} we have the train and test errors for the same four different active learning sampling strategies tested on the same data. The only change was that we used Cosine kernel instead of the RBF kernel.The Cosine kernel is another important kernel function that is used in many machine learning algorithms. It is defined as:
 

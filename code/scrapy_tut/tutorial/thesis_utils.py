@@ -920,6 +920,7 @@ def plot_category_reduction_lscv(args, X, y, data_name:str):
     error = []
     categories = []
     cat_list = range(20, 60, 10)
+    num_of_categories = []
     for i in cat_list:
         df = pd.DataFrame(X)
         df['y'] = y
@@ -930,7 +931,7 @@ def plot_category_reduction_lscv(args, X, y, data_name:str):
         le = LabelEncoder()
         y_temp = le.fit_transform(y_temp)
         X_train, X_test, y_train, y_test = train_test_split(X_temp, y_temp, test_size=0.2, random_state=42, stratify=y_temp)
-        model = LinearSVC(random_state=args.seed, max_iter=10000, )
+        model = LinearSVC(random_state=args.seed, max_iter=10000)
         vect = tfidf_vectorizer()
         X_train = X_train[0].to_numpy()
         X_test = X_test[0].to_numpy()
@@ -940,12 +941,13 @@ def plot_category_reduction_lscv(args, X, y, data_name:str):
         y_pred = model.predict(X_test)
         error.append(1-metrics.accuracy_score(y_test, y_pred))
         categories.append(le.inverse_transform(list(set(y_train))))
+        num_of_categories.append(len(set(y_train)))
     
     # create a table with the error and the cat_list values
-    results = pd.DataFrame({'Category Minimum': cat_list, 'Error': error, 'Categories': categories})
+    results = pd.DataFrame({'Category Minimum': cat_list, 'Error': error, 'Categories': categories,'Count': num_of_categories})
     # output a latex table for results
     pd.options.display.max_colwidth = 1000
-    results.to_latex(f"{IMG_FILE_PATH}table_{data_name}_data_category_reduction_lscv.tex", index=False, column_format='p{2cm}|p{2cm}|p{9cm}')
+    results.to_latex(f"{IMG_FILE_PATH}table_{data_name}_data_category_reduction_lscv.tex", index=False, column_format='p{2cm}|p{1.8cm}|p{7.5cm}|p{1.4cm}')
 
 
 def plot_category_reduction_probal(args, folder_name:str = 'text_data_all_category_reduction_test_results'):

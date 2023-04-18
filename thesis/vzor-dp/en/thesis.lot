@@ -7,11 +7,11 @@
 \contentsline {table}{\numberline {3.3}{\ignorespaces Raw text collected by scraper and the translated text.\relax }}{17}{table.caption.8}%
 \contentsline {table}{\numberline {3.4}{\ignorespaces Keywords from TF-IDF with chi-squared using the original data.\relax }}{20}{table.caption.10}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {4.1}{\ignorespaces Error for three differing LinearSVC models.\relax }}{27}{table.caption.16}%
+\contentsline {table}{\numberline {4.1}{\ignorespaces Error for three differing LinearSVC models.\relax }}{26}{table.caption.16}%
 \contentsline {table}{\numberline {4.2}{\ignorespaces Testing errors for best performing classifiers using original data.\relax }}{28}{table.caption.17}%
 \addvspace {10\p@ }
 \contentsline {table}{\numberline {5.1}{\ignorespaces Testing errors for best performing classifiers using all data.\relax }}{30}{table.caption.20}%
-\contentsline {table}{\numberline {5.2}{\ignorespaces LinearSCV performance with category reduction on all data.\relax }}{35}{table.caption.26}%
+\contentsline {table}{\numberline {5.2}{\ignorespaces LinearSVC performance with category reduction on all data, where category minimum is the min number of samples required.\relax }}{35}{table.caption.26}%
 \addvspace {10\p@ }
 \contentsline {table}{\numberline {A.1}{\ignorespaces Category counts of data. Orig. = Orig. English + Translated, is the data from the original set that had usable text. Orig. English is a subset of Orig. that was in English. Translated is a subset of Orig. that was not in English. Add. is the newly collected data, translated if needed. All Useable = Orig. English + Translated + Add.\relax }}{42}{table.caption.32}%
 \contentsline {table}{\numberline {A.2}{\ignorespaces Variable importance, top 20 words from the vectorizer and all useable data.\relax }}{43}{table.caption.33}%

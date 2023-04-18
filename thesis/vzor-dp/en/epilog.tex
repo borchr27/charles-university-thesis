@@ -13,6 +13,8 @@ Our next task was to start experimenting with Scikit-Learn and TensorFlow classi
 
 We also used the Parzen Window Classifier from the Probalistic Active Learning GitHub repository from the "Toward optimal probabilistic active learning using a Bayesian approach" paper by \cite{kottke2021toward}. This repository provided a number of different sampling strategies and we modified the repository to fit our needs and use with our data. We found that the xPAL sampling strategy was the best for our data and was able to reduce the testing error the most compared to the other available sampling strategies in the repository.
 
+Our work is collected into two repositories. One repository is the main repository that contains the code for the web scraper, data processing, and the thesis. The second repository is a fork of the Probabilistic Active Learning from \cite{kottke2021toward} repository that contains the code for the xPAL and other sampling strategies as well as the main active learning experiments, results, and text data. The main repository is available at \url{https://github.com/borchr27/charles-university-thesis} and the Probabilistic Active Learning repository is available at \url{https://github.com/borchr27/probal}.
+
 The linear support vector classifier also performed well using the original and all useable data sets. The Probabilist Active Learning repository was setup with the PWC so that when new data was added the classifier could be updated quickly and only where there was a change. This caused us issued as we tried to implement LinearSVC with xPAL as we would naively have to retrain the entire model for every new data point. 
 
 \section*{Improvements}

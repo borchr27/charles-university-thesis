@@ -10,11 +10,11 @@ DONE original and all_data experiments
 DONE fix sampling strategy plots and distribution plot
 DONE NO Try with LN-LTSM with word embedding
 
-TODO try to get LSVC to work in probabl repo
+TODO check the plagirism score
+TODO update the abstract
 TODO add more to conclusion
 TODO print and read thru thesis
-TODO update the abstract
-TODO check the plagirism score
+TODO try to get LSVC to work in probabl repo
 TODO add links to repos into thesis
 
 

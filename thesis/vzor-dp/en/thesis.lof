@@ -5,10 +5,10 @@
 \contentsline {figure}{\numberline {3.2}{\ignorespaces The histograms for the original and additional data for all languages.\relax }}{18}{figure.caption.9}%
 \addvspace {10\p@ }
 \contentsline {figure}{\numberline {4.1}{\ignorespaces Train and test error using different query strategies and RBF kernel for the PWC classifier.\relax }}{21}{figure.caption.11}%
-\contentsline {figure}{\numberline {4.2}{\ignorespaces Train and test error using different query strategies and Cosine kernel for the PWC classifier.\relax }}{23}{figure.caption.12}%
-\contentsline {figure}{\numberline {4.3}{\ignorespaces Comparing test error with one data split using different query strategies and Cosine kernel for the PWC classifier.\relax }}{24}{figure.caption.13}%
-\contentsline {figure}{\numberline {4.4}{\ignorespaces Comparing test error using different query strategies and Cosine kernel for the PWC classifier with results averaged over ten different data splits.\relax }}{25}{figure.caption.14}%
-\contentsline {figure}{\numberline {4.5}{\ignorespaces Performance of base classifiers.\relax }}{26}{figure.caption.15}%
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Train and test error using different query strategies and Cosine kernel for the PWC classifier.\relax }}{22}{figure.caption.12}%
+\contentsline {figure}{\numberline {4.3}{\ignorespaces Comparing test error with one data split using different query strategies and Cosine kernel for the PWC classifier.\relax }}{23}{figure.caption.13}%
+\contentsline {figure}{\numberline {4.4}{\ignorespaces Comparing test error using different query strategies and Cosine kernel for the PWC classifier with results averaged over ten different data splits.\relax }}{24}{figure.caption.14}%
+\contentsline {figure}{\numberline {4.5}{\ignorespaces Performance of base classifiers.\relax }}{25}{figure.caption.15}%
 \contentsline {figure}{\numberline {4.6}{\ignorespaces Precision-recall curve for the best performing LinearSVC classifier.\relax }}{28}{figure.caption.18}%
 \contentsline {figure}{\numberline {4.7}{\ignorespaces Confusion matrix for the best performing LinearSVC classifier using the original data.\relax }}{29}{figure.caption.19}%
 \addvspace {10\p@ }
