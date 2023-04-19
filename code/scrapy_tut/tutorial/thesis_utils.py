@@ -2,7 +2,6 @@ import os
 import math
 from typing import List
 from matplotlib import pyplot as plt
-import tensorflow as tf
 import psycopg2
 import re
 import numpy as np
@@ -35,8 +34,6 @@ from sklearn.metrics import precision_recall_curve, average_precision_score
 from sklearn.multiclass import OneVsRestClassifier
 from matplotlib.colors import LogNorm
 
-from tensorflow.keras.preprocessing.text import Tokenizer
-from tensorflow.keras.preprocessing.sequence import pad_sequences
 
 # Settings to create pdf plots for thesis
 import matplotlib
@@ -459,6 +456,9 @@ def build_tensor_flow_LSTM(args, X:np.ndarray, y:np.ndarray) -> None:
     y : np.ndarray
         The labels for the data. 
     """
+    import tensorflow as tf
+    from tensorflow.keras.preprocessing.text import Tokenizer
+    from tensorflow.keras.preprocessing.sequence import pad_sequences
 
     train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.25, random_state=42, stratify=y)
     # Define the set of stopwords to be removed
@@ -519,7 +519,9 @@ def build_tensor_flow_NN(args, X:np.ndarray, y:np.ndarray) -> float:
     """
     Builds a simple neural network using Tensor Flow.
     """
-
+    import tensorflow as tf
+    from tensorflow.keras.preprocessing.text import Tokenizer
+    from tensorflow.keras.preprocessing.sequence import pad_sequences
     y_labels = np.unique(y)
     le = LabelEncoder() 
     y = le.fit_transform(y)
@@ -574,6 +576,9 @@ def build_tensor_flow_NN(args, X:np.ndarray, y:np.ndarray) -> float:
     return error
 
 def build_tensor_flow_NN_upgraded(args, X:np.ndarray, y:np.ndarray) -> None:
+    import tensorflow as tf
+    from tensorflow.keras.preprocessing.text import Tokenizer
+    from tensorflow.keras.preprocessing.sequence import pad_sequences
     # Load and preprocess data
     data = X
     labels = y
@@ -1403,7 +1408,7 @@ def table_cosine_decay_weights(args, y) -> None:
     # save table as latex
     table.to_latex(f"{IMG_FILE_PATH}table_cosine_decay_weights.tex", index=True, float_format="%.3f")
 
-def table_correlated_unigrams(X:np.ndarray, y:np.ndarray, v:TfidfVectorizer, file_name:str) -> None:
+def table_correlated_unigrams(args, X:np.ndarray, y:np.ndarray, v:TfidfVectorizer, data_name:str) -> None:
     """
     Creates latex .tex table file with of features with the highest chi-squared statistics per target class.
 
@@ -1417,6 +1422,10 @@ def table_correlated_unigrams(X:np.ndarray, y:np.ndarray, v:TfidfVectorizer, fil
     y = le.fit_transform(y)
     category_to_id = dict(zip(y_labels, range(len(y_labels))))
 
+    # use these with data prep fixed
+    v = tfidf_vectorizer()
+    X = v.fit_transform(X)
+
     N=3 # number of features to print
     uni_dict = {}
     for label, id in sorted(category_to_id.items()):
@@ -1429,7 +1438,7 @@ def table_correlated_unigrams(X:np.ndarray, y:np.ndarray, v:TfidfVectorizer, fil
         # print("  . Most correlated unigrams:\n. {}".format('\n. '.join(unigrams[-N:])))
     # Convert the dictionary to a dataframe
     df = pd.DataFrame.from_dict(uni_dict, orient='index', columns=['Keyword 1', 'Keyword 2', 'Keyword 3'])
-    df.to_latex(f"{IMG_FILE_PATH}{file_name}.tex")
+    df.to_latex(f"{IMG_FILE_PATH}table_correlated_unigrams_{data_name}.tex")
 
 
 def table_classification_report(test, pred, labels, clf_name_and_info:str) -> None:
@@ -1551,3 +1560,91 @@ def table_variable_importance(args, X:np.ndarray, y:np.ndarray) -> None:
     bottom_df.rename(columns={'importance': 'Importance'}, inplace=True)
     top_df.to_latex(f"{IMG_FILE_PATH}table_top_20_features.tex")
     bottom_df.to_latex(f"{IMG_FILE_PATH}table_bottom_20_features.tex")
+
+
+def table_fischer_exact(args, X, y, data_name:str) -> None:
+    """
+    Perform a fisher exact test on the data (one v rest) and save the results as a latex table.
+    
+    Parameters:
+    data: The data to perform the test on
+    """
+    from nltk.probability import FreqDist
+    from scipy.stats import fisher_exact
+
+    def preprocess_text(text):
+        # tokenize the text
+        tokens = word_tokenize(text)
+        return tokens
+
+    def create_freq_dist(tokens):
+        freq_dist = FreqDist(tokens)
+        return freq_dist
+
+    # vectorize the text data
+    v = tfidf_vectorizer()
+    X = v.fit_transform(X)
+    X = v.inverse_transform(X)
+    X = [' '.join(text) for text in X]
+
+    # create a dataframe of the text data and the labels
+    fisher_df = pd.DataFrame({'text': X, 'label': y})
+    grouped = fisher_df.groupby('label')
+
+    freq_dists = {}
+    for label, group in grouped:
+        freq_dists[label] = {}
+        for text in group['text']:
+            tokens = preprocess_text(text)
+            freq_dist = create_freq_dist(tokens)
+            for token, freq in freq_dist.items():
+                if token not in freq_dists[label]:
+                    freq_dists[label][token] = 0
+                freq_dists[label][token] += freq
+
+    categories = list(freq_dists.keys()) # categories ordered alphabetically
+
+    contingency_tables = {}
+    for keyword in freq_dists[categories[0]]:
+        contingency_table = []
+        for category in categories:
+            freq = freq_dists[category][keyword] if keyword in freq_dists[category] else 0
+            nonfreq = sum(freq_dists[category].values()) - freq
+            contingency_table.append([freq, nonfreq])
+        contingency_tables[keyword] = contingency_table
+
+    p_values = {}
+    results = []
+    for keyword, contingency_table in contingency_tables.items():
+        label = -1
+        max_val = 0
+        for i in range(len(contingency_table)):
+            if contingency_table[i][0] > max_val:
+                max_val = contingency_table[i][0]
+                label = i 
+
+        row_1 = [0,0]
+        row_2 = [0,0]
+        for c in contingency_table:
+            if c[0] > 0:
+                row_1 = c
+            else:
+                row_2 = np.add(row_2, c)
+        # vstack row1 and row2
+        ct = np.vstack((row_1, row_2))
+        odds_ratio, p_value = fisher_exact(ct)
+        p_values[keyword] = p_value
+        if label != -1:
+            results.append([categories[label], p_value, keyword,])
+
+    # convert results to dataframe
+    results_df = pd.DataFrame(results, columns=['category', 'p-value', 'keyword'])
+    # sort by category then by p-value
+    results_df = results_df.sort_values(by=['category', 'p-value'], ascending=[True, False])
+    # show top 3 keywords for each category
+    output_table = results_df.groupby('category').head(3)
+
+    # save the table as a latex table
+    output_table.to_latex(f"{IMG_FILE_PATH}table_fisher_exact_{data_name}.tex", index=False)
+
+

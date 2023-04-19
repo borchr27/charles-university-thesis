@@ -161,11 +161,14 @@ if __name__ == "__main__":
     args = parser.parse_args([] if "__file__" not in globals() else None)
     data, X, y, vect = None, None, None, None
     data = tu.Dataset()
+    
+    X, y = tu.data_prep_fixed(data, origin_filter='original')
     # X, y, vect = tu.data_prep(data, origin_filter='original')
-    X, y = tu.data_prep_fixed(data, origin_filter=None)
+
+    tu.table_fischer_exact(args, X, y, 'original')
+    
     # optimize_classifier(args, X, y, 'all')
     # tu.plot_category_reduction_lscv(args, X, y, 'all')
-
     # table_compare_top_three_models(args, X, y, data_name='original')
     # test_model(args, X, y, data_name='all', clf_name="LinearSVC", cm=True)
     # tu.plot_probal_selection_dist("text_data_original_proper_vectorizer")
@@ -213,7 +216,7 @@ if __name__ == "__main__":
         tu.table_category_reduction_lscv(args, X, y)
     if args.table == "correlated_unigrams":
         data_name = "original"
-        tu.table_correlated_unigrams(X, y, vect, f"table_correlated_unigrams_{data_name}")
+        tu.table_correlated_unigrams(args, X, y, None, data_name)
     if args.table == "data_category_counts":
         tu.table_category_counts(data, "table_category_counts")
     if args.table == "variable_importance":
