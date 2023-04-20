@@ -3,6 +3,7 @@ Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: thesis.aux
 A level-1 auxiliary file: title.aux
 A level-1 auxiliary file: introduction.aux
+A level-1 auxiliary file: definitions.aux
 A level-1 auxiliary file: chap01.aux
 A level-1 auxiliary file: chap02.aux
 A level-1 auxiliary file: chap03.aux
@@ -14,7 +15,7 @@ The style file: plainnat.bst
 Database file #1: bibliography.bib
 You've used 13 entries,
             2773 wiz_defined-function locations,
-            694 strings with 7603 characters,
+            695 strings with 7618 characters,
 and the built_in function-call counts, 7475 in all, are:
 = -- 661
 > -- 489

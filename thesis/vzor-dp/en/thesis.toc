@@ -1,42 +1,46 @@
 \contentsline {chapter}{Introduction}{3}{chapter*.2}%
-\contentsline {chapter}{\numberline {1}Active Learning}{6}{chapter.1}%
-\contentsline {section}{\numberline {1.1}Introduction}{6}{section.1.1}%
-\contentsline {section}{\numberline {1.2}Query Function Construction}{7}{section.1.2}%
-\contentsline {subsection}{\numberline {1.2.1}Pool-Based}{7}{subsection.1.2.1}%
-\contentsline {subsection}{\numberline {1.2.2}Stream-Based}{7}{subsection.1.2.2}%
-\contentsline {subsection}{\numberline {1.2.3}Membership Queries}{7}{subsection.1.2.3}%
-\contentsline {section}{\numberline {1.3}Sampling Strategies}{7}{section.1.3}%
-\contentsline {subsection}{\numberline {1.3.1}Random Sampling}{8}{subsection.1.3.1}%
-\contentsline {subsection}{\numberline {1.3.2}Diversity Sampling}{8}{subsection.1.3.2}%
-\contentsline {subsection}{\numberline {1.3.3}Uncertainty Sampling}{8}{subsection.1.3.3}%
-\contentsline {subsection}{\numberline {1.3.4}PAL}{8}{subsection.1.3.4}%
-\contentsline {subsection}{\numberline {1.3.5}xPAL}{8}{subsection.1.3.5}%
-\contentsline {subsection}{\numberline {1.3.6}ALCE}{9}{subsection.1.3.6}%
-\contentsline {subsection}{\numberline {1.3.7}QBC}{9}{subsection.1.3.7}%
-\contentsline {subsection}{\numberline {1.3.8}EER}{9}{subsection.1.3.8}%
-\contentsline {section}{\numberline {1.4}Classifiers}{9}{section.1.4}%
-\contentsline {section}{\numberline {1.5}Summary}{10}{section.1.5}%
-\contentsline {chapter}{\numberline {2}Understanding xPAL}{11}{chapter.2}%
-\contentsline {section}{\numberline {2.1}Kernel}{11}{section.2.1}%
-\contentsline {section}{\numberline {2.2}Risk}{12}{section.2.2}%
-\contentsline {section}{\numberline {2.3}Conjugate Prior}{12}{section.2.3}%
-\contentsline {section}{\numberline {2.4}Risk Difference Using the Conjugate Prior}{13}{section.2.4}%
-\contentsline {section}{\numberline {2.5}Expected Probabilistic Gain}{14}{section.2.5}%
-\contentsline {chapter}{\numberline {3}Data Review}{15}{chapter.3}%
-\contentsline {section}{\numberline {3.1}Overview}{15}{section.3.1}%
-\contentsline {section}{\numberline {3.2}Collection}{16}{section.3.2}%
-\contentsline {section}{\numberline {3.3}Processing}{16}{section.3.3}%
-\contentsline {chapter}{\numberline {4}Testing with Original Data}{21}{chapter.4}%
-\contentsline {section}{\numberline {4.1}PWC, RBF Kernel, and Active Learning}{21}{section.4.1}%
-\contentsline {section}{\numberline {4.2}PWC, Cosine Kernel, and Active Learning}{22}{section.4.2}%
-\contentsline {section}{\numberline {4.3}Classifier Evaluation}{24}{section.4.3}%
-\contentsline {chapter}{\numberline {5}Testing with All Data}{30}{chapter.5}%
-\contentsline {section}{\numberline {5.1}Classifier Evaluation Revisited}{30}{section.5.1}%
-\contentsline {section}{\numberline {5.2}Active Learning using All Data}{30}{section.5.2}%
-\contentsline {section}{\numberline {5.3}LinearSVC with Text Length Filtering}{32}{section.5.3}%
-\contentsline {section}{\numberline {5.4}Testing with Fewer Categories}{34}{section.5.4}%
-\contentsline {chapter}{Conclusion}{36}{chapter*.27}%
-\contentsline {chapter}{Bibliography}{38}{chapter*.29}%
-\contentsline {chapter}{List of Figures}{40}{chapter*.30}%
-\contentsline {chapter}{List of Tables}{41}{chapter*.31}%
-\contentsline {chapter}{\numberline {A}Attachments}{42}{appendix.A}%
+\contentsline {chapter}{Definitions}{5}{chapter*.3}%
+\contentsline {chapter}{\numberline {1}Active Learning}{7}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Introduction}{7}{section.1.1}%
+\contentsline {section}{\numberline {1.2}Query Function Construction}{8}{section.1.2}%
+\contentsline {subsection}{\numberline {1.2.1}Pool-Based}{8}{subsection.1.2.1}%
+\contentsline {subsection}{\numberline {1.2.2}Stream-Based}{8}{subsection.1.2.2}%
+\contentsline {subsection}{\numberline {1.2.3}Membership Queries}{8}{subsection.1.2.3}%
+\contentsline {section}{\numberline {1.3}Sampling Strategies}{8}{section.1.3}%
+\contentsline {subsection}{\numberline {1.3.1}Random Sampling}{9}{subsection.1.3.1}%
+\contentsline {subsection}{\numberline {1.3.2}Diversity Sampling}{9}{subsection.1.3.2}%
+\contentsline {subsection}{\numberline {1.3.3}Uncertainty Sampling}{9}{subsection.1.3.3}%
+\contentsline {subsection}{\numberline {1.3.4}PAL}{9}{subsection.1.3.4}%
+\contentsline {subsection}{\numberline {1.3.5}xPAL}{9}{subsection.1.3.5}%
+\contentsline {subsection}{\numberline {1.3.6}ALCE}{10}{subsection.1.3.6}%
+\contentsline {subsection}{\numberline {1.3.7}QBC}{10}{subsection.1.3.7}%
+\contentsline {subsection}{\numberline {1.3.8}EER}{10}{subsection.1.3.8}%
+\contentsline {section}{\numberline {1.4}Classifiers}{10}{section.1.4}%
+\contentsline {section}{\numberline {1.5}Summary}{11}{section.1.5}%
+\contentsline {chapter}{\numberline {2}Understanding xPAL}{12}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Kernel}{12}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Risk}{13}{section.2.2}%
+\contentsline {section}{\numberline {2.3}Conjugate Prior}{13}{section.2.3}%
+\contentsline {section}{\numberline {2.4}Risk Difference Using the Conjugate Prior}{14}{section.2.4}%
+\contentsline {section}{\numberline {2.5}Expected Probabilistic Gain}{15}{section.2.5}%
+\contentsline {chapter}{\numberline {3}Data Review}{16}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Overview}{16}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Collection}{17}{section.3.2}%
+\contentsline {section}{\numberline {3.3}Processing}{17}{section.3.3}%
+\contentsline {section}{\numberline {3.4}Statistical Tests}{20}{section.3.4}%
+\contentsline {subsection}{\numberline {3.4.1}Chi-Squared}{20}{subsection.3.4.1}%
+\contentsline {subsection}{\numberline {3.4.2}Fisher's Exact}{22}{subsection.3.4.2}%
+\contentsline {chapter}{\numberline {4}Testing with Original Data}{23}{chapter.4}%
+\contentsline {section}{\numberline {4.1}PWC, RBF Kernel, and Active Learning}{23}{section.4.1}%
+\contentsline {section}{\numberline {4.2}PWC, Cosine Kernel, and Active Learning}{24}{section.4.2}%
+\contentsline {section}{\numberline {4.3}Classifier Evaluation}{26}{section.4.3}%
+\contentsline {chapter}{\numberline {5}Testing with All Data}{32}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Classifier Evaluation Revisited}{32}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Active Learning using All Data}{32}{section.5.2}%
+\contentsline {section}{\numberline {5.3}LinearSVC with Text Length Filtering}{34}{section.5.3}%
+\contentsline {section}{\numberline {5.4}Testing with Fewer Categories}{36}{section.5.4}%
+\contentsline {chapter}{Conclusion}{39}{chapter*.29}%
+\contentsline {chapter}{Bibliography}{41}{chapter*.30}%
+\contentsline {chapter}{List of Figures}{43}{chapter*.31}%
+\contentsline {chapter}{List of Tables}{44}{chapter*.32}%
+\contentsline {chapter}{\numberline {A}Attachments}{45}{appendix.A}%

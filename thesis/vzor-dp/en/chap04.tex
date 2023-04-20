@@ -1,6 +1,6 @@
 \chapter{Testing with Original Data}
 
-Here we will explore the results of different classifiers and active learning strategies on the original data. The original data consisted of data shown previously in Figure \ref{fig:original_english_counts} and discretely in Table \ref{tab:data_counts} in Appendix \ref{app:attachments}. The original data was comprised of the original and translated data but not the additionally collected data. 
+Here we will explore the results of different classifiers and active learning strategies on the original data. The original data consisted of data shown previously in Figure \ref{fig:original_english_counts} and discretely in the Attachments in Table \ref{tab:data_counts}. The original data was comprised of the original and translated data but not the additionally collected data. 
 
 \section{PWC, RBF Kernel, and Active Learning}
 
@@ -73,7 +73,7 @@ It is clear in Figure \ref{fig:cos_avg_test_results} that xPAL is performing the
 
 We also decided to test out some classifiers from the Scikit-Learn library to compare performances. Again we used the original data with the same TF-IDF vectorizer as used with the previous active learning models to stay consistent. It should be noted that cross validation was used here for evaluation but it was not used in the previous sections.
 
-The goal of this exploratory phase was to try and decide which classifier to conduct more thorough testing with. As a result, we didn't use GridSearchCV for each classifier at this stage and we mostly used the default parameters and their cross validation scores with all of the original data (i.e. additional data not included). In some cases where using weights was an option for the classifier we included the precomputed Cosine decay weights. A table of the parameters used for each classifier is shown in Appendix Table \ref{tab:explore_classifiers_params}.
+The goal of this exploratory phase was to try and decide which classifier to conduct more thorough testing with. As a result, we didn't use GridSearchCV for each classifier at this stage and we mostly used the default parameters and their cross validation scores with all of the original data (i.e. additional data not included). In some cases where using weights was an option for the classifier we included the precomputed Cosine decay weights. A table of the parameters used for each classifier is shown in the Attachments in Table \ref{tab:explore_classifiers_params}.
 
 Initially we made a minor error while evaluating the classifiers that used the precomputed weights in the following experiments. While computing the accuracy scores for the classifiers, we failed to incorporate the class weights that were used in training the classifier. This resulted in the accuracy scores being incorrectly calculated. This error persists throughout the rest of the experiments in this chapter up until the experiments in Section \ref{sec:proper_vectorization}.
 
@@ -125,14 +125,14 @@ For the third test we created a dictionary of weights for each class using the C
 \label{eq:cosine_decay}
 \end{equation}
 
-where $w_i$ is the weight for the $i^{th}$ class, $t$ is the current iteration, and $T$ is the total number of iterations. The Cosine decay function is a common function used for weights in machine learning algorithms. The calculated cosine weights are shown in the appendix in Table \ref{tab:cosine_decay_weights}.
+where $w_i$ is the weight for the $i^{th}$ class, $t$ is the current iteration, and $T$ is the total number of iterations. The Cosine decay function is a common function used for weights in machine learning algorithms. The calculated cosine weights are shown in the Attachments in Table \ref{tab:cosine_decay_weights}.
 
 The results for the LinearSVC classifier experiments are shown in Table \ref{tab:lsvc_errors} where the LinearSVC with the Cosine decay weights didn't perform better than the other LinearSVC models.
 
 \begin{table}[!ht]
 \centering
-\caption{Error for three differing LinearSVC models.}
-\input{../img/table_lsvc_errors.tex}
+\caption{Test error for three different LinearSVC models using the original data.}
+\input{../img/table_original_data_lsvc_errors.tex}
 \label{tab:lsvc_errors}
 \end{table}
 
@@ -175,7 +175,7 @@ Performance was not improved from what we had already seen. Using bagging may no
 
 \begin{table}[ht]
 \centering
-\caption{Testing errors for best performing classifiers using original data.}
+\caption{Test error for best performing classifiers using original data.}
 \input{../img/table_original_data_best_errors.tex}
 \label{tab:best_errors}
 \end{table}
@@ -189,7 +189,7 @@ The precision-recall curve for the best performing classifier (LinearSVC) is sho
   \label{fig:pr_curve}
 \end{figure}
 
-The confusion matrix shown in Figure \ref{fig:confusion_matrix} may be a better metric for visualizing this data. In addition, the classification report for the LinearSVC classifier is shown in Appendix Table \ref{tab:classification_report_LinearSVC} with F1, accuracy, precision, recall, and support scores.
+The confusion matrix shown in Figure \ref{fig:confusion_matrix} may be a better metric for visualizing this data. In addition, the classification report for the LinearSVC classifier is shown in the Attachments in Table \ref{tab:classification_report_LinearSVC} with F1, accuracy, precision, recall, and support scores.
 
 \begin{figure}[ht]
   \centering

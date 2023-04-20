@@ -93,11 +93,12 @@ def test_model(args, X:np.ndarray, y:np.ndarray, data_name:str, cm:bool=False, c
 
     pred = model.predict(test_X)
     clf = model.named_steps[clf_name]
-    if clf_name == "LinearSVC":
-        # weight_array = np.array([weights[i] for i in test_y])
-        error = 1 - metrics.accuracy_score(test_y, pred,)# sample_weight=weight_array)
-    else:
-        error = 1 - metrics.accuracy_score(test_y, pred,)
+    # if clf_name == "LinearSVC":
+    #     # weight_array = np.array([weights[i] for i in test_y])
+    #     error = 1 - metrics.accuracy_score(test_y, pred,)# sample_weight=weight_array)
+    # else:
+    #     error = 1 - metrics.accuracy_score(test_y, pred,)
+    error = 1 - metrics.accuracy_score(test_y, pred,)
     print(f"{clf_name} Error:", error)
     if cm:
         tu.plot_confusion_matrix(y_labels, pred, test_y, clf_name+'_'+data_name)
@@ -162,10 +163,10 @@ if __name__ == "__main__":
     data, X, y, vect = None, None, None, None
     data = tu.Dataset()
     
-    X, y = tu.data_prep_fixed(data, origin_filter='original')
+    X, y = tu.data_prep_fixed(data, origin_filter=None) # origin_filter=None for all data
     # X, y, vect = tu.data_prep(data, origin_filter='original')
-
-    tu.table_fischer_exact(args, X, y, 'original')
+    # tu.table_fisher_exact(args, X, y, 'original')
+    # tu.plot_category_reduction_lscv(args, X, y, 'all')
     
     # optimize_classifier(args, X, y, 'all')
     # tu.plot_category_reduction_lscv(args, X, y, 'all')
@@ -213,7 +214,7 @@ if __name__ == "__main__":
     
 
     if args.table == "category_reduction_lscv":
-        tu.table_category_reduction_lscv(args, X, y)
+        tu.table_category_reduction_lsvc(args, X, y, 'all')
     if args.table == "correlated_unigrams":
         data_name = "original"
         tu.table_correlated_unigrams(args, X, y, None, data_name)

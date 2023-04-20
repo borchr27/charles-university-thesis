@@ -9,17 +9,15 @@ DONE revisit using LSCV with bagging
 DONE original and all_data experiments
 DONE fix sampling strategy plots and distribution plot
 DONE NO Try with LN-LTSM with word embedding
+DONE update the abstract
+DONE add more to conclusion
+DONE add links to repos into thesis
+DONE Fix chi squared using all data
+DONE Define variable importance in section 3
+DONE Check out mcnemars/fisher test instead of chi squared
+DONE Add fisher exact test to section 3
 
-TODO check the plagirism score
-TODO update the abstract
-TODO add more to conclusion
+PENDING check the plagirism score
+PENDING try to get LSVC to work in probabl repo
+
 TODO print and read thru thesis
-TODO try to get LSVC to work in probabl repo
-TODO add links to repos into thesis
-Define variable importance in section 3
-Add fisher exact test to section 3
-Fix chi squared using all data
-
-
------
-Check out mcnemars test instead of chi squared (doesnt need more than 5 samples)

@@ -1,7 +1,7 @@
 \chapter{Testing with All Data}
 \label{sec:proper_vectorization}
 
-In this section we will take what we have learned from the experiments in the previous sections and apply that knowledge to the original data set augmented with the additional data that we collected. The total category count tallies can be located in the Appendix in Table \ref{tab:data_counts}. These experiments will provide us with a better understanding of how the data is interacting with the active learning sampling strategies and the PWC classifier. We will also try removing some data from the set if the text length is below some threshold, evaluate the performance with a reduced number of categories, and explore the performance of xPAL using all available data.
+In this section we will take what we have learned from the experiments in the previous sections and apply that knowledge to the original data set augmented with the additional data that we collected. The total category count tallies can be located in the Attachments in Table \ref{tab:data_counts}. These experiments will provide us with a better understanding of how the data is interacting with the active learning sampling strategies and the PWC classifier. We will also try removing some data from the set if the text length is below some threshold, evaluate the performance with a reduced number of categories, and explore the performance of xPAL using all available data.
 
 \section{Classifier Evaluation Revisited}
 
@@ -9,7 +9,7 @@ We wanted to re-run the classifier experiment that we ran with the original data
 
 \begin{table}[ht]
     \centering
-    \caption{Testing errors for best performing classifiers using all data.}
+    \caption{Test errors for best performing classifiers using all data.}
     \input{../img/table_all_data_best_errors.tex}
     \label{tab:best_errors_all_data}
 \end{table}
@@ -18,7 +18,7 @@ Its interesting to see that the errors increased across the board but our previo
 
 \section{Active Learning using All Data}
 
-In these experiments we tested all the active learning methods with the corrected TF-IDF vectorizer transformation. Instead of incorrectly vectorizing the data then importing the matrix to be used with \cite{kottke2021toward} probablistic active learning code, we exported the raw text data and then split the text data, fit and transformed the vectorizer to the train data, then transformed the test data and conducted our experiments with the modified code. In Figure \ref{fig:probal_original_proper_vect} we re-ran a previous experiment using just the original data so we could have a more accurate comparison with the results for all the data shown in Figure \ref{fig:probal_all_proper_vect}. In Figures \ref{fig:probal_original_proper_vect_50_st_filter} and \ref{fig:probal_all_proper_vect_50_st_filter} we used an arbitrary text length filter of 50 characters to see how the performance of the selection strategies changed when we removed some of the data. The categorical data splits for the 50 character filter can be found in the Appendix in Table \ref{tab:50_char_filter_data_counts}.
+In these experiments we tested all the active learning methods with the corrected TF-IDF vectorizer transformation. Instead of incorrectly vectorizing the data then importing the matrix to be used with \cite{kottke2021toward} probablistic active learning code, we exported the raw text data and then split the text data, fit and transformed the vectorizer to the train data, then transformed the test data and conducted our experiments with the modified code. In Figure \ref{fig:probal_original_proper_vect} we re-ran a previous experiment using just the original data so we could have a more accurate comparison with the results for all the data shown in Figure \ref{fig:probal_all_proper_vect}. In Figures \ref{fig:probal_original_proper_vect_50_st_filter} and \ref{fig:probal_all_proper_vect_50_st_filter} we used an arbitrary text length filter of 50 characters to see how the performance of the selection strategies changed when we removed some of the data. The categorical data splits for the 50 character filter can be found in the Attachments in Table \ref{tab:50_char_filter_data_counts}.
 
 \begin{figure}[ht]
     \centering
@@ -120,7 +120,7 @@ In this section we will briefly look at the PWC with xPAL and LinearSVC performa
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=\scale\textwidth]{../img/plot_text_data_all_category_reduction_test_results_test_results.pdf}
+    \includegraphics[width=\scale\textwidth]{../img/plot_text_data_all_category_reduction_test_results.pdf}
     \caption{PWC with xPAL with category reduction on all data.}
     \label{fig:all_data_category_reduction_xpal}
 \end{figure}
@@ -129,7 +129,7 @@ In this section we will briefly look at the PWC with xPAL and LinearSVC performa
 
 Looking at the results from the xPAL and PWC tests in Table \ref{fig:all_data_category_reduction_xpal} we can see that we have generally have reduction in test error except between the 30 and 40 category minimum tests. This table also shows us the categories that were used in the classification. This might tell us that 'Consumer Goods', 'House and Garden', and 'Professional Services' are easily linearly as the change in test error after 300 samples was small.
 
-Review these results it seems that 'Food and Drink' and 'Groceries' are making up a large portion of the test error and if there was better way to classify these categories it would improve the overall test error.
+Reviewing these results it seems that 'Food and Drink' and 'Groceries' may be skewing a portion of the test error and if there was better way to classify these categories it would improve the overall test error.
 
 \begin{table}[ht]
      \centering  
@@ -138,3 +138,22 @@ Review these results it seems that 'Food and Drink' and 'Groceries' are making u
      \label{tab:lscv_all_data_category_reduction} 
 \end{table}
 
+We ran this experiment again to see if we could increase the performance by taking 'Groceries' completely out of the equation. The results are shown here and the categories are the same as previously with the only difference being that 'Groceries' is not included in the test.
+
+\begin{table}[ht]
+    \centering  
+    \caption{Same as previous table but with 'Groceries' category removed.}
+    \input{../img/table_all_no_groceries_data_category_reduction_lscv.tex}
+    \label{tab:lscv_category_reduction_no_groceries} 
+\end{table}
+
+It is interesting to see how removing the 'Groceries' category was able to improve the test error across the board. It may be that since we have removed a category with similar data to 'Food and Drink' the classifier is able to better classify the 'Food and Drink' category and because we have a lot of data in this category we perform better. 
+
+\begin{table}[ht]
+    \centering  
+    \caption{Same as previous table but with 'Food and Drink' category removed.}
+    \input{../img/table_all_no_food_data_category_reduction_lscv.tex}
+    \label{tab:lscv_category_reduction_no_food} 
+\end{table}
+
+Removing the 'Food and Drink' category did not have the same effect as removing the 'Groceries' category. This may be because the 'Food and Drink' category, again, has a lot of data and removing it may have reduced the amount of data available for the classifier to learn from.

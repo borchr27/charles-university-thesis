@@ -412,7 +412,7 @@ def build_csv(args, X:np.ndarray, y:np.ndarray, name:str=None) -> None:
     # y = le.fit_transform(y)
     export_tfidf_to_csv(X.toarray(), y, f"{name}.csv")
 
-def build_LSVC_models(args, X:np.ndarray, y:np.ndarray) -> None:
+def plot_lsvc_errors(args, X:np.ndarray, y:np.ndarray, data_name:str='all') -> None:
     """
     Builds three different LinearSVC models with different parameters and compares them.
     
@@ -428,6 +428,12 @@ def build_LSVC_models(args, X:np.ndarray, y:np.ndarray) -> None:
 
     train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.25, random_state=args.seed, stratify=y)
 
+    # vectorize 
+    vectorizer = tfidf_vectorizer()
+    vectorizer.fit(train_X)
+    train_X = vectorizer.transform(train_X)
+    test_X = vectorizer.transform(test_X)
+
     model1 = LinearSVC(random_state=args.seed, max_iter=10000, multi_class='crammer_singer').fit(train_X, train_y)
     model2 = LinearSVC(random_state=args.seed, max_iter=10000).fit(train_X, train_y)
     model3 = LinearSVC(random_state=args.seed, max_iter=10000, class_weight=weights).fit(train_X, train_y)
@@ -441,7 +447,7 @@ def build_LSVC_models(args, X:np.ndarray, y:np.ndarray) -> None:
     errors = pd.DataFrame({'Model': ['Crammer Singer', 'Boilerplate One-vs-rest ', 'Cosine Decay Weights One-vs-rest'], 'Error': [error1, error2, error3]})
     errors = errors.sort_values(by='Error', ascending=True)
     # save as latex table
-    errors.to_latex(f'{IMG_FILE_PATH}table_lsvc_errors.tex', index=False, float_format="%.3f")
+    errors.to_latex(f'{IMG_FILE_PATH}table_{data_name}_data_lsvc_errors.tex', index=False, float_format="%.3f")
 
 def build_tensor_flow_LSTM(args, X:np.ndarray, y:np.ndarray) -> None:
     """
@@ -921,7 +927,10 @@ def plot_probal_test_results(folder_name:str = 'kernel_cos') -> None:
     save_plot_image(plt, f'plot_{folder_name}_test_results')
     plt.close()
 
-def plot_category_reduction_lscv(args, X, y, data_name:str):
+def table_category_reduction_lsvc(args, X, y, data_name:str):
+    is_remove_groceries = False
+    if is_remove_groceries:
+        data_name = data_name + '_no_groceries'
     error = []
     categories = []
     cat_list = range(20, 60, 10)
@@ -931,6 +940,9 @@ def plot_category_reduction_lscv(args, X, y, data_name:str):
         df['y'] = y
         # filter out the categories by number of samples
         df = df.groupby('y').filter(lambda x: len(x) > i)
+        # remove the Groceries y category from the df
+        if is_remove_groceries:
+            df = df[df.y != 'Groceries']
         X_temp = df.iloc[:, :-1]
         y_temp = df.iloc[:, -1]
         le = LabelEncoder()
@@ -971,15 +983,18 @@ def plot_category_reduction_probal(args, folder_name:str = 'text_data_all_catego
             loc = os.path.join(file_path, file_name)
             with open(loc, 'r') as f:
                 data = pd.read_csv(f)
-        ax.plot(data['test-error'], label=captured_text, linewidth=0.4)
+        ax.plot(data['test-error'], label=captured_text, linewidth=0.3)
 
     ax.set_xlabel('Budget')
     ax.set_ylabel('Error')
     ax.legend(title='Items Required per Category')
     ax.grid(which='both', linewidth=0.3)
     ax.set_ylim([0, 1.1])
+    ax.set_xlim([0, 320])
+    # show every other minor tick on the y axis
+    ax.set_yticks(np.arange(0, 1.1, 0.02), minor=True)
     fig.tight_layout()
-    save_plot_image(plt, f'plot_{folder_name}_test_results')
+    save_plot_image(plt, f'plot_{folder_name}')
     plt.close()
 
 def plot_probal_test_results_averaged(folder:str = 'kernel_cos_averaged') -> None:
@@ -1562,7 +1577,7 @@ def table_variable_importance(args, X:np.ndarray, y:np.ndarray) -> None:
     bottom_df.to_latex(f"{IMG_FILE_PATH}table_bottom_20_features.tex")
 
 
-def table_fischer_exact(args, X, y, data_name:str) -> None:
+def table_fisher_exact(args, X, y, data_name:str) -> None:
     """
     Perform a fisher exact test on the data (one v rest) and save the results as a latex table.
     
@@ -1640,11 +1655,11 @@ def table_fischer_exact(args, X, y, data_name:str) -> None:
     # convert results to dataframe
     results_df = pd.DataFrame(results, columns=['category', 'p-value', 'keyword'])
     # sort by category then by p-value
-    results_df = results_df.sort_values(by=['category', 'p-value'], ascending=[True, False])
+    results_df = results_df.sort_values(by=['category', 'p-value'], ascending=[True, True])
     # show top 3 keywords for each category
     output_table = results_df.groupby('category').head(3)
-
     # save the table as a latex table
     output_table.to_latex(f"{IMG_FILE_PATH}table_fisher_exact_{data_name}.tex", index=False)
+
 
 
