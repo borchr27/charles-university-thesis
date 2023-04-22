@@ -1,10 +1,10 @@
 \chapter{Data Review}
 
-In this chapter we take a deeper look into the data and the process of collecting, translating, and encoding the data. Our partner has provided a small sample of 1000 labeled data points. This data was manually labeled by an human annotator. 
+In this chapter we take a deeper look into the data and the process of collecting, translating, and encoding. Our partner has provided a small sample of 1000 labeled data points. This data was manually labeled by a human annotator. 
 
 \section{Overview}
 
-The data consists of a merchant name, merchant website (url), merchant category, and merchant tag as shown in Table \ref{tab:data_point}. 
+The provided data consists of a merchant name, merchant website (url), merchant category, and merchant tag as shown in Table \ref{tab:data_point}. 
 
 \begin{table}[h]
 \begin{tabular}{|l|l|l|l|}
@@ -12,16 +12,15 @@ The data consists of a merchant name, merchant website (url), merchant category,
 merchant name            & merchant url            & merchant category & merchant tags           \\ \hline
 State Hospital & http://hospital.com/ & Health   & '\{"Clinic"\}' \\ \hline
 \end{tabular}
-\caption{This is an example of a single data point from the original data set.}
+\caption{This is a faux example of a single data point.}
 \label{tab:data_point}
 \end{table}
 
+The current process consists of giving the merchant url to an annotator. The annotator then views the website and either can instantly (after viewing the homepage) provide a label and tags for the website. However, in some cases the annotator may need to browse further (by viewing sibling pages such as the 'About Us' section or individual product pages) to get an idea of how the website should be labeled. 
 
-The current process consists of giving the merchant url to an annotator. The annotator then views the website and either can instantly (after viewing the homepage) provide a label and tags for the website. However, in some cases the annotator may need to browse further (by viewing sibling pages such as the 'About Us' section or individual product pages) to get an idea of how the website should be classified. 
+The annotator simply needs to view then mentally process the text and images from the website and make some reasonable decisions on how the site should be classified. However, the annotator does not record what the content on the site said or what drove them to make their decision.As a result we are missing a key portion of data for the classification process, the text. 
 
-The annotator simply needs to view then mentally process the text and images from the website and make some reasonable decisions on how the site should be classified. However, the annotator does not record what the content on the site said or what drove them to make their decision.As a result we are missing a key portion of data for the classification process. 
-
-Tags are also when labeling the data to provide further granularity. The merchant tags are ordered by specificity, with the first tag in the list being the most general and the final being the most specific. An example of the tag hierarchy is show in Table. \ref{tab:tags} where we can see that this sample consists of data from various categories all contained within the 'Eco' side tag grouping.
+Tags are also used when labeling the data to provide further granularity. The merchant tags are ordered by specificity, with the first tag in the list being the most general and the final being the most specific. An example of the tag hierarchy is show in Table \ref{tab:tags} where we can see that this sample consists of data from various categories all contained within the 'Eco' side tag grouping.
 
 
 \begin{table}[h]
@@ -42,21 +41,21 @@ The tags are important because they allow us to separate the data even further a
 
 \section{Collection}
 
-Similarly to the annotator our goal is to automate the navigation, collection/ storing process, and classification of the website. This speeds up the browsing process by navigating to websites that have already been labeled and scraping the text data and storing it into a database. We also make the obvious checks to see if the website has already been scraped and stored in the database to ensure we are not wasting time and resources.
+Our goal is to automate the website navigation and data collection, data storage, and classification. This has the potential to speed up the browsing process in comparison to current methods. We make the obvious checks to see if the website has already been scraped and stored in the database to ensure we are not wasting time and resources.
 
-The initial 1000 data points we received were labels with a pointer (a url) to where the text data is located (the website). The labels needed to be augmented with the text from the websites. For the human annotator, this text data is stored is simply stored in their short term memory while they view the website. Once they have a category for the website they can mostly forget about the text data and move on to assigning a category to the next website.
+The labels needed to be augmented with the text from the websites. For the human annotator, this text data is simply stored in their short term memory while they view the website. Once they have a category for the website they can mostly forget about the text data and move on to assigning a category to the next website.
 
-To gather the text data from the websites we used the Scrapy framework to extract text data from a single top level page of a website. We chose only to scrape the top level (main or home) page text because of the results published in another study where it was observed that adding more pages to the data set does not necessarily mean obtaining better results (\cite{sahid2019ecommerce}). 
+To gather the text data from the websites we used the Scrapy framework to extract text data from a single top level page from the website. We chose only to scrape the top level (main or home) page text because of the results published in another study where it was observed that adding more pages to the data set does not necessarily mean obtaining better classification results (\cite{sahid2019ecommerce}). 
 
-Out of these initial data points 184 contained links that could not be accessed or links that provided no text data that could be scraped. Two websites were particularly problematic. Facebook and Instagram both are used by businesses as main information webpages. However, neither site allows for simple text scraping and a more advanced approach was needed to extract data from business with information on these platforms. In an effort to reduce the complexity of our scraper we decided to not create an additional scraper or integrate an API to handle these websites. Out of the remaining 816 data points 275 of them were in English. Out of the remaining 275 English data points the data was distributed into the categories as shown in Figure \ref{fig:original_english_counts}.
+Out of these initial data points 184 contained links that could not be accessed or links that provided no text data that could be scraped. Two websites were particularly problematic. Facebook and Instagram both are used by businesses as main information webpages. However, neither site allows for simple text scraping and a more advanced approach would be needed to extract data from business with information on these platforms. In an effort to reduce the complexity of our scraper we decided to not create an additional scraper or integrate an API to handle these websites. Out of the remaining 816 data points 275 of them were in English. Out of the remaining 275 English data points the data was distributed into the categories as shown in Figure \ref{fig:original_english_counts}.
 
-Our goal was to see how well the classifier and active learning sampling strategies would perform with limited data, but 275 samples with 23 categories was a bit to small and we still had a significant amount of data that wasn't being used (i.e. the untranslated data) so we decided we needed to find a way to translate the existing data. We tried various libraries available on GitHub but weren't getting good consistent results and we were hitting API request limits. After some time, we found that Azure had a service available and a free option of up to 2 million characters translated per month. This was a viable option and we were able to use this API to translate the remaining data. We limited the number of characters to 1000 per non English data point from the scraped text to avoid maxing out the API. After translating the non English data we had an additional 541 data points in English, giving us a total of 816 English samples, which was enough for us to get started with testing. This brought our total number samples including the additional data to 957.
+Our goal was to see how well the classifier and active learning sampling strategies would perform with limited data, but 275 samples with 23 categories was a bit to small and we still had a significant amount of data that wasn't being used (i.e. the untranslated data). It was clear we needed to find a way to translate the existing data. We tried various libraries available on GitHub but weren't getting good consistent results and we were hitting API request limits. After some time, we found that Azure had a service available and a free option of up to 2 million characters translated per month. This was a viable option and we were able to use this API to translate the remaining data. We limited the number of characters to 1000 per non English data point from the scraped text to avoid maxing out the API. After translating the non English data we had an additional 541 data points in English, giving us a total of 816 English samples, which was enough for us to get started with testing.
 
 \section{Processing}
 
 It is important for us to have the data in English as it allows us to exploit stop words when using the Scikit-Learn TF-IDF vectorizer to construct our data set. Stop words are words like “and”, “the”, “him”, which are presumed to be uninformative in representing the content of a text, and which may be removed to avoid them being construed as signal for prediction (\cite{sklearn62feature}). This holds true for our data set as well because we are not analyzing the text for sentiment or other linguistic features. We are simply looking for the most common words in each category.
 
-At this stage, it was clear that our data set wasn't representing all categories equally. The 'Food and Drink' category has many more data points then the 'Culture' and 'Investments' categories which each had a single data point, see Figure \ref{fig:original_english_counts}. The 'Children' and 'Financial Services' categories weren't represented at all. Obviously this was problematic because we would like to have, minimum, three data points in each category to build train and test sets.
+Before we opted to translate the data we tried to make what we had in english work. But we found that the 'Food and Drink' category has many more data points then the 'Culture' and 'Investments' categories which each had a single data point, see Figure \ref{fig:original_english_counts}. The 'Children' and 'Financial Services' categories weren't represented at all. Obviously this was problematic because we would like to have, minimum, three data points in each category to build train and test sets. This was the moment it was clear that our data set wasn't representing all categories equally and we needed to translate the other text.
 
 \begin{figure}[!ht]
   \centering
@@ -65,7 +64,7 @@ At this stage, it was clear that our data set wasn't representing all categories
   \label{fig:original_english_counts}
 \end{figure}
 
-An example of the first 100 characters of raw scraped text data from a website is shown in Table \ref{tab:text_examples}. The scraped text data is a single string of text that is a concatenation of all the text data pulled from the website url. 
+An example of the first 100 characters of scraped text data from a website is shown in Table \ref{tab:text_examples}. The scraped text data is a single string of text that is a concatenation of all the text data pulled from the website url with the html removed. 
 
 \begin{table}[!ht]
 \centering
@@ -78,7 +77,7 @@ Translated & DentalVision Professional private dental clinic in the center of Hr
 \label{tab:text_examples}
 \end{table}
 
-We can see that html and other symbols are removed and the majority of the words were translated. There are still some issues with words being concatenated such as 'IntroductionServices' however we do try to separate these words after translation using a regex pattern, but we attempt to break these words apart before passing the text to the TF-IDF vectorizer.
+We can see that html and other symbols are removed and the majority of the words were translated. There are still some issues with words being concatenated such as 'IntroductionServices' however we do try to separate these words after translation using regex, before passing the text to the TF-IDF vectorizer.
 
 To complement the original data we manually collected and labeled 141 additional data points for the categories that had low representation. This consisted of searching the internet for lists of websites similar to the ones in each category. Next we would browse the site to see if it was relevant and then add it to our list of additional websites and provide it a label. This was necessary because some categories only had 2 or 3 samples, however it was quite time consuming. The additional data are almost all from English language websites, this made it easier for us to explore and provide accurate labels for the sites. These data group splits will be referenced in the following experiments and a table of the exact counts for each group can be found in the Attachments in Table \ref{tab:data_counts}. In Figure \ref{fig:all_hist}. we show a bar chart of the counts of the original data and the additional data for each category and for each language, with the two letter language codes used to represent the languages.
 
@@ -88,7 +87,6 @@ To complement the original data we manually collected and labeled 141 additional
   \caption{The histograms for the original and additional data for all languages.}
   \label{fig:all_hist}
 \end{figure}
-
 
 After translating the data we used the TF-IDF vectorizer from Scikit-Learn. TF-IDF is an important tool commonly used in natural language processing and data science. The first part, TF, stands for term frequency and is a measure of how often a term appears in a document, while IDF (inverse document frequency) is a measure of how important a term is in a set of documents. The idea behind IDF is that a term that appears in many documents is less important than a term that appears in only a few documents, as the former is likely to be more common and less discriminative. The formula for calculating TF-IDF is as follows:
 
@@ -104,15 +102,15 @@ where:
     \text{IDF} &= \log_{e}(\frac{\text{total number of documents}}{\text{number of documents with term $t$ in it}})
 \end{flalign*}
 
-To calculate the TF-IDF score for a given term in a document, we would first calculate the term frequency (TF) by counting the number of times the term appears in the document and dividing it by the total number of terms in the document. Then, we would calculate the inverse document frequency (IDF) by taking the logarithm of the total number of documents in the set divided by the number of documents that contain the term. Finally, we would multiply TF by IDF to get the TF-IDF score for the term in the document as shown in Equation \ref{eq:tfidf}.
+To calculate the TF-IDF score for a given term in a document, we would first calculate the term frequency then calculate the inverse document frequency multiply them to get the TF-IDF score for the term in the document as shown in Equation \ref{eq:tfidf}.
 
 This process is repeated for each term in each document in the corpus, resulting in a TF-IDF matrix that can be used for various natural language processing tasks such as text classification, information retrieval, and clustering. It is important to understand TF-IDF because it is the basis for the feature selection we use throughout our experiments.
 
 \section{Statistical Tests}
 
-We explored finding highly correlated words for each category using chi-squared analysis and Fisher's exact test with all useable data.
+We explored statistical significance of the relationship between variables and identifying highly contributing variables using chi-squared analysis, variable importance, and Fisher's exact test with all useable data.
 
-\subsection{Chi-Squared}
+\subsection{Chi-squared}
 
 Chi-squared analysis is a statistical method used to determine the association between two categorical variables. It is used to test whether two categorical variables are independent of each other or not. In other words, it helps to determine if there is a significant relationship between two variables.
 
@@ -132,7 +130,7 @@ where:
 
 The degrees of freedom for the chi-squared test are calculated as (number of rows - 1) x (number of columns - 1). The chi-squared statistic is then compared to a critical value from a chi-squared distribution table with the degrees of freedom and a specified level of significance. If the calculated chi-squared statistic is greater than the critical value, then we reject the null hypothesis that the two variables are independent.
 
-Some categories such as 'Culture', 'Digital Services', 'Shopping Online' that have few data points have words such as 'kihnu', 'synnex', 'joom', respectively, which have no relative meaning to the category in English but also show the limitations of our website scraping and translation capabilities. We also have the problem where some words are actually important but weren't translated correctly such as 'maso' in the 'Groceries' category, which means 'meat' in Czech but wasn't translated properly. See Table \ref{tab:correlated_unigrams_all} for more information.
+Some categories such as 'Culture', 'Digital Services', 'Shopping Online' that have few data points have words such as 'kihnu', 'synnex', 'joom', respectively, which have no relative meaning to the category in English but also may show the limitations of our website scraping and translation capabilities. We have a problem where some words are actually important but weren't translated correctly such as 'maso' in the 'Groceries' category, which means 'meat' in Czech. See Table \ref{tab:correlated_unigrams_all} for more information.
 
 From what we discussed in the previous section, we can see that the 'Culture' category has only one data point and the 'Digital Services' category has only two data points. This is problematic because if the single data point we have doesn't represent the category well then we will continue to have difficulty classifying until we have more robust data.
 
@@ -144,20 +142,22 @@ From what we discussed in the previous section, we can see that the 'Culture' ca
 \label{tab:correlated_unigrams_all}
 \end{table}
 
-Realistically, chi-squared may not be the best statistical method to use with our data because we have some categories that have very few samples. We decided to also explore variable importance.
+Realistically, chi-squared may not be the best statistical method to use with our data because we have some categories that have very few samples. As a result, we decided to also explore variable importance.
 
-We calculated the variable importance using the RandomForestRegressor from Scikit-Learn and provided a list of the top 20 most important words from the TF-IDF vectorizer. Variable importance is a measure of the contribution of each predictor variable in a machine learning model to the overall prediction accuracy. In the context of a random forest regression model, variable importance refers to the relative importance of each input feature used in the model.
+\subsection{Variable Importance}
 
-It is an ensemble machine learning technique that builds multiple decision trees, each using a random subset of the features and samples from the training data. The random forest combines the predictions of all the decision trees to generate the final output. 
+Variable importance analysis is used to identify the most important predictors or variables that contribute to a particular outcome. This analysis can help to identify which variables are most predictive and should be included in a predictive model, or which variables may need further investigation to better understand their relationship to the outcome.
+
+We calculated the variable importance using the RandomForestRegressor from Scikit-Learn and provided a list of the top 20 most important words from the TF-IDF vectorizer. In the context of a random forest regression model, variable importance refers to the relative importance of each input feature used in the model. It is an ensemble machine learning technique that builds multiple decision trees, each using a random subset of the features and samples from the training data. The random forest combines the predictions of all the decision trees to generate the final output. 
 
 The variable importance in a random forest model is based on the Gini impurity.The Gini impurity measures the degree of randomness or impurity in a decision tree node. A low impurity indicates that a node contains mostly one class, while a high impurity indicates that a node contains an equal number of different classes. The Gini importance of a variable is calculated as the sum of the Gini impurity decreases across all the decision trees that used that variable as a split criterion. The higher the Gini importance of a variable, the more it contributes to reducing the overall impurity of the decision tree nodes and hence the model. 
 
-The feature\_importances\_ attribute returns an array of values, one for each input feature, that represent the relative importance of the feature in the random forest model, our results can be found in the Attachments in Table \ref{tab:top_20_words}.
+The feature\_importances\_ attribute returns an array of values, one for each input feature, that represent the relative importance of the feature in the random forest model, the results for our data can be found in the Attachments in Table \ref{tab:top_20_words}.
 
-\subsection{Fisher's Exact}
+\subsection{Fisher's Exact Test}
 
-We also explored using Fisher's exact test. Fisher's exact test is a statistical significance test used in the analysis of contingency tables. It is used to determine whether or not there is a significant association between two categorical variables. Technically, Fisher's exact test is appropriate for all sample sizes. However, the number of possible tables grows at an exponential rate. Therefore it's typically best for smaller sample sizes.
+Fisher's exact test is a statistical significance test used in the analysis of contingency tables. It is used to determine whether or not there is a significant association between two categorical variables. Technically, Fisher's exact test is appropriate for all sample sizes. However, the number of possible tables grows at an exponential rate. Therefore it's typically best for smaller sample sizes.
 
 In our case, we constructed a contingency table with one category versus the rest of categories for each word. We then calculated the p-value for each word using Fisher's exact test. The p-value is the probability of observing a test statistic at least as extreme as the one that was actually observed, assuming that the null hypothesis is true. The null hypothesis is that the two variables are independent. If the p-value is less than the significance level, then we reject the null hypothesis and conclude that the two variables are dependent. 
 
-Typically a significance level of 0.05 is used but it may be wise to consider the Bonferroni correction to account for multiple comparisons in our case. As a result, we would need to adjust the significance level to 0.05 divided by the number of categories. This would give us a new significance level of 0.0022 and we would reject the null hypothesis for words with a p-value less than this. Our results can be found in the Attachments in Table \ref{tab:fishers_exact_original}. Some categories aren't present in the table because they don't have enough data to be statistically significant.
+Typically a significance level of 0.05 is used but it may be wise to consider the Bonferroni correction to account for multiple comparisons in our case. As a result, we would need to adjust the significance level to 0.05 divided by the number of categories. This would give us a new significance level of 0.0022 and we would reject the null hypothesis for words with a p-value less than this. Our results can be found in the Attachments in Table \ref{tab:fishers_exact_original}.

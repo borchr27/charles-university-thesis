@@ -1,12 +1,19 @@
 \chapter{Testing with Original Data}
 
-Here we will explore the results of different classifiers and active learning strategies on the original data. The original data consisted of data shown previously in Figure \ref{fig:original_english_counts} and discretely in the Attachments in Table \ref{tab:data_counts}. The original data was comprised of the original and translated data but not the additionally collected data. 
+Here we will explore the results of different classifiers and active learning strategies on the original data. The original data consists of data discussed previously in Figure \ref{fig:original_english_counts} and shown discretely in the Attachments in Table \ref{tab:data_counts}. The original data was comprised of the original English and translated data but not the additionally collected data. 
 
 \section{PWC, RBF Kernel, and Active Learning}
 
-In Figure \ref{fig:plot_all_results_rbf} we have the train and test errors for four different active learning sampling strategies. XPAL appears to perform slightly better than PAL but not significantly better. With our data we found that PAL runs slower than xPAL, which was unexpected based on the mean computation time results published by \cite{kottke2021toward}. We expect this drop in calculation time is a result of the high dimensional data.
+In our first experiment we used the radial bias function (RBF) kernel which is a popular kernel function. It is defined as:
 
-We weren't satisfied with the testing error which leveled out to about 70\% for each sampling strategy. PAL and xPAL were able to rapidly reduce the testing error early on in the training process while random selection and QBC weren't able to determine the data with the highest information gain. 
+\begin{equation}
+    K(x_i, x_j) = \exp\left(- \frac{\left\| x_i - x_j \right\|^2}{2 \sigma^2}\right)
+\label{eq:rbf_kernel}
+\end{equation}
+
+where $\sigma$ is a parameter that controls the smoothness of the kernel and $x_i$ and $x_j$ are the two points in the feature space to compare.
+
+In Figure \ref{fig:plot_all_results_rbf} we have the train and test errors for four different active learning sampling strategies. XPAL appears to perform slightly better than PAL but not significantly better. We weren't satisfied with the testing error which plateaued around 70\%.
 
 \begin{figure}[ht]
   \centering
@@ -15,16 +22,7 @@ We weren't satisfied with the testing error which leveled out to about 70\% for 
   \label{fig:plot_all_results_rbf}
 \end{figure}
 
-The radial bias function (RBF) kernel is a popular kernel function. It is defined as:
-
-\begin{equation}
-    K(x_i, x_j) = \exp\left(- \frac{\left\| x_i - x_j \right\|^2}{2 \sigma^2}\right)
-\label{eq:rbf_kernel}
-\end{equation}
-
-where $\sigma$ is a parameter that controls the smoothness of the kernel and $x_i$ and $x_j$ are the two points in the feature space to compare. As seen in the Figure \ref{fig:plot_all_results_rbf} when the PWC classifier uses the RBF kernel it doesn't perform well with this data.
-
-Starting with the data in Figure \ref{fig:plot_all_results_rbf} we made an error while constructing the $x$ dataset. While preparing the data, the TF-IDF vectorizer was fitted using all the data instead of just the training data. This resulted in the TF-IDF matrix having more information about the test data than it should have so our testing error results are likely lower than they should be. This error persists throughout the rest of the experiments in this chapter up until the experiments in Section \ref{sec:proper_vectorization}.
+We later realized we made an error while constructing this experiment. While preparing data with the TF-IDF vectorizer we were fitting it using all the data instead of just the training data then transforming the test data. This resulted in the TF-IDF matrix having information about the test data so our error values are inaccurate. This fault was not fixed until the experiments in Section \ref{sec:classifier_evaluation}. However, we re-evaluated and re-ran a portion of the RBF and Cosine kernel experiments and obtained similar results to what was shown in Figures \ref{fig:plot_all_results_rbf} and \ref{fig:plot_all_results_cosine}.
 
 \section{PWC, Cosine Kernel, and Active Learning}
 
@@ -35,7 +33,7 @@ In Figure \ref{fig:plot_all_results_cosine} we have the train and test errors fo
 \label{eq:cosine_kernel}
 \end{equation}
 
-where $x_i$ and $x_j$ are the two points in the feature space to compare. We found that using the Cosine kernel reduced the test error across the board by $\sim$15\%.  
+where $x_i$ and $x_j$ are the two points in the feature space to compare. We found that we got better and more responsive results using the Cosine kernel in comparison to the RBF kernel.  
 
 \begin{figure}[ht]
   \centering
@@ -45,7 +43,7 @@ where $x_i$ and $x_j$ are the two points in the feature space to compare. We fou
 \end{figure}
 
 
-In Figure \ref{fig:plot_all_results_cosine} PAL and xPAL were able to reduce the training error, by about 20\% and 25\% respectively, early in the training process compared to random selection and QBC. We also tested the other sampling strategies with the Cosine kernel and found that the results were similar. The other sampling strategies and their test data results are shown in Table \ref{fig:cos_test_results} along with the test data from Figure \ref{fig:plot_all_results_cosine}. 
+In Figure \ref{fig:plot_all_results_cosine} it seemed that PAL and xPAL were able to reduce the training error, early in the training process compared to random selection and QBC. We also tested the other sampling strategies with the Cosine kernel and found that the results were similar. The other sampling strategies and their test data results are shown in Figure \ref{fig:cos_test_results} along with the test data from Figure \ref{fig:plot_all_results_cosine}. 
 
 
 \begin{figure}[ht]
@@ -55,11 +53,9 @@ In Figure \ref{fig:plot_all_results_cosine} PAL and xPAL were able to reduce the
     \label{fig:cos_test_results}
 \end{figure}
 
-We can see that the sampling strategies test performance converges over time (as we are using the same data and classifier) but xPAL appears to have an absolute minimum near the 600 budget mark in comparison to all sampling strategies. XPAL also appears to be performing well early on in the training process, in the 100-200 budget range. However, this test is only showing the results of one data split. We can get a better idea if we run more tests with different train-test splits and see how the results average out.
+We can see that the sampling strategies test performance converges over time (as we are using the same data and classifier). XPAL appears to be performing well early on in the training process, in the 100-200 budget range. This test is only showing the results of one data split. We can get a better idea if we run more tests with different train-test splits and average the results.
 
-Figure \ref{fig:cos_test_results} shows that xPAL seems to be performing the best with our data but we wanted to see if we ran more tests with different train-test splits how the results would average out and which sampling strategy would perform the best on average. We ran 10 different data splits with each of the 7 sampling strategies and then took the average to get a smoother curve compared to the single run results shown in Figure \ref*{fig:cos_test_results}. The results for this experiment are shown in Figure \ref{fig:cos_avg_test_results}. 
-
-It is clear in Figure \ref{fig:cos_avg_test_results} that xPAL is performing the best early on (budget from 0-100) in the sample selection process. XPAL selects the data that minimizes the test error and builds the strongest classifier quickly while it takes the other sampling strategies more data points to get to the same level of performance. Around the 100 budget mark we can see that the other selection strategies catch up to xPAL performance wise. We want to note that for each plot where we averaged query strategies (10 runs/ splits per query strategy) that it took 24 hours on average to run the experiment on a CPU cluster with PAL taking the longest of any of the sampling strategies.
+Figure \ref{fig:cos_test_results} shows that xPAL seems to be performing the best with our data but we wanted to see if we ran more tests with different train-test splits how the results would average out and which sampling strategy would perform the best on average. We ran 10 different data splits with each of the 7 sampling strategies and then took the average to get a smoother curve compared to the single run results shown in Figure \ref{fig:cos_test_results}. The results for this experiment are shown in Figure \ref{fig:cos_avg_test_results}. 
 
 \begin{figure}[ht]
     \centering
@@ -68,14 +64,19 @@ It is clear in Figure \ref{fig:cos_avg_test_results} that xPAL is performing the
     \label{fig:cos_avg_test_results}
 \end{figure}
 
+It is clear in Figure \ref{fig:cos_avg_test_results} that xPAL is performing the best early on (budget from 0-100) in the sample selection process. XPAL selects the data that minimizes the test error and builds the strongest classifier quickly while it takes the other sampling strategies more to get to the same level of performance. Around the 100 budget mark we can see that the other selection strategies catch up to xPAL performance wise. We want to note that for each plot where we averaged query strategies (10 runs/ splits per query strategy) that it took 24 hours on average to run the experiment on a CPU cluster, with PAL taking the longest of any of the sampling strategies.
+
+\clearpage
 
 \section{Classifier Evaluation}
+\label{sec:classifier_evaluation}
 
-We also decided to test out some classifiers from the Scikit-Learn library to compare performances. Again we used the original data with the same TF-IDF vectorizer as used with the previous active learning models to stay consistent. It should be noted that cross validation was used here for evaluation but it was not used in the previous sections.
+We also decided to test out some classifiers from the Scikit-Learn library to compare performances. We used the original data with the proper TF-IDF vectorizer methodologies in all following chapters. It should be noted that cross validation was used here for evaluation but it was not used in the previous sections.
 
 The goal of this exploratory phase was to try and decide which classifier to conduct more thorough testing with. As a result, we didn't use GridSearchCV for each classifier at this stage and we mostly used the default parameters and their cross validation scores with all of the original data (i.e. additional data not included). In some cases where using weights was an option for the classifier we included the precomputed Cosine decay weights. A table of the parameters used for each classifier is shown in the Attachments in Table \ref{tab:explore_classifiers_params}.
 
-Initially we made a minor error while evaluating the classifiers that used the precomputed weights in the following experiments. While computing the accuracy scores for the classifiers, we failed to incorporate the class weights that were used in training the classifier. This resulted in the accuracy scores being incorrectly calculated. This error persists throughout the rest of the experiments in this chapter up until the experiments in Section \ref{sec:proper_vectorization}.
+% THIS HAS BEEN FIXED
+% Initially we made a minor error while evaluating the classifiers that used the precomputed weights in the following experiments. While computing the accuracy scores for the classifiers, we failed to incorporate the class weights that were used in training the classifier. This resulted in the accuracy scores being incorrectly calculated. This error persists throughout the rest of the experiments in this chapter up until the experiments in Section \ref{sec:proper_vectorization}.
 
 The results for the different classifiers are shown in Figure \ref{fig:explore_classifiers}. In the box-plot, the whiskers extend from the box to the furthest data points that are within 1.5 times the inter-quartile range (IQR) of the box. Any data points that are beyond the whiskers are considered outliers and are plotted as individual points or symbols (diamonds) as seen in the figure.
 
@@ -86,7 +87,7 @@ The results for the different classifiers are shown in Figure \ref{fig:explore_c
   \label{fig:explore_classifiers}
 \end{figure} 
 
-The base LinearSVC classifier model performed best compared to other classifiers and it is a fast running algorithm even with data that has many features. We decided to look further into LinearSVC because it performed so well. 
+The base LinearSVC classifier model performed best compared to other classifiers and it is a fast running algorithm even with data that has many features. We decided to look further into LinearSVC because it performed well. 
 
 The LinearSVC is a type of machine learning algorithm that can be used for binary or multiclass classification problems. It's designed to predict one of two possible outcomes based on a set of input features. 
 
@@ -98,7 +99,7 @@ For example, if we have three classes A, B, C, then we have three classifiers, o
 
 The LinearSVC algorithm seeks to find the hyperplane that maximally separates the classes in feature space, and weights are sometimes used that correspond to the coefficients of the hyperplane equation.
 
-Consider a binary classification problem where we have two classes labeled as -1 and +1. Given a set of training examples, the goal of the LinearSVC algorithm is to learn a hyperplane that separates the examples of the two classes in feature space. The hyperplane is defined by the equation:
+Consider another example using a binary classification problem where we have two classes labeled as -1 and +1. Given a set of training examples, the goal of the LinearSVC algorithm is to learn a hyperplane that separates the examples of the two classes in feature space. The hyperplane is defined by the equation:
 
 \begin{equation}
 w^T x + b = 0
