@@ -15,9 +15,9 @@ DONE add links to repos into thesis
 DONE Fix chi squared using all data
 DONE Define variable importance in section 3
 DONE Check out mcnemars/fisher test instead of chi squared
+DONE check the plagirism score
 DONE Add fisher exact test to section 3
 
-PENDING check the plagirism score
-PENDING try to get LSVC to work in probabl repo
+DONE print and read thru thesis
 
-TODO print and read thru thesis
+PENDING try to get LSVC to work in probabl repo

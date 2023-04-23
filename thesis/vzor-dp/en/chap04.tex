@@ -115,9 +115,7 @@ Once the weights are learned, they can be used to make predictions on new exampl
 f(x) = w^T x + b
 \end{equation}
 
-If $f(x)$ is positive, the example is classified as the positive class, and if it is negative, the example is classified as the negative class. We also wanted to conduct more testing with KNeighborsClassifier and Neural Networks. 
-
-We created three models for LinearSVC, the first was a boilerplate LinearSVC with no argument modifications, the second model used the class weights parameter set to 'balanced'. The 'balanced' mode uses the values of y to automatically adjust weights inversely proportional to class frequencies in the input data as $n\_samples / (n\_classes * np.bincount(y))$. 
+If $f(x)$ is positive, the example is classified as the positive class, and if it is negative, the example is classified as the negative class. We created three different models using LinearSVC, the first was a boilerplate LinearSVC with no argument modifications, the second model used the class weights parameter set to 'balanced'. The 'balanced' mode uses the values of y to automatically adjust weights inversely proportional to class frequencies in the input data as $n\_samples / (n\_classes * np.bincount(y))$. 
 
 For the third test we created a dictionary of weights for each class using the Cosine decay function. The weights for each category ranged from 0.1 to 1.0 where the most frequent classes had smaller weights. The Cosine decay function is defined as:
 
@@ -128,7 +126,7 @@ For the third test we created a dictionary of weights for each class using the C
 
 where $w_i$ is the weight for the $i^{th}$ class, $t$ is the current iteration, and $T$ is the total number of iterations. The Cosine decay function is a common function used for weights in machine learning algorithms. The calculated cosine weights are shown in the Attachments in Table \ref{tab:cosine_decay_weights}.
 
-The results for the LinearSVC classifier experiments are shown in Table \ref{tab:lsvc_errors} where the LinearSVC with the Cosine decay weights didn't perform better than the other LinearSVC models.
+We used the same train test spilt for these experiments and the results for are shown in Table \ref{tab:lsvc_errors}. We also wanted to conduct more testing with KNeighborsClassifier and Neural Networks so created some small experiments to test these classifiers.
 
 \begin{table}[!ht]
 \centering
@@ -137,11 +135,11 @@ The results for the LinearSVC classifier experiments are shown in Table \ref{tab
 \label{tab:lsvc_errors}
 \end{table}
 
-Using K-Neighbors Classifier (KNN) and a Neural Network from TensorFlow we conducted additional experiments. For the KNN we found that using 8 neighbors and the cosine distance metric yielded the lowest error. 
+Using K-Neighbors Classifier (KNN) and a Neural Network from TensorFlow we conducted additional tests. For the KNN we found that using 8 neighbors and the cosine distance metric yielded the lowest error. 
 
 For the Neural Network we used a dense hidden-layer with 1000 neurons with Sigmoid activation and 23 output neurons with Softmax activation. For the NN optimizer we used Adamax with Cosine decay with an initial learning rate of 0.1, alpha value of 0.1 and 915 decay steps ($X\_data\_size // batch\_size * num_epochs$). The results are shown in Table \ref{tab:best_errors}. We can see that the K-Nearest Neighbors classifier and the Neural Network classifier performed slightly worse compared to LinearSVC.
 
-The LinearSVC outperformed the other classifiers and we decided to experiment with it further. We attempted to boost performance of the LinearSVC classifier using multiple cross validation grid searches with the bagging. Bagging (bootstrap aggregating) is a type of ensemble learning, where multiple models are trained on different subsets of the training data and their predictions are combined to make the final prediction. In Scikit-Learn we used the BaggingClassifier to implement bagging. An example of our setup and parameters are shown in the code snippet. 
+The LinearSVC outperformed the other classifiers and we decided to experiment with it further. We attempted to boost performance of the LinearSVC classifier using multiple cross validation grid searches with bagging. Bagging (bootstrap aggregating) is a type of ensemble learning, where multiple models are trained on different subsets of the training data and their predictions are combined to make the final prediction. In Scikit-Learn we used the BaggingClassifier to implement bagging. An example of our setup and parameters are shown in the code snippet. 
 
 \begin{verbatim}
     intercepts = np.linspace(0.1, 1, 20)
@@ -172,7 +170,7 @@ The LinearSVC outperformed the other classifiers and we decided to experiment wi
         n_jobs=6)
 \end{verbatim}
 
-Performance was not improved from what we had already seen. Using bagging may not be the best approach at this stage because there are some categories that have very few samples so bagging may be unable to create a good model. We will revisit bagging in future chapters when we have more data at our disposal. We also didn't use the balanced class weights parameter because we had already seen that it was the worst performing class weight parameter in previous tests. The BaggingClassifier and GridSearchCV combination didn't improve the performance of the LinearSVC classifier beyond what we had already achieved.
+Performance was not improved from what we had already seen. Using bagging may not be the best approach at this stage because there are some categories that have very few samples so bagging may be unable to create a good model. We also didn't use the balanced class weights parameter because we had already seen that it was the worst performing class weight parameter in previous LinearSVC tests. The BaggingClassifier and GridSearchCV combination didn't improve the performance of the LinearSVC classifier beyond what we had already achieved.
 
 \begin{table}[ht]
 \centering
@@ -181,12 +179,12 @@ Performance was not improved from what we had already seen. Using bagging may no
 \label{tab:best_errors}
 \end{table}
 
-The precision-recall curve for the best performing classifier (LinearSVC) is shown in Figure \ref{fig:pr_curve} and the confusion matrix is shown in Figure \ref{fig:confusion_matrix} for the best performing LinearSVC classifier.The precision-recall curve gives us an idea at how well our classifier can correctly categorize the data. It also gives us a visualization of how unbalanced our categories are. We can see this imbalance clearly in Figure \ref{fig:pr_curve} where we have straight lines and large steps for some categories. This is a result of having a small number of data in a class. However, we can also see that for some classes the precision is relatively high even though we have few data points. Here we are namely concerned with the 'Culture' and 'Beauty' categories which have 10 and 31 data points respectively. It may be that the keywords in the 'Culture' and 'Beauty' categories are drastically different from the other categories so the performance is better. 
+The precision-recall curve for the best performing classifier (LinearSVC) is shown in Figure \ref{fig:pr_curve} and the confusion matrix is shown in Figure \ref{fig:confusion_matrix} for the best performing LinearSVC classifier. The precision-recall curve gives us an idea at how well our classifier can correctly categorize the data. It also gives us a visualization of how unbalanced our categories are. We can see this imbalance clearly in Figure \ref{fig:pr_curve} where we have straight lines and large steps for some categories. This is a result of having a small number of data in a class. However, we can also see that for some classes the precision is relatively high even though we have few data points. Here we are namely concerned with the 'Culture' and 'Beauty' categories which have 10 and 31 data points respectively. It may be that the keywords in the 'Culture' and 'Beauty' categories are drastically different from the other categories so the performance is better. 
 
 \begin{figure}[ht]
   \centering
   \includegraphics[width=\scale\textwidth]{../img/plot_pr_curve.pdf}
-  \caption{Precision-recall curve for the best performing LinearSVC classifier.}
+  \caption{Precision-recall curve for the best performing LinearSVC using the original data.}
   \label{fig:pr_curve}
 \end{figure}
 

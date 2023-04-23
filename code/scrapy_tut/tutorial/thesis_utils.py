@@ -927,46 +927,6 @@ def plot_probal_test_results(folder_name:str = 'kernel_cos') -> None:
     save_plot_image(plt, f'plot_{folder_name}_test_results')
     plt.close()
 
-def table_category_reduction_lsvc(args, X, y, data_name:str):
-    is_remove_groceries = False
-    if is_remove_groceries:
-        data_name = data_name + '_no_groceries'
-    error = []
-    categories = []
-    cat_list = range(20, 60, 10)
-    num_of_categories = []
-    for i in cat_list:
-        df = pd.DataFrame(X)
-        df['y'] = y
-        # filter out the categories by number of samples
-        df = df.groupby('y').filter(lambda x: len(x) > i)
-        # remove the Groceries y category from the df
-        if is_remove_groceries:
-            df = df[df.y != 'Groceries']
-        X_temp = df.iloc[:, :-1]
-        y_temp = df.iloc[:, -1]
-        le = LabelEncoder()
-        y_temp = le.fit_transform(y_temp)
-        X_train, X_test, y_train, y_test = train_test_split(X_temp, y_temp, test_size=0.2, random_state=42, stratify=y_temp)
-        model = LinearSVC(random_state=args.seed, max_iter=10000)
-        vect = tfidf_vectorizer()
-        X_train = X_train[0].to_numpy()
-        X_test = X_test[0].to_numpy()
-        X_train = vect.fit_transform(X_train)
-        X_test = vect.transform(X_test)
-        model.fit(X_train, y_train)
-        y_pred = model.predict(X_test)
-        error.append(1-metrics.accuracy_score(y_test, y_pred))
-        categories.append(le.inverse_transform(list(set(y_train))))
-        num_of_categories.append(len(set(y_train)))
-    
-    # create a table with the error and the cat_list values
-    results = pd.DataFrame({'Category Minimum': cat_list, 'Error': error, 'Categories': categories,'Count': num_of_categories})
-    # output a latex table for results
-    pd.options.display.max_colwidth = 1000
-    results.to_latex(f"{IMG_FILE_PATH}table_{data_name}_data_category_reduction_lscv.tex", index=False, column_format='p{2cm}|p{1.8cm}|p{7.5cm}|p{1.4cm}')
-
-
 def plot_category_reduction_probal(args, folder_name:str = 'text_data_all_category_reduction_test_results'):
     file_path = f'/Users/mitchellborchers/Documents/git/probal/results/{folder_name}'
     file_names = os.listdir(file_path)
@@ -1575,6 +1535,46 @@ def table_variable_importance(args, X:np.ndarray, y:np.ndarray) -> None:
     bottom_df.rename(columns={'importance': 'Importance'}, inplace=True)
     top_df.to_latex(f"{IMG_FILE_PATH}table_top_20_features.tex")
     bottom_df.to_latex(f"{IMG_FILE_PATH}table_bottom_20_features.tex")
+
+
+def table_category_reduction_lsvc(args, X, y, data_name:str):
+    is_remove_groceries = False
+    if is_remove_groceries:
+        data_name = data_name + '_no_groceries'
+    error = []
+    categories = []
+    cat_list = range(20, 60, 10)
+    num_of_categories = []
+    for i in cat_list:
+        df = pd.DataFrame(X)
+        df['y'] = y
+        # filter out the categories by number of samples
+        df = df.groupby('y').filter(lambda x: len(x) > i)
+        # remove the Groceries y category from the df
+        if is_remove_groceries:
+            df = df[df.y != 'Groceries']
+        X_temp = df.iloc[:, :-1]
+        y_temp = df.iloc[:, -1]
+        le = LabelEncoder()
+        y_temp = le.fit_transform(y_temp)
+        X_train, X_test, y_train, y_test = train_test_split(X_temp, y_temp, test_size=0.2, random_state=42, stratify=y_temp)
+        model = LinearSVC(random_state=args.seed, max_iter=10000)
+        vect = tfidf_vectorizer()
+        X_train = X_train[0].to_numpy()
+        X_test = X_test[0].to_numpy()
+        X_train = vect.fit_transform(X_train)
+        X_test = vect.transform(X_test)
+        model.fit(X_train, y_train)
+        y_pred = model.predict(X_test)
+        error.append(1-metrics.accuracy_score(y_test, y_pred))
+        categories.append(le.inverse_transform(list(set(y_train))))
+        num_of_categories.append(len(set(y_train)))
+    
+    # create a table with the error and the cat_list values
+    results = pd.DataFrame({'Category Minimum': cat_list, 'LSVC Error': error, 'Categories': categories,'Count': num_of_categories})
+    # output a latex table for results
+    pd.options.display.max_colwidth = 1000
+    results.to_latex(f"{IMG_FILE_PATH}table_{data_name}_data_category_reduction_lscv.tex", index=False, column_format='p{2cm}|p{1.7cm}|p{7.5cm}|p{1.4cm}')
 
 
 def table_fisher_exact(args, X, y, data_name:str) -> None:

@@ -39,7 +39,7 @@
 \contentsline {section}{\numberline {5.1}Classifier Evaluation Revisited}{33}{section.5.1}%
 \contentsline {section}{\numberline {5.2}Active Learning using All Data}{33}{section.5.2}%
 \contentsline {section}{\numberline {5.3}LinearSVC with Text Length Filtering}{35}{section.5.3}%
-\contentsline {section}{\numberline {5.4}Testing with Fewer Categories}{37}{section.5.4}%
+\contentsline {section}{\numberline {5.4}Testing with Fewer Categories}{36}{section.5.4}%
 \contentsline {chapter}{Conclusion}{40}{chapter*.29}%
 \contentsline {chapter}{Bibliography}{42}{chapter*.30}%
 \contentsline {chapter}{List of Figures}{44}{chapter*.31}%
