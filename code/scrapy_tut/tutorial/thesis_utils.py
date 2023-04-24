@@ -678,6 +678,55 @@ def save_plot_image(plot:plt, file_name:str) -> None:
     """
     plt.savefig(f'{IMG_FILE_PATH}{file_name}.pdf')
 
+def plot_pca_analysis(args, data) -> None:
+
+    from sklearn.manifold import TSNE
+    from sklearn.decomposition import PCA
+
+    texts, labels = data_prep_fixed(data, origin_filter=None)
+
+    le = LabelEncoder()
+    labels = le.fit_transform(labels)
+
+    X_train, X_test, y_train, y_test = train_test_split(texts, labels, test_size=0.25, random_state=42, stratify=labels)
+
+    vectorizer = tfidf_vectorizer()
+    X_train = vectorizer.fit_transform(X_train)
+    X_test = vectorizer.transform(X_test)
+
+    # Reshape images to 1D array
+    X_train = X_train.reshape((X_train.shape[0], -1))
+
+    # Reduce dimensionality with t-SNE
+    # X_embedded = TSNE(n_components=3, verbose=1).fit_transform(X_train)
+
+    # Reduce dimensionality with PCA
+    X_train = X_train.toarray()
+    X_embedded = PCA(n_components=3).fit_transform(X_train)
+
+    # Plot data in 3D with color corresponding to label shown in legend
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    # add scatter data in a loop
+    for i in range(len(le.classes_)):
+        # get the index of the label
+        idx = np.where(y_train == i)
+        # get the data of the label
+        x = X_embedded[idx, 0]
+        y = X_embedded[idx, 1]
+        z = X_embedded[idx, 2]
+        if i < 10:
+            ax.scatter(x, y, z, label=le.inverse_transform([i])[0], s=3, )
+        elif i < 20:
+            ax.scatter(x, y, z, label=le.inverse_transform([i])[0], s=3, marker='^')
+        else:
+            ax.scatter(x, y, z, label=le.inverse_transform([i])[0], s=3, marker='s')
+        
+    # add legend
+    ax.legend(loc='center left', bbox_to_anchor=(1.1, 0.5))
+    # save plot
+    plt.savefig(f"{IMG_FILE_PATH}plot_text_data_all_pca_analysis.pdf", bbox_inches='tight')
+
 
 def plot_confusion_matrix(y_labels, pred, test_target, name:str) -> None:
     """
@@ -840,7 +889,7 @@ def plot_all_results_individual(folder_name:str = 'kernel_rbf') -> None:
             save_plot_image(plt, name)
             plt.close()
 
-def plot_all_results_from_probal(folder_name:str = 'kernel_rbf') -> None:
+def plot_all_results_from_probal(folder_name:str = 'kernel_cos') -> None:
     """
     Plots all TEST and TRAIN data from the probal results folder into one figure based on the KERNEL.
 
@@ -850,7 +899,8 @@ def plot_all_results_from_probal(folder_name:str = 'kernel_rbf') -> None:
     file_names = [s for s in file_names if not s.startswith('.')]
     count = 2
     
-    kernel_name = ['rbf', 'cosine']
+    kernel_name = 'cosine'
+    assert kernel_name in ['rbf', 'cosine']
     rbf = []
     cosine = []
     for s in file_names:
@@ -861,39 +911,38 @@ def plot_all_results_from_probal(folder_name:str = 'kernel_rbf') -> None:
     
     rbf = sorted(rbf)
     cosine = sorted(cosine)
+    
+    kernel = rbf if kernel_name == 'rbf' else cosine
 
-    kernels = [rbf, cosine]
-    for n, k in zip(kernel_name, kernels):
-        # create figure with four subplots
-        fig, axs = plt.subplots(count, count)
-        i=0
-        for file_name, ax in zip(k, axs.flatten()):
-            if not file_name.endswith('.csv'): 
-                continue
-            loc = os.path.join(file_path, file_name)
-            pattern = r'data_([a-zA-Z0-9]+)[\-_]'
-            plt_title = re.findall(pattern, file_name)[0]
+    fig, axs = plt.subplots(count, count)
+    i=0
+    for file_name, ax in zip(kernel, axs.flatten()):
+        if not file_name.endswith('.csv'): 
+            continue
+        loc = os.path.join(file_path, file_name)
+        pattern = r'original_([a-zA-Z0-9]+)[\-_]' # may need to change this depending on folder
+        plt_title = re.findall(pattern, file_name)[0]
 
-            with open(loc, 'r', ) as f:
-                data = pd.read_csv(f)
-                ax.plot(data['train-error'], label='Train Error')
-                ax.plot(data['test-error'], label='Test Error')
-                if i ==0: 
-                    ax.legend()
-                if i==0 or i==2: 
-                    ax.set_ylabel('Error')
-                if i==2 or i==3: 
-                    ax.set_xlabel('Budget')
-                ax.set_ylim([0, 1.1])
-                ax.set_title(plt_title)
-                ax.grid(which='both', linewidth=0.3)
-                i+=1
+        with open(loc, 'r', ) as f:
+            data = pd.read_csv(f)
+            ax.plot(data['train-error'], label='Train Error')
+            ax.plot(data['test-error'], label='Test Error')
+            if i ==0: 
+                ax.legend()
+            if i==0 or i==2: 
+                ax.set_ylabel('Error')
+            if i==2 or i==3: 
+                ax.set_xlabel('Budget')
+            ax.set_ylim([0, 1.1])
+            ax.set_title(plt_title)
+            ax.grid(which='both', linewidth=0.3)
+            i+=1
 
-        fig.tight_layout()
-        save_plot_image(plt, f'plot_all_results_{n}')
-        plt.close()
+    fig.tight_layout()
+    save_plot_image(plt, f'plot_all_results_{kernel_name}_original_data')
+    plt.close()
 
-def plot_probal_test_results(folder_name:str = 'kernel_cos') -> None:
+def plot_probal_test_results(folder_name:str = 'text_data_original_compare_stratagies') -> None:
     """
     Plots all TEST data from the probal results folder into one figure (this is plotting just the single runs).
     
@@ -902,7 +951,7 @@ def plot_probal_test_results(folder_name:str = 'kernel_cos') -> None:
     file_names = os.listdir(file_path)
     file_names = [s for s in file_names if not s.startswith('.')]
     file_names = sorted(file_names)
-    pattern = r"data_(.*?)_0"
+    pattern = r"original_(.*?)_0" # may need to modify this depending on folder
 
     fig, ax = plt.subplots()
     for file_name in file_names:
@@ -1250,10 +1299,10 @@ def plot_probal_selection_dist(folder_name:str) -> None:
                 'House And Garden', 'Investments', 'Pets' ,'Professional Services',
                 'Shopping Online', 'Sport', 'Travel']
     # filtered run with str len > 50
-    xpal_df = pd.read_csv(f'{RESULTS_FILE_PATH}{folder_name}/samples_text_data_all_xpal_0.25_cosine_mean_300_7.csv')
-    xpal_original_df = pd.read_csv(f'{RESULTS_FILE_PATH}text_data_original_proper_vectorizer_50_st_filter/samples_text_data_original_xpal_0.25_cosine_mean_300_655007.csv')
-    # xpal_df = pd.read_csv(f'{RESULTS_FILE_PATH}{folder_name}/samples_text_data_all_xpal_0.25_cosine_mean_300_2007.csv')
-    # xpal_original_df = pd.read_csv(f'{RESULTS_FILE_PATH}text_data_original_proper_vectorizer/samples_text_data_original_xpal_0.25_cosine_mean_300_183007.csv')
+    # xpal_df = pd.read_csv(f'{RESULTS_FILE_PATH}{folder_name}/samples_text_data_all_xpal_0.25_cosine_mean_300_7.csv')
+    # xpal_original_df = pd.read_csv(f'{RESULTS_FILE_PATH}text_data_original_proper_vectorizer_50_st_filter/samples_text_data_original_xpal_0.25_cosine_mean_300_655007.csv')
+    xpal_df = pd.read_csv(f'{RESULTS_FILE_PATH}{folder_name}/samples_text_data_all_xpal_0.25_cosine_mean_300_2007.csv')
+    xpal_original_df = pd.read_csv(f'{RESULTS_FILE_PATH}text_data_original_proper_vectorizer/samples_text_data_original_xpal_0.25_cosine_mean_300_183007.csv')
 
 
     # add a column to the xpal filtered data frame with the label 'xPAL'

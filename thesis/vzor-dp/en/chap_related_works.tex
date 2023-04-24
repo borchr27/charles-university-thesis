@@ -1,0 +1,19 @@
+\chapter{Related Works}
+
+The main paper that influenced our work is called 'E-Commerce Merchant Classification using Website Information' published by \cite{sahid2019ecommerce}. In this paper the authors test different text processing strategies, embeddings, machine learning methods, and scraping methodologies. 
+
+\section{E-commerce Merchant Classification}
+
+The authors explaining the importance of e-commerce and the need for accurate classification of e-commerce merchants for market analysis and risk management in relation to using a payment gateway service. In their case it is important to classify a merchant to see if they are in a high risk category. They then describe the proposed method, which consists of three main stages: data collection, data preprocessing, and merchant classification.
+
+In the collection stage, the authors collect data from e-commerce websites using a web crawler. They extract the html text data from the home page and various sibling pages, depending on the experiment.
+
+In the preprocessing stage, the authors perform several steps to clean and transform the data. They remove missing and redundant features, characters of length 1 or 2 and sequences of numbers. Next, they use TF, TF-IDF, or embedding to create their dataset.
+
+In the merchant classification stage, the authors apply several machine learning algorithms, including Decision Trees, Naive Bayes, k-NN, MLP, Logistic Regression, and Support Vector Machine (SVM) to classify the e-commerce merchants into several categories, such as electronics, flowers, and gambling. They evaluate the performance of each algorithm using several metrics, such as accuracy, precision, recall, and F1 score.
+
+The experimental results show that the proposed method outperforms the baseline method in terms of classification accuracy and other metrics. The SVM algorithm achieves the highest macro averaged F-score of 0.83 indicating that the proposed method is effective in classifying e-commerce merchants based on their website data.
+
+\section{Influence}
+
+The e-commerce paper helped guide us in our work because we used lessons they learned to tailor our approach. For example, we focused on scraping data from just the home page and using TF-IDF instead of exploring other methods. However, we also incorporate active learning which was not used in the e-commerce paper.

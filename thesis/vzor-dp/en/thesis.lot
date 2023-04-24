@@ -2,23 +2,24 @@
 \addvspace {10\p@ }
 \contentsline {table}{\numberline {2.1}{\ignorespaces Variable names and descriptions.\relax }}{12}{table.caption.4}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {3.1}{\ignorespaces This is a faux example of a single data point.\relax }}{16}{table.caption.5}%
-\contentsline {table}{\numberline {3.2}{\ignorespaces This is an example of how the tags use different levels.\relax }}{16}{table.caption.6}%
-\contentsline {table}{\numberline {3.3}{\ignorespaces Raw text collected by scraper and the translated text.\relax }}{18}{table.caption.8}%
-\contentsline {table}{\numberline {3.4}{\ignorespaces Keywords from TF-IDF with chi-squared using all useable data.\relax }}{21}{table.caption.10}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {4.1}{\ignorespaces Test error for three different LinearSVC models using the original data.\relax }}{29}{table.caption.16}%
-\contentsline {table}{\numberline {4.2}{\ignorespaces Test error for best performing classifiers using original data.\relax }}{30}{table.caption.17}%
+\contentsline {table}{\numberline {4.1}{\ignorespaces This is a faux example of a single data point.\relax }}{17}{table.caption.5}%
+\contentsline {table}{\numberline {4.2}{\ignorespaces This is an example of how the tags use different levels.\relax }}{17}{table.caption.6}%
+\contentsline {table}{\numberline {4.3}{\ignorespaces Raw text collected by scraper and the translated text.\relax }}{19}{table.caption.8}%
+\contentsline {table}{\numberline {4.4}{\ignorespaces Keywords from TF-IDF with chi-squared using all useable data.\relax }}{22}{table.caption.10}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {5.1}{\ignorespaces Test errors for best performing classifiers using all data.\relax }}{33}{table.caption.20}%
-\contentsline {table}{\numberline {5.2}{\ignorespaces LinearSVC performance with category reduction on all data, where category minimum is the min number of samples required.\relax }}{39}{table.caption.26}%
-\contentsline {table}{\numberline {5.3}{\ignorespaces Same as previous table but with 'Groceries' category removed.\relax }}{39}{table.caption.27}%
-\contentsline {table}{\numberline {5.4}{\ignorespaces Same as previous table but with 'Food and Drink' category removed.\relax }}{39}{table.caption.28}%
+\contentsline {table}{\numberline {5.1}{\ignorespaces Test error for three different LinearSVC models using the original data.\relax }}{30}{table.caption.16}%
+\contentsline {table}{\numberline {5.2}{\ignorespaces Test error for best performing classifiers using original data.\relax }}{31}{table.caption.17}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {A.1}{\ignorespaces Category counts of data. Orig. = Orig. English + Translated, is the data from the original set that had usable text. Orig. English is a subset of Orig. that was in English. Translated is a subset of Orig. that was not in English. Add. is the newly collected data, translated if needed. All Useable = Orig. English + Translated + Add.\relax }}{46}{table.caption.33}%
-\contentsline {table}{\numberline {A.2}{\ignorespaces Variable importance, top 20 words from the vectorizer and all useable data.\relax }}{47}{table.caption.34}%
-\contentsline {table}{\numberline {A.3}{\ignorespaces Best LinearSVC model classification report using original data.\relax }}{48}{table.caption.35}%
-\contentsline {table}{\numberline {A.4}{\ignorespaces Set of parameters used to test all other Scikit-Learn classifier shown in Figure \ref {fig:explore_classifiers}.\relax }}{49}{table.caption.36}%
-\contentsline {table}{\numberline {A.5}{\ignorespaces Data counts with 50 string character filter minimum.\relax }}{50}{table.caption.37}%
-\contentsline {table}{\numberline {A.6}{\ignorespaces Cosine decay weights for each category.\relax }}{51}{table.caption.38}%
-\contentsline {table}{\numberline {A.7}{\ignorespaces Fisher's exact tests for each category with all useable data.\relax }}{52}{table.caption.39}%
+\contentsline {table}{\numberline {6.1}{\ignorespaces Test errors for best performing classifiers using all data.\relax }}{34}{table.caption.20}%
+\contentsline {table}{\numberline {6.2}{\ignorespaces LinearSVC performance with category reduction on all data, where category minimum is the min number of samples required.\relax }}{40}{table.caption.26}%
+\contentsline {table}{\numberline {6.3}{\ignorespaces Same as previous table but with 'Groceries' category removed.\relax }}{40}{table.caption.27}%
+\contentsline {table}{\numberline {6.4}{\ignorespaces Same as previous table but with 'Food and Drink' category removed.\relax }}{40}{table.caption.28}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {A.1}{\ignorespaces Category counts of data. Orig. = Orig. English + Translated, is the data from the original set that had usable text. Orig. English is a subset of Orig. that was in English. Translated is a subset of Orig. that was not in English. Add. is the newly collected data, translated if needed. All Useable = Orig. English + Translated + Add.\relax }}{47}{table.caption.33}%
+\contentsline {table}{\numberline {A.2}{\ignorespaces Variable importance, top 20 words from the vectorizer and all useable data.\relax }}{48}{table.caption.34}%
+\contentsline {table}{\numberline {A.3}{\ignorespaces Best LinearSVC model classification report using original data.\relax }}{49}{table.caption.35}%
+\contentsline {table}{\numberline {A.4}{\ignorespaces Set of parameters used to test all other Scikit-Learn classifier shown in Figure \ref {fig:explore_classifiers}.\relax }}{50}{table.caption.36}%
+\contentsline {table}{\numberline {A.5}{\ignorespaces Data counts with 50 string character filter minimum.\relax }}{51}{table.caption.37}%
+\contentsline {table}{\numberline {A.6}{\ignorespaces Cosine decay weights for each category.\relax }}{52}{table.caption.38}%
+\contentsline {table}{\numberline {A.7}{\ignorespaces Fisher's exact tests for each category with all useable data.\relax }}{53}{table.caption.39}%

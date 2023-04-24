@@ -17,12 +17,12 @@ In Figure \ref{fig:plot_all_results_rbf} we have the train and test errors for f
 
 \begin{figure}[ht]
   \centering
-  \includegraphics[width=\scale\textwidth]{../img/plot_all_results_rbf.pdf}
-  \caption{Train and test error using different query strategies and RBF kernel for the PWC classifier.}
+  \includegraphics[width=\scale\textwidth]{../img/plot_all_results_rbf_original_data.pdf}
+  \caption{Train and test error using different query strategies and RBF kernel for the PWC classifier using the original data.}
   \label{fig:plot_all_results_rbf}
 \end{figure}
 
-We later realized we made an error while constructing this experiment. While preparing data with the TF-IDF vectorizer we were fitting it using all the data instead of just the training data then transforming the test data. This resulted in the TF-IDF matrix having information about the test data so our error values are inaccurate. This fault was not fixed until the experiments in Section \ref{sec:classifier_evaluation}. However, we re-evaluated and re-ran a portion of the RBF and Cosine kernel experiments and obtained similar results to what was shown in Figures \ref{fig:plot_all_results_rbf} and \ref{fig:plot_all_results_cosine}.
+% FIXED THIS ISSUE We later realized we made an error while constructing this experiment. While preparing data with the TF-IDF vectorizer we were fitting it using all the data instead of just the training data then transforming the test data. This resulted in the TF-IDF matrix having information about the test data so our error values are inaccurate. This fault was not fixed until the experiments in Section \ref{sec:classifier_evaluation}. However, we re-evaluated and re-ran a portion of the RBF and Cosine kernel experiments and obtained similar results to what was shown in Figures \ref{fig:plot_all_results_rbf} and \ref{fig:plot_all_results_cosine}.
 
 \section{PWC, Cosine Kernel, and Active Learning}
 
@@ -37,8 +37,8 @@ where $x_i$ and $x_j$ are the two points in the feature space to compare. We fou
 
 \begin{figure}[ht]
   \centering
-  \includegraphics[width=\scale\textwidth]{../img/plot_all_results_cosine.pdf}
-  \caption{Train and test error using different query strategies and Cosine kernel for the PWC classifier.}
+  \includegraphics[width=\scale\textwidth]{../img/plot_all_results_cosine_original_data.pdf}
+  \caption{Train and test error using different query strategies and Cosine kernel for the PWC classifier using the original data.}
   \label{fig:plot_all_results_cosine}
 \end{figure}
 
@@ -48,8 +48,9 @@ In Figure \ref{fig:plot_all_results_cosine} it seemed that PAL and xPAL were abl
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=\scale\textwidth]{../img/plot_kernel_cos_test_results.pdf}
-    \caption{Comparing test error with one data split using different query strategies and Cosine kernel for the PWC classifier.}
+    \includegraphics[width=\scale\textwidth]{../img/plot_text_data_original_compare_stratagies_test_results.pdf}
+    % plot_kernel_cos_test_results old file with bad vectorizer
+    \caption{Comparing test error with one data split using different query strategies and Cosine kernel for the PWC classifier using the original data.}
     \label{fig:cos_test_results}
 \end{figure}
 
@@ -59,8 +60,9 @@ Figure \ref{fig:cos_test_results} shows that xPAL seems to be performing the bes
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=\scale\textwidth]{../img/plot_kernel_cos_averaged_test_results.pdf}
-    \caption{Comparing test error using different query strategies and Cosine kernel for the PWC classifier with results averaged over ten different data splits.}
+    \includegraphics[width=\scale\textwidth]{../img/plot_text_data_original_proper_vectorizer_test_results.pdf}
+    % plot_kernel_cos_averaged_test_results.pdf old plot with bad vetorizer
+    \caption{Comparing test error using different query strategies and Cosine kernel for the PWC classifier with results averaged over ten different data splits using the original data.}
     \label{fig:cos_avg_test_results}
 \end{figure}
 

@@ -11,13 +11,16 @@ DONE fix sampling strategy plots and distribution plot
 DONE NO Try with LN-LTSM with word embedding
 DONE update the abstract
 DONE add more to conclusion
-DONE add links to repos into thesis
 DONE Fix chi squared using all data
+
+DONE add links to repos into thesis
 DONE Define variable importance in section 3
 DONE Check out mcnemars/fisher test instead of chi squared
 DONE check the plagirism score
 DONE Add fisher exact test to section 3
-
 DONE print and read thru thesis
+DONE wait for experiments to rerun then update plots
+DONE related works
 
 PENDING try to get LSVC to work in probabl repo
+TODO test with active learning ml repo
