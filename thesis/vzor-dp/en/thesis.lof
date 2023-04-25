@@ -14,9 +14,9 @@
 \contentsline {figure}{\numberline {5.7}{\ignorespaces Confusion matrix for the best performing LinearSVC classifier using the original data.\relax }}{33}{figure.caption.19}%
 \addvspace {10\p@ }
 \contentsline {figure}{\numberline {6.1}{\ignorespaces Active learning results using the original data.\relax }}{35}{figure.caption.21}%
-\contentsline {figure}{\numberline {6.2}{\ignorespaces Active learning results using all data.\relax }}{36}{figure.caption.22}%
-\contentsline {figure}{\numberline {6.3}{\ignorespaces Data point selection swarm plot using xPAL.\relax }}{37}{figure.caption.23}%
-\contentsline {figure}{\numberline {6.4}{\ignorespaces Text length experiments data and results.\relax }}{38}{figure.caption.24}%
-\contentsline {figure}{\numberline {6.5}{\ignorespaces PWC with xPAL with category reduction on all data.\relax }}{39}{figure.caption.25}%
+\contentsline {figure}{\numberline {6.2}{\ignorespaces Active learning results using all data.\relax }}{35}{figure.caption.22}%
+\contentsline {figure}{\numberline {6.3}{\ignorespaces Data point selection swarm plot using xPAL.\relax }}{36}{figure.caption.23}%
+\contentsline {figure}{\numberline {6.4}{\ignorespaces Text length experiments data and results.\relax }}{37}{figure.caption.24}%
+\contentsline {figure}{\numberline {6.5}{\ignorespaces PWC with xPAL with category reduction on all data.\relax }}{38}{figure.caption.25}%
 \addvspace {10\p@ }
 \contentsline {figure}{\numberline {A.1}{\ignorespaces Dimensionality reduction with PCA using all data.\relax }}{54}{figure.caption.40}%

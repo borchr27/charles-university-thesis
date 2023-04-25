@@ -12,7 +12,6 @@ DONE NO Try with LN-LTSM with word embedding
 DONE update the abstract
 DONE add more to conclusion
 DONE Fix chi squared using all data
-
 DONE add links to repos into thesis
 DONE Define variable importance in section 3
 DONE Check out mcnemars/fisher test instead of chi squared
@@ -21,6 +20,16 @@ DONE Add fisher exact test to section 3
 DONE print and read thru thesis
 DONE wait for experiments to rerun then update plots
 DONE related works
+DONE fix page 32 where we talk about the vectorizer
+DONE fix min category plot to have num of categories instead of min samples
+DONE check if thesis is PDF/A (all good)
 
 PENDING try to get LSVC to work in probabl repo
-TODO test with active learning ml repo
+PENDING test with active learning ml repo
+DONE print off second copy of official paper for thesis
+DONE email Dateio about thesis
+DONE submit for more file extensions
+
+TODO upload .csv files and results and data to github
+TODO get 2 bound copies and submit on 4th floor by May 9th
+TODO submit elec. on SIS on Tuesday May 2nd code(x2) and pdf thesis

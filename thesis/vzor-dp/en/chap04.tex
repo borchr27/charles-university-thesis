@@ -11,9 +11,7 @@ In our first experiment we used the radial bias function (RBF) kernel which is a
 \label{eq:rbf_kernel}
 \end{equation}
 
-where $\sigma$ is a parameter that controls the smoothness of the kernel and $x_i$ and $x_j$ are the two points in the feature space to compare.
-
-In Figure \ref{fig:plot_all_results_rbf} we have the train and test errors for four different active learning sampling strategies. XPAL appears to perform slightly better than PAL but not significantly better. We weren't satisfied with the testing error which plateaued around 70\%.
+where $\sigma$ is a parameter that controls the smoothness of the kernel and $x_i$ and $x_j$ are the two points in the feature space to compare. In Figure \ref{fig:plot_all_results_rbf} we have the train and test errors for four different active learning sampling strategies. XPAL appears to perform slightly better than PAL but not significantly better. We weren't satisfied with the testing error which plateaued around 70\%.
 
 \begin{figure}[ht]
   \centering
@@ -73,7 +71,7 @@ It is clear in Figure \ref{fig:cos_avg_test_results} that xPAL is performing the
 \section{Classifier Evaluation}
 \label{sec:classifier_evaluation}
 
-We also decided to test out some classifiers from the Scikit-Learn library to compare performances. We used the original data with the proper TF-IDF vectorizer methodologies in all following chapters. It should be noted that cross validation was used here for evaluation but it was not used in the previous sections.
+We also decided to test out some classifiers from the Scikit-Learn library to compare performances. We used the original data with TF-IDF vectorizer methodologies in all following chapters. It should be noted that cross validation was used here for evaluation but it was not used in the previous sections.
 
 The goal of this exploratory phase was to try and decide which classifier to conduct more thorough testing with. As a result, we didn't use GridSearchCV for each classifier at this stage and we mostly used the default parameters and their cross validation scores with all of the original data (i.e. additional data not included). In some cases where using weights was an option for the classifier we included the precomputed Cosine decay weights. A table of the parameters used for each classifier is shown in the Attachments in Table \ref{tab:explore_classifiers_params}.
 

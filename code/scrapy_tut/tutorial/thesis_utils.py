@@ -980,15 +980,18 @@ def plot_category_reduction_probal(args, folder_name:str = 'text_data_all_catego
     file_path = f'/Users/mitchellborchers/Documents/git/probal/results/{folder_name}'
     file_names = os.listdir(file_path)
     file_names = sorted(file_names)
+    # remove files that are not csv
+    file_names = [s for s in file_names if s.endswith('.csv')]
+    print(len(file_names))
 
     pattern = r"data_all_xpal_0.25_cosine_mean_\d+_\d+_cat_fltr_(.*).csv"
-    
+    category_counts = [12, 9, 7, 5]
     fig, ax = plt.subplots()
-    for file_name in file_names:
+    for file_name, cat_counts in zip(file_names, category_counts):
         if not file_name.endswith('.csv'): continue
         match = re.search(pattern, file_name) 
         if match:
-            captured_text = match.group(1)
+            captured_text = match.group(1) + f', Categories: {cat_counts}'
             loc = os.path.join(file_path, file_name)
             with open(loc, 'r') as f:
                 data = pd.read_csv(f)

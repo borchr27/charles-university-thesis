@@ -18,25 +18,25 @@ Its interesting to see that the errors increased across the board but our previo
 
 \section{Active Learning using All Data}
 
-In these experiments we tested all the active learning methods with the corrected TF-IDF vectorizer transformation. Instead of incorrectly vectorizing the data then importing the matrix to be used with \cite{kottke2021toward} probablistic active learning code, we exported the raw text data and then split the text data, fit and transformed the vectorizer to the train data, then transformed the test data and conducted our experiments with the modified code. In Figure \ref{fig:probal_original_proper_vect} we re-ran a previous experiment using just the original data so we could have a more accurate comparison with the results for all the data shown in Figure \ref{fig:probal_all_proper_vect}. In Figures \ref{fig:probal_original_proper_vect_50_st_filter} and \ref{fig:probal_all_proper_vect_50_st_filter} we used an arbitrary text length filter of 50 characters to see how the performance of the selection strategies changed when we removed some of the data. The categorical data splits for the 50 character filter can be found in the Attachments in Table \ref{tab:50_char_filter_data_counts}.
+In these experiments we tested all the active learning methods available in the repository from the paper by \cite{kottke2021toward}. We encoded all available text data using TF-IDF as we had done previously. In Figure \ref{fig:probal_original_proper_vect} we show a previous experiment using just the original data so we could have a more accurate comparison with the results for all the data shown in Figure \ref{fig:probal_all_proper_vect}. In Figures \ref{fig:probal_original_proper_vect_50_st_filter} and \ref{fig:probal_all_proper_vect_50_st_filter} we used an arbitrary text length filter of 50 characters to see how the performance of the selection strategies changed when we removed some of the data. The categorical data splits for the 50 character filter can be found in the Attachments in Table \ref{tab:50_char_filter_data_counts}.
 
 \begin{figure}[ht]
     \centering
     \begin{subfigure}{0.49\textwidth}
         \includegraphics[width=\textwidth]{../img/plot_text_data_original_proper_vectorizer_test_results.pdf}
-        \caption{No text length filter and proper vectorization.}
+        \caption{No text length filter.}
         \label{fig:probal_original_proper_vect}
     \end{subfigure}
     \hfill
     \begin{subfigure}{0.49\textwidth}
         \includegraphics[width=\textwidth]{../img/plot_text_data_original_proper_vectorizer_50_st_filter_test_results.pdf}
-        \caption{Text length data $>50$ and proper vectorization.}
+        \caption{Text length data $>50$.}
         \label{fig:probal_original_proper_vect_50_st_filter}
     \end{subfigure}
     \caption{Active learning results using the original data.}
 \end{figure}
 
-We again used the different active learning methods and PWC with the Cosine kernel to run our experiments. We ran 10 test runs for each method and then averaged the test error of all the runs resulting in a single curve for each sampling strategy. We only used the first 300 data points instead of using the entire budget because we want to reduce the amount of time it takes to run our experiments. As a result, the test error doesn't converge in these plots. With the original data we can see that the xPAL sampling strategy finds the best data early (20-30 budget range) in the sampling process and exploits this to improve the classifier the most. Eventually we see that PAL and QBC have similar performance to xPAL but, ultimately, after 300 samples xPAL is the best performing sampling strategy.
+We again used the different active learning methods and PWC with the Cosine kernel to run our experiments. We ran 10 test runs for each method and then averaged the test error of all the runs resulting in a single curve for each sampling strategy. We only used the first 300 data points instead of using the entire budget because we want to reduce the amount of time it takes to run our experiments. As a result, the test error doesn't converge in these plots. With the original data we can see that the xPAL sampling strategy finds the best data early (20-30 budget range) in the sampling process and exploits this to improve the classifier the most. Eventually we see that PAL and QBC have similar performance to xPAL but, ultimately, after 300 samples xPAL is the best performing sampling strategy. We also want to note that in \ref{fig:probal_original_proper_vect} the results for ALCE are almost entirely hidden behind the random sampling strategy curve. 
 
 Using all the data, we repeated this same experiment. The results are shown in Figure \ref{fig:probal_all_proper_vect}. In both experiments in this section it appeared that the test error for xPAL was converging to around roughly 50\%. But for the second experiment using all the data xPAL was finding and exploiting the best data earlier and for longer in the sampling process. We can see the dominance of xPAL throughout the plot except around the 200 budget range where entropy sampling starts to momentarily perform well.
 
@@ -44,13 +44,13 @@ Using all the data, we repeated this same experiment. The results are shown in F
     \centering
     \begin{subfigure}{0.49\textwidth}
         \includegraphics[width=\textwidth]{../img/plot_text_data_all_proper_vectorizer_test_results.pdf}
-        \caption{No text length filter and proper vectorization.}
+        \caption{No text length filter.}
         \label{fig:probal_all_proper_vect}
     \end{subfigure}
     \hfill
     \begin{subfigure}{0.49\textwidth}
         \includegraphics[width=\textwidth]{../img/plot_text_data_all_proper_vectorizer_50_st_filter_test_results.pdf}
-        \caption{Text length data $>50$ and proper vectorization.}
+        \caption{Text length data $>50$.}
         \label{fig:probal_all_proper_vect_50_st_filter}
     \end{subfigure}
     \caption{Active learning results using all data.}
