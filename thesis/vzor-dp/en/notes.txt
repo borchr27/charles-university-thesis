@@ -30,6 +30,6 @@ DONE print off second copy of official paper for thesis
 DONE email Dateio about thesis
 DONE submit for more file extensions
 
-TODO upload .csv files and results and data to github
-TODO get 2 bound copies and submit on 4th floor by May 9th
-TODO submit elec. on SIS on Tuesday May 2nd code(x2) and pdf thesis
+TODO upload .csv files and results and data to github probal fork
+TODO submit on SIS on Tuesday May 2nd (due 4) code(x2) and pdf thesis
+TODO get 2 bound copies and submit on 4th floor by May 7th (due 9)
