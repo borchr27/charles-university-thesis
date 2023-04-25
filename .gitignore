@@ -5,7 +5,7 @@ __pycache__/
 *.model
 *.zip
 
-/papers/
+papers/
 
 # Mac Extensions
 **/.DS_Store
