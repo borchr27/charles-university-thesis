@@ -23,13 +23,13 @@ In these experiments we tested all the active learning methods available in the 
 \begin{figure}[ht]
     \centering
     \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../img/plot_text_data_original_proper_vectorizer_test_results.pdf}
+        \includegraphics[width=\textwidth]{../img/plot_text_data_original_proper_vectorizer_test_results}
         \caption{No text length filter.}
         \label{fig:probal_original_proper_vect}
     \end{subfigure}
     \hfill
     \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../img/plot_text_data_original_proper_vectorizer_50_st_filter_test_results.pdf}
+        \includegraphics[width=\textwidth]{../img/plot_text_data_original_proper_vectorizer_50_st_filter_test_results}
         \caption{Text length data $>50$.}
         \label{fig:probal_original_proper_vect_50_st_filter}
     \end{subfigure}
@@ -43,13 +43,13 @@ Using all the data, we repeated this same experiment. The results are shown in F
 \begin{figure}[ht]
     \centering
     \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../img/plot_text_data_all_proper_vectorizer_test_results.pdf}
+        \includegraphics[width=\textwidth]{../img/plot_text_data_all_proper_vectorizer_test_results}
         \caption{No text length filter.}
         \label{fig:probal_all_proper_vect}
     \end{subfigure}
     \hfill
     \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../img/plot_text_data_all_proper_vectorizer_50_st_filter_test_results.pdf}
+        \includegraphics[width=\textwidth]{../img/plot_text_data_all_proper_vectorizer_50_st_filter_test_results}
         \caption{Text length data $>50$.}
         \label{fig:probal_all_proper_vect_50_st_filter}
     \end{subfigure}
@@ -62,7 +62,7 @@ We were curious what xPAL was doing when more data was available, so while runni
 
 \begin{figure}[ht]
   \centering
-  \includegraphics[width=\textwidth]{../img/plot_xpal_selection_dist.pdf}
+  \includegraphics[width=\textwidth]{../img/plot_xpal_selection_dist}
   \caption{Data point selection swarm plot using xPAL.}
   \label{fig:xpal_data_selection}
 \end{figure}
@@ -80,13 +80,13 @@ Before conducting the filtering data experiments we can view how the text length
 \begin{figure}[ht]
     \centering
     \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../img/plot_string_length_dist_all_data.pdf}
+        \includegraphics[width=\textwidth]{../img/plot_string_length_dist_all_data}
         \caption{Distribution of text length for all data in 100 bins.}
         \label{fig:string_length_dist}
     \end{subfigure}
     \hfill
     \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../img/plot_data_length_grid_search.pdf}
+        \includegraphics[width=\textwidth]{../img/plot_data_length_grid_search}
         \caption{Test error results for best LinearSVC with varying text length requirements.}
         \label{fig:grid_search_text_length}
     \end{subfigure}
@@ -105,7 +105,7 @@ In this section we will briefly look at the PWC with xPAL and LinearSVC performa
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=\scale\textwidth]{../img/plot_text_data_all_category_reduction_test_results.pdf}
+    \includegraphics[width=\textwidth]{../img/plot_text_data_all_category_reduction_test_results}
     \caption{PWC with xPAL with category reduction on all data.}
     \label{fig:all_data_category_reduction_xpal}
 \end{figure}

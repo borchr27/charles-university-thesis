@@ -24,7 +24,7 @@ Decision-theoretic active learning is a framework that uses the expected perform
 
 \begin{defn}[Dirichlet Distribution]
 \label{def:dirichlet_distribution}
-The Dirichlet distribution is a multivariate generalization of the beta distribution. It is a continuous probability distribution defined on the \(K\)-simplex, \(\Delta_K = \{x \in \mathbb{R}^K: x_i \geq 0, \sum_{i=1}^K x_i = 1\}\). The Dirichlet distribution is parameterized by a vector of positive shape parameters, \(\alpha = (\alpha_1, \alpha_2, \dots, \alpha_K)\). The Dirichlet distribution is defined as:
+The Dirichlet distribution is a multivariate generalization of the beta distribution. It is a continuous probability distribution defined on the \(K\)-simplex, \(\Delta_K = \{x \in \mathbbm{R}^K : x_i \geq 0, \sum_{i=1}^K x_i = 1\}\). The Dirichlet distribution is parameterized by a vector of positive shape parameters, \(\alpha = (\alpha_1, \alpha_2, \dots, \alpha_K)\). The Dirichlet distribution is defined as:
 \[\text{Dir}(\alpha) = \frac{\Gamma(\sum_{i=1}^K \alpha_i)}{\prod_{i=1}^K \Gamma(\alpha_i)}\prod_{i=1}^K x_i^{\alpha_i - 1}\]
 where \(\Gamma\) is the gamma function as defined in Definition \ref{def:beta_prior} and where \(x\) is a random vector.
 \end{defn}

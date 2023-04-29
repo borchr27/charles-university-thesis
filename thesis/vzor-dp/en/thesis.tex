@@ -26,26 +26,29 @@
 % \let\openright=\cleardoublepage
 
 %% Generate PDF/A-2u
-\usepackage[a-2u]{pdfx}
-
-%% Character encoding: usually latin2, cp1250 or utf8:
-% \usepackage[utf8]{inputenc} % turned this off after switching to xelatex in rstudio
+\usepackage[a-2u, mathxmp]{pdfx}
 
 %% Prefer Latin Modern fonts
-% \usepackage{lmodern}
+\usepackage{lmodern}
+
+%% Character encoding: usually latin2, cp1250 or utf8:
+\usepackage[utf8]{inputenc}
 
 %% Further useful packages (included in most LaTeX distributions)
 \usepackage{amsmath}        % extensions for typesetting of math
-\usepackage{amsfonts}       % math fonts
+\usepackage{amssymb}        % math fonts
 \usepackage{amsthm}         % theorems, definitions, etc.
+\usepackage{bbm}
 \usepackage{bbding}         % various symbols (squares, asterisks, scissors, ...)
 \usepackage{bm}             % boldface symbols (\bm)
 \usepackage{graphicx}       % embedding of pictures
 \usepackage{fancyvrb}       % improved verbatim environment
+\usepackage{indentfirst}
 \usepackage{natbib}         % citation style AUTHOR (YEAR), or AUTHOR [NUMBER]
 \usepackage[nottoc]{tocbibind} % makes sure that bibliography and the lists
 			    % of figures/tables are included in the table
 			    % of contents
+\usepackage{icomma} 
 \usepackage{dcolumn}        % improved alignment of table columns
 \usepackage{booktabs}       % improved horizontal lines in tables
 \usepackage{paralist}       % improved enumerate and itemize
@@ -99,7 +102,7 @@ Data and the collection and analysis of data plays an important role in everyday
 
 % 3 to 5 keywords (recommended), each enclosed in curly braces
 \def\Keywords{%
-{active learning} {xPAL} {machine learning} {multi-class} {classification}
+{active learning} {xPAL} {machine learning} {multi-class} {classification} {website classification} {data mining} {web crawler} {web scraper}
 }
 
 %% The hyperref package for clickable links in PDF and also for storing
@@ -107,7 +110,7 @@ Data and the collection and analysis of data plays an important role in everyday
 %% Most settings are pre-set by the pdfx package.
 \hypersetup{unicode}
 \hypersetup{breaklinks=true}
-\newcommand{\scale}{1} % scaler used with imported figures in the thesis
+
 % Definitions of macros (see description inside)
 \include{macros}
 
@@ -208,12 +211,13 @@ Data and the collection and analysis of data plays an important role in everyday
 \label{tab:fishers_exact_original}
 \end{table}
 
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\textwidth]{../img/plot_text_data_all_pca_analysis.pdf}
-\caption{Dimensionality reduction with PCA using all data.}
-\label{fig:3d_pca}
-\end{figure}
+% Could not get this to be PDF/A compliant
+% \begin{figure}[ht]
+% \centering
+% \includegraphics[width=\textwidth]{../img/plot_text_data_all_pca_analysis}
+% \caption{Dimensionality reduction with PCA using all data.}
+% \label{fig:3d_pca}
+% \end{figure}
 
 \openright
 \end{document}

@@ -37,14 +37,14 @@
 \contentsline {chapter}{\numberline {5}Testing with Original Data}{24}{chapter.5}%
 \contentsline {section}{\numberline {5.1}PWC, RBF Kernel, and Active Learning}{24}{section.5.1}%
 \contentsline {section}{\numberline {5.2}PWC, Cosine Kernel, and Active Learning}{25}{section.5.2}%
-\contentsline {section}{\numberline {5.3}Classifier Evaluation}{28}{section.5.3}%
-\contentsline {chapter}{\numberline {6}Testing with All Data}{34}{chapter.6}%
-\contentsline {section}{\numberline {6.1}Classifier Evaluation Revisited}{34}{section.6.1}%
-\contentsline {section}{\numberline {6.2}Active Learning using All Data}{34}{section.6.2}%
-\contentsline {section}{\numberline {6.3}LinearSVC with Text Length Filtering}{37}{section.6.3}%
-\contentsline {section}{\numberline {6.4}Testing with Fewer Categories}{38}{section.6.4}%
-\contentsline {chapter}{Conclusion}{41}{chapter*.29}%
-\contentsline {chapter}{Bibliography}{43}{chapter*.30}%
-\contentsline {chapter}{List of Figures}{45}{chapter*.31}%
-\contentsline {chapter}{List of Tables}{46}{chapter*.32}%
-\contentsline {chapter}{\numberline {A}Attachments}{47}{appendix.A}%
+\contentsline {section}{\numberline {5.3}Classifier Evaluation}{27}{section.5.3}%
+\contentsline {chapter}{\numberline {6}Testing with All Data}{33}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Classifier Evaluation Revisited}{33}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Active Learning using All Data}{33}{section.6.2}%
+\contentsline {section}{\numberline {6.3}LinearSVC with Text Length Filtering}{36}{section.6.3}%
+\contentsline {section}{\numberline {6.4}Testing with Fewer Categories}{37}{section.6.4}%
+\contentsline {chapter}{Conclusion}{40}{chapter*.29}%
+\contentsline {chapter}{Bibliography}{42}{chapter*.30}%
+\contentsline {chapter}{List of Figures}{44}{chapter*.31}%
+\contentsline {chapter}{List of Tables}{45}{chapter*.32}%
+\contentsline {chapter}{\numberline {A}Attachments}{46}{appendix.A}%

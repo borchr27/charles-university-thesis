@@ -15,7 +15,7 @@ where $\sigma$ is a parameter that controls the smoothness of the kernel and $x_
 
 \begin{figure}[ht]
   \centering
-  \includegraphics[width=\scale\textwidth]{../img/plot_all_results_rbf_original_data.pdf}
+  \includegraphics[width=\textwidth]{../img/plot_all_results_rbf_original_data}
   \caption{Train and test error using different query strategies and RBF kernel for the PWC classifier using the original data.}
   \label{fig:plot_all_results_rbf}
 \end{figure}
@@ -35,7 +35,7 @@ where $x_i$ and $x_j$ are the two points in the feature space to compare. We fou
 
 \begin{figure}[ht]
   \centering
-  \includegraphics[width=\scale\textwidth]{../img/plot_all_results_cosine_original_data.pdf}
+  \includegraphics[width=\textwidth]{../img/plot_all_results_cosine_original_data}
   \caption{Train and test error using different query strategies and Cosine kernel for the PWC classifier using the original data.}
   \label{fig:plot_all_results_cosine}
 \end{figure}
@@ -46,7 +46,7 @@ In Figure \ref{fig:plot_all_results_cosine} it seemed that PAL and xPAL were abl
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=\scale\textwidth]{../img/plot_text_data_original_compare_stratagies_test_results.pdf}
+    \includegraphics[width=\textwidth]{../img/plot_text_data_original_compare_stratagies_test_results}
     % plot_kernel_cos_test_results old file with bad vectorizer
     \caption{Comparing test error with one data split using different query strategies and Cosine kernel for the PWC classifier using the original data.}
     \label{fig:cos_test_results}
@@ -58,7 +58,7 @@ Figure \ref{fig:cos_test_results} shows that xPAL seems to be performing the bes
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=\scale\textwidth]{../img/plot_text_data_original_proper_vectorizer_test_results.pdf}
+    \includegraphics[width=\textwidth]{../img/plot_text_data_original_proper_vectorizer_test_results}
     % plot_kernel_cos_averaged_test_results.pdf old plot with bad vetorizer
     \caption{Comparing test error using different query strategies and Cosine kernel for the PWC classifier with results averaged over ten different data splits using the original data.}
     \label{fig:cos_avg_test_results}
@@ -66,7 +66,7 @@ Figure \ref{fig:cos_test_results} shows that xPAL seems to be performing the bes
 
 It is clear in Figure \ref{fig:cos_avg_test_results} that xPAL is performing the best early on (budget from 0-100) in the sample selection process. XPAL selects the data that minimizes the test error and builds the strongest classifier quickly while it takes the other sampling strategies more to get to the same level of performance. Around the 100 budget mark we can see that the other selection strategies catch up to xPAL performance wise. We want to note that for each plot where we averaged query strategies (10 runs/ splits per query strategy) that it took 24 hours on average to run the experiment on a CPU cluster, with PAL taking the longest of any of the sampling strategies.
 
-\clearpage
+\newpage
 
 \section{Classifier Evaluation}
 \label{sec:classifier_evaluation}
@@ -82,7 +82,7 @@ The results for the different classifiers are shown in Figure \ref{fig:explore_c
 
 \begin{figure}[ht]
   \centering
-  \includegraphics[width=\scale\textwidth]{../img/plot_explore_classifiers.pdf}
+  \includegraphics[width=\textwidth]{../img/plot_explore_classifiers}
   \caption{Performance of base classifiers.}
   \label{fig:explore_classifiers}
 \end{figure} 
@@ -183,7 +183,7 @@ The precision-recall curve for the best performing classifier (LinearSVC) is sho
 
 \begin{figure}[ht]
   \centering
-  \includegraphics[width=\scale\textwidth]{../img/plot_pr_curve.pdf}
+  \includegraphics[width=\textwidth]{../img/plot_pr_curve}
   \caption{Precision-recall curve for the best performing LinearSVC using the original data.}
   \label{fig:pr_curve}
 \end{figure}
@@ -192,7 +192,7 @@ The confusion matrix shown in Figure \ref{fig:confusion_matrix} may be a better 
 
 \begin{figure}[ht]
   \centering
-  \includegraphics[width=\scale\textwidth]{../img/plot_cm_LinearSVC_original.pdf}
+  \includegraphics[width=\textwidth]{../img/plot_cm_LinearSVC_original}
   \caption{Confusion matrix for the best performing LinearSVC classifier using the original data.}
   \label{fig:confusion_matrix}
 \end{figure}
