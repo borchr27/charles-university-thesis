@@ -972,6 +972,7 @@ INPUT /usr/local/texlive/2023/texmf-dist/tex/latex/caption/caption3.sty
 INPUT /usr/local/texlive/2023/texmf-dist/tex/latex/caption/caption3.sty
 INPUT /usr/local/texlive/2023/texmf-dist/tex/latex/caption/caption3.sty
 INPUT /usr/local/texlive/2023/texmf-dist/tex/latex/graphics/keyval.sty
+INPUT /usr/local/texlive/2023/texmf-dist/tex/generic/colorprofiles/colorprofiles.sty
 INPUT ./macros.tex
 INPUT ./macros.tex
 INPUT ./macros.tex
