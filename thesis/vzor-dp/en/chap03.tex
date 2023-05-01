@@ -142,7 +142,7 @@ From what we discussed in the previous section, we can see that the 'Culture' ca
 \label{tab:correlated_unigrams_all}
 \end{table}
 
-Realistically, chi-squared may not be the best statistical method to use with our data because we have some categories that have very few samples. As a result, we decided to also explore variable importance.
+Realistically, chi-squared may not be the best statistical method to use with our data because we have some categories that have very few samples. However, we still wanted to also explore variable importance.
 
 \subsection{Variable Importance}
 
@@ -150,7 +150,7 @@ Variable importance analysis is used to identify the most important predictors o
 
 We calculated the variable importance using the RandomForestRegressor from Scikit-Learn and provided a list of the top 20 most important words from the TF-IDF vectorizer. In the context of a random forest regression model, variable importance refers to the relative importance of each input feature used in the model. It is an ensemble machine learning technique that builds multiple decision trees, each using a random subset of the features and samples from the training data. The random forest combines the predictions of all the decision trees to generate the final output. 
 
-The variable importance in a random forest model is based on the Gini impurity.The Gini impurity measures the degree of randomness or impurity in a decision tree node. A low impurity indicates that a node contains mostly one class, while a high impurity indicates that a node contains an equal number of different classes. The Gini importance of a variable is calculated as the sum of the Gini impurity decreases across all the decision trees that used that variable as a split criterion. The higher the Gini importance of a variable, the more it contributes to reducing the overall impurity of the decision tree nodes and hence the model. 
+The variable importance in a random forest model is based on the Gini impurity. The Gini impurity measures the degree of randomness or impurity in a decision tree node. A low impurity indicates that a node contains mostly one class, while a high impurity indicates that a node contains an equal number of different classes. The Gini importance of a variable is calculated as the sum of the Gini impurity decreases across all the decision trees that used that variable as a split criterion. The higher the Gini importance of a variable, the more it contributes to reducing the overall impurity of the decision tree nodes and hence the model. 
 
 The feature\_importances\_ attribute returns an array of values, one for each input feature, that represent the relative importance of the feature in the random forest model, the results for our data can be found in the Attachments in Table \ref{tab:top_20_words}.
 
