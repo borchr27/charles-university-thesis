@@ -11,7 +11,7 @@ DONE fix sampling strategy plots and distribution plot
 DONE NO Try with LN-LTSM with word embedding
 DONE update the abstract
 DONE add more to conclusion
-DONE Fix chi squared using all data
+DONE TODO chi squared using all data
 DONE add links to repos into thesis
 DONE Define variable importance in section 3
 DONE Check out mcnemars/fisher test instead of chi squared
@@ -20,17 +20,35 @@ DONE Add fisher exact test to section 3
 DONE print and read thru thesis
 DONE wait for experiments to rerun then update plots
 DONE related works
-DONE fix page 32 where we talk about the vectorizer
-DONE fix min category plot to have num of categories instead of min samples
+DONE TODO page 32 where we talk about the vectorizer
+DONE TODO min category plot to have num of categories instead of min samples
 DONE check if thesis is PDF/A (all good)
-
-PENDING try to get LSVC to work in probabl repo
-PENDING test with active learning ml repo
 DONE print off second copy of official paper for thesis
 DONE email Dateio about thesis
 DONE submit for more file extensions
 DONE upload .csv files and results and data to github probal fork
 DONE make PDF/A compatible
+PENDING try to get LSVC to work in probabl repo
+PENDING test with active learning ml repo
 
-TODO submit on SIS on Tuesday May 2nd (due 4) code(x2) and pdf thesis
+DONE page 8 section 1.2.3
+DONE page 12 in table why R^x_0?
+DONE equation 2.1 make y small index and check in xpal paper
+DONE add \hbox{.} into equations 2.2 and 2.16
+DONE equation 2.18 we dont number same equation twice
+DONE missing parenthesis in equation 2.20
+DONE parenthesis in TFIDF equations on page 20
+DONE page 38, should say linearly seperable
+DONE isnt to isn't
+DONE 4.1 remove 'either' and TODO sentence
+DONE LOSS in defining xpal, some places its bold some places its not bold
+DONE equation on page 30 line 7 ( (X data size//batch size ∗ numepochs).) and double slash
+DONE add bagging code snippet into appendix
+DONE We weren’t satisfied with the testing error which plateaued around 70%. on page 24 and explain the budget and how it works as labeled training data samples
+DONE remove 'as a result' in section 2.3 and define t(x) in a sentence
+DONE its possible to do incremental learning with svc and talk about it for future work / in conclusion
+DONE check variable importance whether its relative or how its scaled 4.4.2 (should be fine, no scaling)
+DONE define crammer singer, balanced svc isn't in the table, cosine decay weights definition may be wrong (check it) on page 29 (fixed definition and took out crammer singer)
+
+TODO submit on SIS on Tuesday May 2nd (due 4) code(x2) and pdf thesis and abstract
 TODO get 2 bound copies and submit on 4th floor by May 7th (due 9)

@@ -171,7 +171,7 @@ Data and the collection and analysis of data plays an important role in everyday
 
 \begin{table}[ht]
 \centering
-\caption{Variable importance, top 20 words from the vectorizer and all useable data.}
+\caption{Variable importance, top 20 words using all data.}
 \input{../img/table_top_20_features.tex}
 \label{tab:top_20_words}
 \end{table}
@@ -218,6 +218,40 @@ Data and the collection and analysis of data plays an important role in everyday
 % \caption{Dimensionality reduction with PCA using all data.}
 % \label{fig:3d_pca}
 % \end{figure}
+
+\begin{figure}[ht]
+\caption{Bagging classifier setup.}
+\begin{lstlisting}[language=Python,frame=single]
+    intercepts = np.linspace(0.1, 1, 20)
+    c_vals = np.linspace(0.1, 1000, 20)
+    base_classifier = LinearSVC(
+        random_state=args.seed, 
+        max_iter=10000)
+    bagging_classifier = BaggingClassifier(
+        base_estimator=base_classifier, 
+        n_estimators=10, 
+        random_state=args.seed)
+    params = {
+        'base_estimator__random_state': [args.seed],
+        'base_estimator__intercept_scaling': 
+            np.concatenate((intercepts, [1])),
+        'base_estimator__loss': ['hinge',
+            'squared_hinge'],
+        'base_estimator__penalty': ['l2'],
+        'base_estimator__C': 
+            np.concatenate((c_vals, [1])),
+        'base_estimator__multi_class': 
+            ['ovr']
+        }
+    grid_search = GridSearchCV(
+        estimator=bagging_classifier, 
+        param_grid=params, 
+        cv=5,
+        scoring='accuracy',
+        n_jobs=6)
+\end{lstlisting}
+\label{fig:bagging_classifier}
+\end{figure}
 
 \openright
 \end{document}

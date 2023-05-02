@@ -21,7 +21,7 @@ $f^{\mathcal{L}}$           & Classifier that maps input $x$ to label $y$ using 
 \hline
 $\textit{L}$                & Loss\\
 \hline
-$\textit{R}$                & Risk $\textit{R}(f^{\mathcal{L}}) \in \mathbbm{R}_0^x$ \\
+$\textit{R}$                & Risk \\
 \hline
 $\textit{R}_{\mathcal{E}}$  & Empirical risk\\
 \hline
@@ -41,14 +41,14 @@ $\mathcal{E}$               & Set of available labeled and unlabeled data $\{x :
 A kernel based classifier is used in xPAL which determines the similarity of two data points. The kernel function $\textbf{\textit{K}}(x,x')$ is a function that maps two data points to a real number, which is then used to estimate the probability density of the data. The kernel frequency estimate $\textbf{\textit{k}}^{\mathcal{L}}_x$ of an instance $x$ is calculated using the labeled instances $\mathcal{L}$. The y-th element of that C-dimensional vector describes the similarity-weighted number of labels of class $y$.
 
 \begin{equation}
-\textbf{\textit{k}}^{\mathcal{L}}_x,y = \sum_{(x',y') \in \mathcal{L}} \mathbbm{1}_{y=y'} \textbf{\textit{K}}(x,x')
+\textbf{\textit{k}}^{\mathcal{L}}_{x,y} = \sum_{(x',y') \in \mathcal{L}} \mathbbm{1}_{y=y'} \textbf{\textit{K}}(x,x')
 \label{eq:kernel}
 \end{equation}
 
 The Parzen Window Classifier uses the labeled data for training and predicts the most frequent class and was selected by Kottke et al. to use because of its speed and ability to implement different kernels depending on the data (\cite{kottke2021toward}). It was used for all the selection strategies in their experiments. 
 
 \begin{equation}
-f^{\mathcal{L}}(x) = \underset{y \in \mathcal{Y}}{\arg \max} \left( \textbf{\textit{k}}^{\mathcal{L}}_{x,y} \right) \\
+f^{\mathcal{L}}(x) = \underset{y \in \mathcal{Y}}{\arg \max} \left( \textbf{\textit{k}}^{\mathcal{L}}_{x,y} \right)\hbox{.}
 \end{equation}
 
 We will use the PWC classifier for our experiments because that is what is implemented with the active learning strategies, but we will also evaluate other classifiers and compare their performance less active learning.
@@ -58,16 +58,16 @@ We will use the PWC classifier for our experiments because that is what is imple
 For xPAL, Kottke et al. use the classification error as the performance measure and minimize the zero-one loss. The risk describes the expected value of the loss relative to the joint distribution given some classifier. The zero-one loss returns 0 if the prediction from the classifier is equal to the true class else it returns 1. The risk is a theoretical concept that cannot be computed directly since it requires knowledge of the entire population distribution. Instead, we typically try to approximate the risk using the empirical risk.
 
 \begin{flalign}
-\textit{R}(f^{\mathcal{L}}) &= \underset{p(x,y)}{\mathbbm{E}} [ \textbf{\textit{L}}(y,f^{\mathcal{L}}(x)) ] \\
-&= \underset{p(x)}{\mathbbm{E}} \left[ \underset{p(y|x)}{\mathbbm{E}} [ \textbf{\textit{L}}(y,f^{\mathcal{L}}(x)) ] \right] \\
-\textbf{\textit{L}}(y,f^{\mathcal{L}}(x)) &= \mathbbm{1}_{f^{\mathcal{L}}(x)\neq y} 
+\textit{R}(f^{\mathcal{L}}) &= \underset{p(x,y)}{\mathbbm{E}} [ \textit{L}(y,f^{\mathcal{L}}(x)) ] \\
+&= \underset{p(x)}{\mathbbm{E}} \left[ \underset{p(y|x)}{\mathbbm{E}} [ \textit{L}(y,f^{\mathcal{L}}(x)) ] \right] \\
+\textit{L}(y,f^{\mathcal{L}}(x)) &= \mathbbm{1}_{f^{\mathcal{L}}(x)\neq y} 
 \end{flalign}
 
 Because it is not known how the data is generated Kottke et al. use a Monte-Carlo integration with all available data $\mathcal{E}$ to represent the generator. The empirical risk $\textit{R}_{\mathcal{E}}$ is the average of the loss over all data in the dataset. It refers to the average value of a given loss function over a finite set of observed data points. 
 
 \begin{flalign}
-    \textit{R}_{\mathcal{E}}(f^{\mathcal{L}}) &= \frac{1}{|\mathcal{E}|} \sum_{x \in \mathcal{E}} \underset{p(y|x)}{\mathbbm{E}} \left[ \textbf{\textit{L}}(y,f^{\mathcal{L}}(x)) \right] \\
-    &= \frac{1}{|\mathcal{E}|} \sum_{x \in \mathcal{E}} \sum_{y \in \mathcal{Y}} p(y|x) \textbf{\textit{L}}(y,f^{\mathcal{L}}(x))
+    \textit{R}_{\mathcal{E}}(f^{\mathcal{L}}) &= \frac{1}{|\mathcal{E}|} \sum_{x \in \mathcal{E}} \underset{p(y|x)}{\mathbbm{E}} \left[ \textit{L}(y,f^{\mathcal{L}}(x)) \right] \\
+    &= \frac{1}{|\mathcal{E}|} \sum_{x \in \mathcal{E}} \sum_{y \in \mathcal{Y}} p(y|x) \textit{L}(y,f^{\mathcal{L}}(x))
 \label{eq:empirical_risk}
 \end{flalign}
 
@@ -76,7 +76,7 @@ The empirical risk is a computable quantity that can be used as an estimate of t
 
 \section{Conjugate Prior}
 
-The conditional class probability $p(y|x)$ depends on the ground truth which is unknown. As a result the conditional class probability is exactly the y-th element of the unknown ground truth vector $\textit{\textbf{p}}$. The nearby labels from $\mathcal{L}$ can be used to estimate the ground truth $\textit{\textbf{p}}$ because the oracle provides the labels according to $\textit{\textbf{p}}$. If we assume a smooth distribution then the estimate is relatively close to the ground truth if we have enough labeled instances. 
+The conditional class probability $p(y|x)$ depends on the ground truth which is unknown. The conditional class probability is exactly the $y$-th element of the unknown ground truth vector $\textit{\textbf{p}}$. The ground truth is an unknown but fixed deterministic function $t : \mathbbm{R}^D \rightarrow [0,1]^C$ that maps an instance $x$ to a probability vector $\textit{\textbf{p}}$. The nearby labels from $\mathcal{L}$ can be used to estimate the ground truth $\textit{\textbf{p}}$ because the oracle provides the labels according to $\textit{\textbf{p}}$. If we assume a smooth distribution then the estimate is relatively close to the ground truth if we have enough labeled instances. 
 
 \begin{equation}
 p(y|x) = p(y|t(x)) = p(y|\textit{\textbf{p}}) = \text{Cat} (y|\textit{\textbf{p}}) = p_y
@@ -114,15 +114,15 @@ The last term is the y-th element of the normalized vector. The 1-norm is used t
 Next, we insert equation \ref{eq:cond_class_prob} into the empirical risk equation \ref{eq:empirical_risk}. We are approximating $p(y|x)$ with $p(y|\textbf{\textit{k}}_x^\mathcal{L})$ which is the empirical risk based on the labeled data $\mathcal{L}$.
 
 \begin{equation}
-    \hat{R}_{\mathcal{E}} (f^{\mathcal{L}}, \mathcal{L}) = \frac{1}{|\mathcal{E}|} \sum_{x \in \mathcal{E}} \sum_{y \in \mathcal{Y}}  \frac{\textbf{(\textit{k}}^{\mathcal{L}}_x + \alpha)_y}{||\textbf{\textit{k}}^{\mathcal{L}}_x + \alpha ||_1} \cdot \textit{L} (y,f^{\mathcal{L}}(x))
+    \hat{R}_{\mathcal{E}} (f^{\mathcal{L}}, \mathcal{L}) = \frac{1}{|\mathcal{E}|} \sum_{x \in \mathcal{E}} \sum_{y \in \mathcal{Y}}  \frac{\textbf{(\textit{k}}^{\mathcal{L}}_x + \alpha)_y}{||\textbf{\textit{k}}^{\mathcal{L}}_x + \alpha ||_1} \cdot \textit{L} \left(y,f^{\mathcal{L}}(x)\right)\hbox{.}
 \end{equation}
 
 Now lets assume we add a new labeled candidate $(x_c,y_c)$ to the labeled data set $\mathcal{L}$. We will now denote the set with the newly labeled data point $\mathcal{L}^+ = \mathcal{L} \cup \{(x_c,y_c)\}$. Next we need to determine how much this new data point improved our classifier. We then make an estimate of the gain in terms of risk difference using the probability to estimate the ground truth.
 
 \begin{flalign}
-    \Delta \hat{R}_{\mathcal{E}} (f^{\mathcal{L}^+}, f^{\mathcal{L}}, \mathcal{L}^+) =& \hat{R}_{\mathcal{E}} (f^{\mathcal{L}^+}, \mathcal{L}^+) - \hat{R}_{\mathcal{E}} (f^{\mathcal{L}}, \mathcal{L}^+) \\
-    =& \frac{1}{|\mathcal{E}|} \sum_{x \in \mathcal{E}} \sum_{y \in \mathcal{Y}}  \frac{\textbf{(\textit{k}}^{\mathcal{L}^+}_x + \alpha)_y}{||\textbf{\textit{k}}^{\mathcal{L}^+}_x + \alpha ||_1} \\
-    &\cdot \left( \textit{L} (y,f^{\mathcal{L}^+}(x)) - \textit{L}(y,f^{\mathcal{L}}(x)) \right)
+    \Delta \hat{R}_{\mathcal{E}} (f^{\mathcal{L}^+}, f^{\mathcal{L}}, \mathcal{L}^+) =&\ \hat{R}_{\mathcal{E}} (f^{\mathcal{L}^+}, \mathcal{L}^+) - \hat{R}_{\mathcal{E}} (f^{\mathcal{L}}, \mathcal{L}^+) \\
+    =&\ \frac{1}{|\mathcal{E}|} \sum_{x \in \mathcal{E}} \sum_{y \in \mathcal{Y}}  \frac{\textbf{(\textit{k}}^{\mathcal{L}^+}_x + \alpha)_y}{||\textbf{\textit{k}}^{\mathcal{L}^+}_x + \alpha ||_1} \notag \\
+    &\ \cdot \left( \textit{L} (y,f^{\mathcal{L}^+}(x)) - \textit{L}(y,f^{\mathcal{L}}(x)) \right)
 \label{eq:delta_emp_risk}
 \end{flalign}
 
@@ -133,9 +133,9 @@ The observations used to estimate the risk are the same for both the old and new
 If we are able to reduce the error with the new $\mathcal{L}^+$ model then equation \ref{eq:delta_emp_risk} will be negative. As a result, we negate this term and maximize the expected probabilistic gain. To simplify things we set $\alpha = \beta$.
 
 \begin{flalign}
-    \text{xgain}(x_c, \mathcal{L}, \mathcal{E}) =& \underset{p(y_c|\textbf{\textit{k}}^{\mathcal{L}}_{x_c})}{\mathbbm{E}} \left[ - \Delta \hat{R}_{\mathcal{E}} (f^{\mathcal{L}^+}, f^{\mathcal{L}}, \mathcal{L}^+ \right] \\
+    \text{xgain}(x_c, \mathcal{L}, \mathcal{E}) =& \underset{p(y_c|\textbf{\textit{k}}^{\mathcal{L}}_{x_c})}{\mathbbm{E}} \left[ - \Delta \hat{R}_{\mathcal{E}} \left( f^{\mathcal{L}^+}, f^{\mathcal{L}}, \mathcal{L}^+ \right) \right] \\
     =& - \sum_{y \in \mathcal{Y}}  \frac{\textbf{(\textit{k}}^{\mathcal{L}}_x + \beta)_y}{||\textbf{\textit{k}}^{\mathcal{L}}_x + \beta ||_1} \cdot \frac{1}{|\mathcal{E}|} \sum_{x \in \mathcal{E}} \sum_{y \in \mathcal{Y}} \notag \\
-    & \frac{\textbf{(\textit{k}}^{\mathcal{L}^+}_x + \alpha)_y}{||\textbf{\textit{k}}^{\mathcal{L}^+}_x + \alpha ||_1} \cdot \left( \textbf{\textit{L}} (y,f^{\mathcal{L}^+}(x)) - \textbf{\textit{L}}(y,f^{\mathcal{L}}(x)) \right)
+    & \frac{\textbf{(\textit{k}}^{\mathcal{L}^+}_x + \alpha)_y}{||\textbf{\textit{k}}^{\mathcal{L}^+}_x + \alpha ||_1} \cdot \left( \textit{L} (y,f^{\mathcal{L}^+}(x)) - \textit{L}(y,f^{\mathcal{L}}(x)) \right)
 \end{flalign}
 
 Finally, for the xPAL selection strategy, we simply choose this candidate $x^*_c \in \mathcal{U}$ where the gain is maximized: 

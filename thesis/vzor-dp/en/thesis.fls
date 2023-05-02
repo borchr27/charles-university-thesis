@@ -1272,12 +1272,6 @@ INPUT ../img/table_original_data_lsvc_errors.tex
 INPUT ../img/table_original_data_lsvc_errors.tex
 INPUT ../img/table_original_data_lsvc_errors.tex
 INPUT ../img/table_original_data_lsvc_errors.tex
-INPUT /usr/local/texlive/2023/texmf-dist/tex/latex/lm/ot1lmtt.fd
-INPUT /usr/local/texlive/2023/texmf-dist/tex/latex/lm/ot1lmtt.fd
-INPUT /usr/local/texlive/2023/texmf-dist/tex/latex/lm/ot1lmtt.fd
-INPUT /usr/local/texlive/2023/texmf-dist/tex/latex/lm/ot1lmtt.fd
-INPUT /usr/local/texlive/2023/texmf-dist/fonts/tfm/public/lm/rm-lmtt12.tfm
-INPUT /usr/local/texlive/2023/texmf-dist/fonts/enc/dvips/lm/lm-rmtt.enc
 INPUT ../img/table_original_data_best_errors.tex
 INPUT ../img/table_original_data_best_errors.tex
 INPUT ../img/table_original_data_best_errors.tex
@@ -1366,6 +1360,12 @@ INPUT ./epilog.tex
 INPUT epilog.tex
 INPUT ./epilog.tex
 INPUT epilog.tex
+INPUT /usr/local/texlive/2023/texmf-dist/tex/latex/lm/ot1lmtt.fd
+INPUT /usr/local/texlive/2023/texmf-dist/tex/latex/lm/ot1lmtt.fd
+INPUT /usr/local/texlive/2023/texmf-dist/tex/latex/lm/ot1lmtt.fd
+INPUT /usr/local/texlive/2023/texmf-dist/tex/latex/lm/ot1lmtt.fd
+INPUT /usr/local/texlive/2023/texmf-dist/fonts/tfm/public/lm/rm-lmtt12.tfm
+INPUT /usr/local/texlive/2023/texmf-dist/fonts/enc/dvips/lm/lm-rmtt.enc
 INPUT ./bibliography.tex
 INPUT ./bibliography.tex
 INPUT ./bibliography.tex
@@ -1416,6 +1416,10 @@ INPUT ../img/table_fisher_exact_all.tex
 INPUT ../img/table_fisher_exact_all.tex
 INPUT ../img/table_fisher_exact_all.tex
 INPUT ../img/table_fisher_exact_all.tex
+INPUT /usr/local/texlive/2023/texmf-dist/tex/latex/listings/lstlang1.sty
+INPUT /usr/local/texlive/2023/texmf-dist/tex/latex/listings/lstlang1.sty
+INPUT /usr/local/texlive/2023/texmf-dist/tex/latex/listings/lstlang1.sty
+INPUT /usr/local/texlive/2023/texmf-dist/tex/latex/listings/lstlang1.sty
 INPUT thesis.aux
 INPUT ./title.aux
 INPUT title.aux

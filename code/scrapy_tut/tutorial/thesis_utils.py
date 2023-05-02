@@ -434,8 +434,8 @@ def plot_lsvc_errors(args, X:np.ndarray, y:np.ndarray, data_name:str='all') -> N
     train_X = vectorizer.transform(train_X)
     test_X = vectorizer.transform(test_X)
 
-    model1 = LinearSVC(random_state=args.seed, max_iter=10000, multi_class='crammer_singer').fit(train_X, train_y)
-    model2 = LinearSVC(random_state=args.seed, max_iter=10000).fit(train_X, train_y)
+    model1 = LinearSVC(random_state=args.seed, max_iter=10000, class_weight=None).fit(train_X, train_y)
+    model2 = LinearSVC(random_state=args.seed, max_iter=10000, class_weight='balanced').fit(train_X, train_y)
     model3 = LinearSVC(random_state=args.seed, max_iter=10000, class_weight=weights).fit(train_X, train_y)
 
     weight_array = np.array([weights[i] for i in test_y])
@@ -444,7 +444,7 @@ def plot_lsvc_errors(args, X:np.ndarray, y:np.ndarray, data_name:str='all') -> N
     error3 = 1 - metrics.accuracy_score(test_y, model3.predict(test_X), sample_weight=weight_array)
 
     #create df for errors   
-    errors = pd.DataFrame({'Model': ['Crammer Singer', 'Boilerplate One-vs-rest ', 'Cosine Decay Weights One-vs-rest'], 'Error': [error1, error2, error3]})
+    errors = pd.DataFrame({'Model': ['No Weights', 'Balanced Weights', 'Cosine Decay Weights'], 'Error': [error1, error2, error3]})
     errors = errors.sort_values(by='Error', ascending=True)
     # save as latex table
     errors.to_latex(f'{IMG_FILE_PATH}table_{data_name}_data_lsvc_errors.tex', index=False, float_format="%.3f")

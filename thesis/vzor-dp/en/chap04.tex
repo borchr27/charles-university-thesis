@@ -1,6 +1,6 @@
 \chapter{Testing with Original Data}
 
-Here we will explore the results of different classifiers and active learning strategies on the original data. The original data consists of data discussed previously in Figure \ref{fig:original_english_counts} and shown discretely in the Attachments in Table \ref{tab:data_counts}. The original data was comprised of the original English and translated data but not the additionally collected data. 
+Here we will explore the results of different classifiers and active learning strategies on the original data. The original data consists of data discussed previously in Figure \ref{fig:original_english_counts} and shown discretely in the Attachments in Table \ref{tab:data_counts}. The original data was comprised of the original English and translated data but not the additionally collected data.
 
 \section{PWC, RBF Kernel, and Active Learning}
 
@@ -11,7 +11,9 @@ In our first experiment we used the radial bias function (RBF) kernel which is a
 \label{eq:rbf_kernel}
 \end{equation}
 
-where $\sigma$ is a parameter that controls the smoothness of the kernel and $x_i$ and $x_j$ are the two points in the feature space to compare. In Figure \ref{fig:plot_all_results_rbf} we have the train and test errors for four different active learning sampling strategies. XPAL appears to perform slightly better than PAL but not significantly better. We weren't satisfied with the testing error which plateaued around 70\%.
+where $\sigma$ is a parameter that controls the smoothness of the kernel and $x_i$ and $x_j$ are the two points in the feature space to compare. The budget is the number of available samples we can use to train the classifier, where the active learning method selects the next sample to add to the labeled data. Here, it is set to 612 which is 75\% of the the available samples. The remaining samples are used for calculating the test error. In later experiments we reduce the budget to decrease the evaluation time.
+
+In Figure \ref{fig:plot_all_results_rbf} we have the train and test errors for four different active learning sampling strategies. XPAL appears to find the best examples to reduce the test error the fastest but all sampling strategies appear to plateau around the 50\% error mark.
 
 \begin{figure}[ht]
   \centering
@@ -24,31 +26,31 @@ where $\sigma$ is a parameter that controls the smoothness of the kernel and $x_
 
 \section{PWC, Cosine Kernel, and Active Learning}
 
-In Figure \ref{fig:plot_all_results_cosine} we have the train and test errors for the same four different active learning sampling strategies tested on the same data. The only change was that we used Cosine kernel instead of the RBF kernel.The Cosine kernel is another important kernel function that is used in many machine learning algorithms. It is defined as:
+In Figure \ref{fig:plot_all_results_cosine} we have the train and test errors for the same four different active learning sampling strategies tested on the same data. The only change was that we used cosine kernel instead of the RBF kernel.The cosine kernel is another important kernel function that is used in many machine learning algorithms. It is defined as:
 
 \begin{equation}
     K(x_i, x_j) = \frac{x_i \cdot x_j}{\left\| x_i \right\| \left\| x_j \right\|}
 \label{eq:cosine_kernel}
 \end{equation}
 
-where $x_i$ and $x_j$ are the two points in the feature space to compare. We found that we got better and more responsive results using the Cosine kernel in comparison to the RBF kernel.  
+where $x_i$ and $x_j$ are the two points in the feature space to compare. We found that we got better and more responsive results using the cosine kernel in comparison to the RBF kernel.  
 
 \begin{figure}[ht]
   \centering
   \includegraphics[width=\textwidth]{../img/plot_all_results_cosine_original_data}
-  \caption{Train and test error using different query strategies and Cosine kernel for the PWC classifier using the original data.}
+  \caption{Train and test error using different query strategies and cosine kernel for the PWC classifier using the original data.}
   \label{fig:plot_all_results_cosine}
 \end{figure}
 
 
-In Figure \ref{fig:plot_all_results_cosine} it seemed that PAL and xPAL were able to reduce the training error, early in the training process compared to random selection and QBC. We also tested the other sampling strategies with the Cosine kernel and found that the results were similar. The other sampling strategies and their test data results are shown in Figure \ref{fig:cos_test_results} along with the test data from Figure \ref{fig:plot_all_results_cosine}. 
+In Figure \ref{fig:plot_all_results_cosine} it seemed that PAL and xPAL were able to reduce the training error, early in the training process compared to random selection and QBC. We also tested the other sampling strategies with the cosine kernel and found that the results were similar. The other sampling strategies and their test data results are shown in Figure \ref{fig:cos_test_results} along with the test data from Figure \ref{fig:plot_all_results_cosine}. 
 
 
 \begin{figure}[ht]
     \centering
     \includegraphics[width=\textwidth]{../img/plot_text_data_original_compare_stratagies_test_results}
     % plot_kernel_cos_test_results old file with bad vectorizer
-    \caption{Comparing test error with one data split using different query strategies and Cosine kernel for the PWC classifier using the original data.}
+    \caption{Comparing test error with one data split using different query strategies and cosine kernel for the PWC classifier using the original data.}
     \label{fig:cos_test_results}
 \end{figure}
 
@@ -60,7 +62,7 @@ Figure \ref{fig:cos_test_results} shows that xPAL seems to be performing the bes
     \centering
     \includegraphics[width=\textwidth]{../img/plot_text_data_original_proper_vectorizer_test_results}
     % plot_kernel_cos_averaged_test_results.pdf old plot with bad vetorizer
-    \caption{Comparing test error using different query strategies and Cosine kernel for the PWC classifier with results averaged over ten different data splits using the original data.}
+    \caption{Comparing test error using different query strategies and cosine kernel for the PWC classifier with results averaged over ten different data splits using the original data.}
     \label{fig:cos_avg_test_results}
 \end{figure}
 
@@ -73,7 +75,7 @@ It is clear in Figure \ref{fig:cos_avg_test_results} that xPAL is performing the
 
 We also decided to test out some classifiers from the Scikit-Learn library to compare performances. We used the original data with TF-IDF vectorizer methodologies in all following chapters. It should be noted that cross validation was used here for evaluation but it was not used in the previous sections.
 
-The goal of this exploratory phase was to try and decide which classifier to conduct more thorough testing with. As a result, we didn't use GridSearchCV for each classifier at this stage and we mostly used the default parameters and their cross validation scores with all of the original data (i.e. additional data not included). In some cases where using weights was an option for the classifier we included the precomputed Cosine decay weights. A table of the parameters used for each classifier is shown in the Attachments in Table \ref{tab:explore_classifiers_params}.
+The goal of this exploratory phase was to try and decide which classifier to conduct more thorough testing with. As a result, we didn't use GridSearchCV for each classifier at this stage and we mostly used the default parameters and their cross validation scores with all of the original data (i.e. additional data not included). In some cases where using weights was an option for the classifier we included the precomputed cosine decay weights. A table of the parameters used for each classifier is shown in the Attachments in Table \ref{tab:explore_classifiers_params}.
 
 % THIS HAS BEEN FIXED
 % Initially we made a minor error while evaluating the classifiers that used the precomputed weights in the following experiments. While computing the accuracy scores for the classifiers, we failed to incorporate the class weights that were used in training the classifier. This resulted in the accuracy scores being incorrectly calculated. This error persists throughout the rest of the experiments in this chapter up until the experiments in Section \ref{sec:proper_vectorization}.
@@ -115,16 +117,14 @@ Once the weights are learned, they can be used to make predictions on new exampl
 f(x) = w^T x + b
 \end{equation}
 
-If $f(x)$ is positive, the example is classified as the positive class, and if it is negative, the example is classified as the negative class. We created three different models using LinearSVC, the first was a boilerplate LinearSVC with no argument modifications, the second model used the class weights parameter set to 'balanced'. The 'balanced' mode uses the values of y to automatically adjust weights inversely proportional to class frequencies in the input data as $n\_samples / (n\_classes * np.bincount(y))$. 
-
-For the third test we created a dictionary of weights for each class using the Cosine decay function. The weights for each category ranged from 0.1 to 1.0 where the most frequent classes had smaller weights. The Cosine decay function is defined as:
+If $f(x)$ is positive, the example is classified as the positive class, and if it is negative, the example is classified as the negative class. We created three different models using LinearSVC, the first was a boilerplate LinearSVC with no class weight argument modification. The second model used the class weights parameter set to 'balanced'. The 'balanced' mode uses the values of y to automatically adjust weights inversely proportional to class frequencies in the input data as $n\_samples / (n\_classes * np.bincount(y))$. For the third test we created a dictionary of weights for each class using the cosine decay function. The weights for each category range from 0.1 to 1.0 where the most frequent classes had smaller weights. The cosine decay function is defined as:
 
 \begin{equation}
     w_i = \frac{1}{2} \left(1 + \cos \left(\frac{\pi t}{T}\right)\right)
 \label{eq:cosine_decay}
 \end{equation}
 
-where $w_i$ is the weight for the $i^{th}$ class, $t$ is the current iteration, and $T$ is the total number of iterations. The Cosine decay function is a common function used for weights in machine learning algorithms. The calculated cosine weights are shown in the Attachments in Table \ref{tab:cosine_decay_weights}.
+where $w_i$ is the weight for the $i^{th}$ class, $t$ is the index of the current category in the sorted list, and $T$ is the total number of categories. The categories are counted and sorted in ascending order. The calculated cosine weights are shown in the Attachments in Table \ref{tab:cosine_decay_weights}.
 
 We used the same train test spilt for these experiments and the results for are shown in Table \ref{tab:lsvc_errors}. We also wanted to conduct more testing with KNeighborsClassifier and Neural Networks so created some small experiments to test these classifiers.
 
@@ -137,40 +137,17 @@ We used the same train test spilt for these experiments and the results for are 
 
 Using K-Neighbors Classifier (KNN) and a Neural Network from TensorFlow we conducted additional tests. For the KNN we found that using 8 neighbors and the cosine distance metric yielded the lowest error. 
 
-For the Neural Network we used a dense hidden-layer with 1000 neurons with Sigmoid activation and 23 output neurons with Softmax activation. For the NN optimizer we used Adamax with Cosine decay with an initial learning rate of 0.1, alpha value of 0.1 and 915 decay steps ($X\_data\_size // batch\_size * num_epochs$). The results are shown in Table \ref{tab:best_errors}. We can see that the K-Nearest Neighbors classifier and the Neural Network classifier performed slightly worse compared to LinearSVC.
+For the Neural Network we used a dense hidden-layer with 1000 neurons with Sigmoid activation and 23 output neurons with Softmax activation. For the NN optimizer we used Adamax with cosine decay with an initial learning rate of 0.1, alpha value of 0.1, and 915 decay steps:
 
-The LinearSVC outperformed the other classifiers and we decided to experiment with it further. We attempted to boost performance of the LinearSVC classifier using multiple cross validation grid searches with bagging. Bagging (bootstrap aggregating) is a type of ensemble learning, where multiple models are trained on different subsets of the training data and their predictions are combined to make the final prediction. In Scikit-Learn we used the BaggingClassifier to implement bagging. An example of our setup and parameters are shown in the code snippet. 
+\begin{equation}
+    \text{Decay} = \frac{\text{Number of $X$ Data Samples}}{\text{Batch Size}} \cdot \text{Number of Epochs}
+\end{equation}
 
-\begin{verbatim}
-    intercepts = np.linspace(0.1, 1, 20)
-    c_vals = np.linspace(0.1, 1000, 20)
-    base_classifier = LinearSVC(
-        random_state=args.seed, 
-        max_iter=10000)
-    bagging_classifier = BaggingClassifier(
-        base_estimator=base_classifier, 
-        n_estimators=10, 
-        random_state=args.seed)
-    params = {
-        'base_estimator__random_state': [args.seed],
-        'base_estimator__intercept_scaling': 
-            np.concatenate((intercepts, [1])),
-        'base_estimator__loss': ['hinge', 'squared_hinge'],
-        'base_estimator__penalty': ['l2'],
-        'base_estimator__C': 
-            np.concatenate((c_vals, [1])),
-        'base_estimator__multi_class': 
-            ['ovr', 'crammer_singer']
-        }
-    grid_search = GridSearchCV(
-        estimator=bagging_classifier, 
-        param_grid=params, 
-        cv=5,
-        scoring='accuracy',
-        n_jobs=6)
-\end{verbatim}
+where the division is integer division. The results are shown in Table \ref{tab:best_errors}. We can see that the K-Nearest Neighbors classifier and the Neural Network classifier performed slightly worse compared to LinearSVC.
 
-Performance was not improved from what we had already seen. Using bagging may not be the best approach at this stage because there are some categories that have very few samples so bagging may be unable to create a good model. We also didn't use the balanced class weights parameter because we had already seen that it was the worst performing class weight parameter in previous LinearSVC tests. The BaggingClassifier and GridSearchCV combination didn't improve the performance of the LinearSVC classifier beyond what we had already achieved.
+The LinearSVC outperformed the other classifiers and we decided to experiment with it further. We attempted to boost performance of the LinearSVC classifier using multiple cross validation grid searches with bagging. Bagging (bootstrap aggregating) is a type of ensemble learning, where multiple models are trained on different subsets of the training data and their predictions are combined to make the final prediction. In Scikit-Learn we used the BaggingClassifier to implement bagging. An example of our setup and parameters are shown in the code snippet in the Attachments in Figure \ref{fig:bagging_classifier}.
+
+Performance was not improved from what we had already seen. Using bagging may not be the best approach at this stage because there are some categories that have very few samples so bagging may be unable to create a good model. We also didn't use the class weights parameter because we had already seen that it didn't improve performance. The BaggingClassifier and GridSearchCV combination didn't improve the performance of the LinearSVC classifier beyond what we had already achieved.
 
 \begin{table}[ht]
 \centering

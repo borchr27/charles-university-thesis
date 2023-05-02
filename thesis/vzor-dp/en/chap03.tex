@@ -16,7 +16,7 @@ State Hospital & http://hospital.com/ & Health   & '\{"Clinic"\}' \\ \hline
 \label{tab:data_point}
 \end{table}
 
-The current process consists of giving the merchant url to an annotator. The annotator then views the website and either can instantly (after viewing the homepage) provide a label and tags for the website. However, in some cases the annotator may need to browse further (by viewing sibling pages such as the 'About Us' section or individual product pages) to get an idea of how the website should be labeled. 
+The current process consists of giving the merchant url to an annotator. The annotator then views the website and can instantly (after viewing the homepage) provide a label and tags for the website. However, in some cases the annotator may need to browse further (by viewing sibling pages such as the 'About Us' section or individual product pages) to get an idea of how the website should be labeled. 
 
 The annotator simply needs to view then mentally process the text and images from the website and make some reasonable decisions on how the site should be classified. However, the annotator does not record what the content on the site said or what drove them to make their decision.As a result we are missing a key portion of data for the classification process, the text. 
 
@@ -99,7 +99,7 @@ where:
 
 \begin{flalign*}
     \text{TF} &= \frac{\text{number of occurrences of term $t$ in document}}{\text{total number of terms in document}} \\
-    \text{IDF} &= \log_{e}(\frac{\text{total number of documents}}{\text{number of documents with term $t$ in it}})
+    \text{IDF} &= \log_{e} \left( \frac{\text{total number of documents}}{\text{number of documents with term $t$ in it}}) \right)
 \end{flalign*}
 
 To calculate the TF-IDF score for a given term in a document, we would first calculate the term frequency then calculate the inverse document frequency multiply them to get the TF-IDF score for the term in the document as shown in Equation \ref{eq:tfidf}.

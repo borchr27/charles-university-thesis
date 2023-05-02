@@ -36,8 +36,8 @@
 \contentsline {subsection}{\numberline {4.4.3}Fisher's Exact Test}{23}{subsection.4.4.3}%
 \contentsline {chapter}{\numberline {5}Testing with Original Data}{24}{chapter.5}%
 \contentsline {section}{\numberline {5.1}PWC, RBF Kernel, and Active Learning}{24}{section.5.1}%
-\contentsline {section}{\numberline {5.2}PWC, Cosine Kernel, and Active Learning}{25}{section.5.2}%
-\contentsline {section}{\numberline {5.3}Classifier Evaluation}{27}{section.5.3}%
+\contentsline {section}{\numberline {5.2}PWC, Cosine Kernel, and Active Learning}{24}{section.5.2}%
+\contentsline {section}{\numberline {5.3}Classifier Evaluation}{26}{section.5.3}%
 \contentsline {chapter}{\numberline {6}Testing with All Data}{33}{chapter.6}%
 \contentsline {section}{\numberline {6.1}Classifier Evaluation Revisited}{33}{section.6.1}%
 \contentsline {section}{\numberline {6.2}Active Learning using All Data}{33}{section.6.2}%
